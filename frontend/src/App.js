@@ -2,6 +2,10 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
+
+  fetch('http://localhost:8000/api/hello-world').then(res => {
+    console.log(res.data.message);
+  })
   return (
     <div className="App">
       <header className="App-header">
