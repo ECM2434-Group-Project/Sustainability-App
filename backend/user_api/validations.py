@@ -1,6 +1,11 @@
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from . import models
+
+
 UserModel = get_user_model()
+BagModel = models.BagModel
+VendorModel = models.VendorModel
 
 def custom_validation(data):
     email = data['email'].strip()
@@ -15,6 +20,24 @@ def custom_validation(data):
     ##
     if not username:
         raise ValidationError('choose another username')
+    return data
+
+
+def validate_bag(data):
+    bagId = data['bag_id'].strip()
+    vendorId = data['vendor_id'].strip()
+    time = data['username'].strip()
+    ##
+    if not bagId:
+        raise ValidationError('enter a bag id')
+    ##
+    if not vendorId or not VendorModel.objects.filter(vendor_id=vendorId).exists():
+        # Maybe order of filter is other way round
+        raise ValidationError('choose another password, min 8 characters')
+    ##
+    if not time:
+        # Maybe check that time is later than rn
+        raise ValidationError('enter a valid time')
     return data
 
 

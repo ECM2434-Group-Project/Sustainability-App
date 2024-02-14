@@ -1,8 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
+from . import models
+
+# Returns clean data
 
 UserModel = get_user_model()
+WebsiteUserModel = models.WebsiteUserModel
+VendorModel = models.VendorModel
+BagModel = models.BagModel
+QuestionModel = models.QuestionModel
+LeaderboardModel = models.LeaderboardModel
 
 class UserRegisterSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -26,5 +34,30 @@ class UserLoginSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
+		# Metadata
 		model = UserModel
 		fields = ('email', 'username')
+
+
+class VendorsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = VendorModel
+		fields = ('vendor_id', 'name', 'num_bags', 'location')
+
+
+class BagsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = BagModel
+		fields = ('bag_id', 'vendor_id', 'time')
+
+
+class QuestionsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = QuestionModel
+		fields = ('question_id', 'question', 'answer')
+
+
+class LeaderboardSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = WebsiteUserModel
+		fields = ('user_id', 'fname', 'lname', 'score')
