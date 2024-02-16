@@ -51,7 +51,7 @@ class VendorModel(models.Model):
 		location = models.CharField(max_length=25)
 
 		def __str__(self):
-				return f'vendor_id: {self.vendor_id}, name: {self.name}, num_bags: {self}, location: {self.location}'
+				return f'vendor_id: {self.vendor_id}, name: {self.name}, num_bags: {self.num_bags}, location: {self.location}'
 
 class BagModel(models.Model):
 		bag_id = models.AutoField(primary_key=True)
@@ -59,7 +59,7 @@ class BagModel(models.Model):
 		vendor_id = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
 
 		def __str__(self):
-			return f'id: {self.bag_id}, time: {self}, vendor_id: {self.vendor_id}'
+			return f'id: {self.bag_id}, time: {self.time}, vendor_id: {self.vendor_id}'
 
 class ClaimModel(models.Model):
 	claim_id = models.AutoField(primary_key=True)
@@ -69,7 +69,7 @@ class ClaimModel(models.Model):
 	success = models.BooleanField(default=False)
 
 	def __str__(self):
-		return f'id: {self.claim_id}, bag_id: {self.bag_id}, user_id: {self}, time: {self.time}, success: {self}'
+		return f'id: {self.claim_id}, bag_id: {self.bag_id}, user_id: {self.user_id}, time: {self.time}, success: {self.success}'
 
 class QuestionModel(models.Model):
 	question_id = models.AutoField(primary_key=True)
