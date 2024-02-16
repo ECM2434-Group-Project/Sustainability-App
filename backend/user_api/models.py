@@ -39,7 +39,6 @@ class WebsiteUserModel():
 	user_id = models.OneToOneField(AppUser, on_delete=models.CASCADE)
 	fname = models.CharField(max_length=25)
 	lname = models.CharField(max_length=25)
-	email = models.EmailField(max_length=25)
 	score = models.IntegerField(default=0)
 
 	def __str__(self):
