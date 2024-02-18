@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
-import sqlite3
 
 
 # SessionAuthentication -> Check if they're in valid session
@@ -17,6 +16,7 @@ class UserRegister(APIView):
 		serializer = UserRegisterSerializer(data=clean_data)
 		if serializer.is_valid(raise_exception=True):
 			user = serializer.create(clean_data)
+			# Website user needs to be created here
 			if user:
 				return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -69,8 +69,64 @@ class VendorsView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		serializer = VendorsSerializer(request.data)
-		return Response({'vendors': serializer.data}, status=status.HTTP_200_OK)
+		vendors = VendorModel.objects.all()
+		serializer = VendorsSerializer(vendors, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+	
+	def post(self, request):
+		# Deny creation of a vendor to non-vendor users
+		if not request.user.is_vendor:
+			return Response(status=status.HTTP_403_FORBIDDEN)
+		data = {
+			'name': request.data['name'],
+			'num_bags': request.data['num_bags'],
+			'location': request.data['location']
+		}
+		serializer = VendorsSerializer(data=data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	
+
+class VendorView(APIView):
+	permission_classes = (permissions.IsAuthenticated,)
+	authentication_classes = (SessionAuthentication,)
+
+	def get_object(self, vendor_id):
+		try:
+			return VendorModel.objects.get(vendor_id=vendor_id)
+		except VendorModel.DoesNotExist:
+			raise None
+
+	def get(self, request, vendor_id):
+		vendor = self.get_object(vendor_id)
+		if not vendor:
+			return Response(status=status.HTTP_404_NOT_FOUND)
+		
+		serializer = VendorsSerializer(vendor)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+	
+	
+	def put(self, request, vendor_id):
+
+		# Deny non-vendor users from updating a vendor
+		if not request.user.is_vendor:
+			return Response(status=status.HTTP_403_FORBIDDEN)
+
+		vendor = self.get_object(vendor_id)
+		if not vendor:
+			return Response(status=status.HTTP_404_NOT_FOUND)
+		
+		data = {
+			'num_bags': request.data['num_bags']
+		}
+		
+		serializer = VendorsSerializer(vendor, data=data, partial=True)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_200_OK)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BagsView(APIView):
@@ -97,11 +153,14 @@ class LeaderboardView(APIView):
 		return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
 
 
-class LoginView(APIView):
+class WebsiteUserView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		serializer = UserLoginSerializer(request.data)
-		return Response({'user login': serializer.data}, status=status.HTTP_200_OK)
-
-
+		# Get standard user info
+		serializer = UserSerializer(request.user)
+		# Get website user info
+		website_user = WebsiteUserModel.objects.get(user_id=request.user)
+		website_serializer = WebsiteUserSerializer(website_user)
+		return Response({'user': serializer.data, 'website_user': website_serializer.data}, status=status.HTTP_200_OK)
+		

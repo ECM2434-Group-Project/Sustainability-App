@@ -24,7 +24,7 @@ def custom_validation(data):
 
 
 def validate_bag(data):
-    bagId = data['bag_id'].strip()
+    bagId = data['bag_id']
     vendorId = data['vendor_id'].strip()
     time = data['username'].strip()
     ##

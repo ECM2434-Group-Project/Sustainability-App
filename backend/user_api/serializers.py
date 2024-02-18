@@ -10,7 +10,6 @@ WebsiteUserModel = models.WebsiteUserModel
 VendorModel = models.VendorModel
 BagModel = models.BagModel
 QuestionModel = models.QuestionModel
-LeaderboardModel = models.LeaderboardModel
 
 class UserRegisterSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -25,7 +24,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
 	email = serializers.EmailField()
 	password = serializers.CharField()
-	##
 	def check_user(self, clean_data):
 		user = authenticate(username=clean_data['email'], password=clean_data['password'])
 		if not user:
@@ -34,9 +32,8 @@ class UserLoginSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
-		# Metadata
 		model = UserModel
-		fields = ('email', 'username')
+		fields = ('email', 'username', 'is_vendor')
 
 
 class VendorsSerializer(serializers.ModelSerializer):
@@ -58,6 +55,12 @@ class QuestionsSerializer(serializers.ModelSerializer):
 
 
 class LeaderboardSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = WebsiteUserModel
+		fields = ('user_id', 'fname', 'lname', 'score')
+
+
+class WebsiteUserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = WebsiteUserModel
 		fields = ('user_id', 'fname', 'lname', 'score')

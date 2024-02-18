@@ -28,14 +28,14 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
 	user_id = models.AutoField(primary_key=True)
 	email = models.EmailField(max_length=50, unique=True)
 	username = models.CharField(max_length=50)
-	score = models.IntegerField(default=0)
+	is_vendor = models.BooleanField(default=False)
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = ['username']
 	objects = AppUserManager()
 	def __str__(self):
 		return self.username
 
-class WebsiteUserModel():
+class WebsiteUserModel(models.Model):
 	user_id = models.OneToOneField(AppUser, on_delete=models.CASCADE)
 	fname = models.CharField(max_length=25)
 	lname = models.CharField(max_length=25)
