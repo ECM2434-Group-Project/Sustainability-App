@@ -47,7 +47,6 @@ class WebsiteUserModel():
 class VendorModel(models.Model):
 		vendor_id = models.AutoField(primary_key=True)
 		name = models.CharField(max_length=25)
-		num_bags = models.IntegerField()
 		location = models.CharField(max_length=25)
 
 		def __str__(self):
@@ -74,7 +73,15 @@ class ClaimModel(models.Model):
 class QuestionModel(models.Model):
 	question_id = models.AutoField(primary_key=True)
 	question = models.CharField(max_length=25)
-	answer = models.CharField(max_length=25)
 
 	def __str__(self):
 		return f'question_id: {self.question_id}, question: {self.question}, answer: {self.answer}'
+
+class AnswerModel(models.Model):
+		answer_id = models.AutoField(primary_key=True)
+		answer = models.CharField(max_length=128)
+		is_correct = models.BooleanField(default=False)
+		question_id = models.ForeignKey(QuestionModel, on_delete=models.CASCADE)
+
+		def __str__(self):
+			f'answer_id: {self.answer_id}, answer: {self.answer}, is_correct: {self.is_correct}, question_id: {self.question_id}'

@@ -10,7 +10,7 @@ WebsiteUserModel = models.WebsiteUserModel
 VendorModel = models.VendorModel
 BagModel = models.BagModel
 QuestionModel = models.QuestionModel
-LeaderboardModel = models.LeaderboardModel
+#LeaderboardModel = models.LeaderboardModel
 
 class UserRegisterSerializer(serializers.ModelSerializer):
 	class Meta:
