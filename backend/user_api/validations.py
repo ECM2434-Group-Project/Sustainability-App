@@ -34,9 +34,9 @@ def validate_bag(data):
         # Maybe order of filter is other way round
         raise ValidationError('choose another password, min 8 characters')
     ##
-    if not time:
+    #if not time:
         # Maybe check that time is later than rn
-        raise ValidationError('enter a valid time')
+        #raise ValidationError('enter a valid time')
     return data
 
 

@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from django.contrib.auth import get_user_model, login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
@@ -22,8 +21,6 @@ class UserRegister(APIView):
 			if user:
 				return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 class UserLogin(APIView):
@@ -98,8 +95,6 @@ class VendorView(APIView):
 		
 		serializer = VendorsSerializer(vendor)
 		return Response(serializer.data, status=status.HTTP_200_OK)
-	
-
 
 
 class BagsView(APIView):
@@ -139,17 +134,12 @@ class BagsView(APIView):
 			raise None
 
 
-
-
-
-
-
-
 class QuestionsView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		serializer = QuestionsSerializer(request.data)
+		questions = QuestionModel.objects.all()
+		serializer = QuestionsSerializer(questions, many=True)
 		return Response({'questions': serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -157,7 +147,9 @@ class LeaderboardView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		serializer = LeaderboardSerializer(request.data)
+		leaderboard = WebsiteUserModel.objects.all().order_by('-score')
+		# First idea we can make it nicer later
+		serializer = LeaderboardSerializer(leaderboard, many=True)
 		return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
 
 
