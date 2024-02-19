@@ -28,7 +28,8 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
 	user_id = models.AutoField(primary_key=True)
 	email = models.EmailField(max_length=50, unique=True)
 	username = models.CharField(max_length=50)
-	is_vendor = models.BooleanField(default=False)
+	## nullable field
+	vendor_id = models.IntegerField(null=True)
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = ['username']
 	objects = AppUserManager()
@@ -46,20 +47,20 @@ class WebsiteUserModel(models.Model):
 
 class VendorModel(models.Model):
 		vendor_id = models.AutoField(primary_key=True)
+		description = models.CharField(max_length=255, null=True)
 		name = models.CharField(max_length=25)
-		num_bags = models.IntegerField()
 		location = models.CharField(max_length=25)
 
 		def __str__(self):
-				return f'vendor_id: {self.vendor_id}, name: {self.name}, num_bags: {self}, location: {self.location}'
+				return f'vendor_id: {self.vendor_id}, description: {self.description}, name: {self.name}, location: {self.location}'
 
 class BagModel(models.Model):
 		bag_id = models.AutoField(primary_key=True)
-		time = models.DateTimeField()
+		collection_time = models.DateTimeField()  # collection time
 		vendor_id = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
 
 		def __str__(self):
-			return f'id: {self.bag_id}, time: {self}, vendor_id: {self.vendor_id}'
+			return f'id: {self.bag_id}, collection_time: {self.collection_time}, vendor_id: {self.vendor_id}'
 
 class ClaimModel(models.Model):
 	claim_id = models.AutoField(primary_key=True)

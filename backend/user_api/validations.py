@@ -24,14 +24,13 @@ def custom_validation(data):
 
 
 def validate_bag(data):
-    bagId = data['bag_id']
+
     vendorId = data['vendor_id'].strip()
-    time = data['username'].strip()
+
+
     ##
-    if not bagId:
-        raise ValidationError('enter a bag id')
-    ##
-    if not vendorId or not VendorModel.objects.filter(vendor_id=vendorId).exists():
+
+    if not (vendorId and VendorModel.objects.filter(vendor_id=vendorId).exists()):
         # Maybe order of filter is other way round
         raise ValidationError('choose another password, min 8 characters')
     ##

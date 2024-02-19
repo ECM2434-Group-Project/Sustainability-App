@@ -12,5 +12,4 @@ urlpatterns = [
 	path('questions', views.QuestionsView.as_view(), name='questions'),
 	path('leaderboard', views.LeaderboardView.as_view(), name='leaderboard'),
 	path('submit/<int:id_bag>', views.UserView.as_view(), name='user'),
-	path('newBag', views.NewBagView.as_view(), name='user'),
 ]

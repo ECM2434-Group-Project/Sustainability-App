@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model, login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
@@ -22,16 +24,6 @@ class UserRegister(APIView):
 		return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class NewBagView(APIView):
-	permission_classes = (permissions.AllowAny,)
-	def post(self, request):
-		clean_data = validate_bag(request.data)
-		serializer = BagsSerializer(data=clean_data)
-		if serializer.is_valid(raise_exception=True):
-			bag = serializer.create(clean_data)
-			if bag:
-				return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLogin(APIView):
@@ -79,7 +71,7 @@ class VendorsView(APIView):
 			return Response(status=status.HTTP_403_FORBIDDEN)
 		data = {
 			'name': request.data['name'],
-			'num_bags': request.data['num_bags'],
+			'description' : request.data['description'],
 			'location': request.data['location']
 		}
 		serializer = VendorsSerializer(data=data)
@@ -107,26 +99,7 @@ class VendorView(APIView):
 		serializer = VendorsSerializer(vendor)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 	
-	
-	def put(self, request, vendor_id):
 
-		# Deny non-vendor users from updating a vendor
-		if not request.user.is_vendor:
-			return Response(status=status.HTTP_403_FORBIDDEN)
-
-		vendor = self.get_object(vendor_id)
-		if not vendor:
-			return Response(status=status.HTTP_404_NOT_FOUND)
-		
-		data = {
-			'num_bags': request.data['num_bags']
-		}
-		
-		serializer = VendorsSerializer(vendor, data=data, partial=True)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_200_OK)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BagsView(APIView):
@@ -134,7 +107,41 @@ class BagsView(APIView):
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
 		serializer = BagsSerializer(request.data)
+		print(request.data)
 		return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
+
+
+	def post(self, request):
+		if request.user.vendor_id is None:
+			return Response(status=status.HTTP_403_FORBIDDEN)
+		print(request.data)
+		num_bags = request.data['num_bags']
+		vendor_id = request.user.vendor_id
+		collection_time = request.data['collection_time']
+		collection_time = datetime.strptime(collection_time, '%Y-%m-%d %H:%M:%S')
+		for i in range(num_bags):
+
+			data = {
+				'time': request.data['time'],
+				'vendor_id': vendor_id,
+				'collection_time' : collection_time
+			}
+			## clean_data
+			id = BagsSerializer.create(data)
+			print(id)
+		return Response(status=status.HTTP_201_CREATED)
+
+	def getVendor(self, vendor_id):
+		try:
+			return VendorModel.objects.get(vendor_id=vendor_id)
+		except VendorModel.DoesNotExist:
+			raise None
+
+
+
+
+
+
 
 
 class QuestionsView(APIView):
@@ -163,4 +170,5 @@ class WebsiteUserView(APIView):
 		website_user = WebsiteUserModel.objects.get(user_id=request.user)
 		website_serializer = WebsiteUserSerializer(website_user)
 		return Response({'user': serializer.data, 'website_user': website_serializer.data}, status=status.HTTP_200_OK)
-		
+
+

@@ -39,13 +39,13 @@ class UserSerializer(serializers.ModelSerializer):
 class VendorsSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = VendorModel
-		fields = ('vendor_id', 'name', 'num_bags', 'location')
+		fields = ('vendor_id','description', 'name', 'location')
 
 
 class BagsSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = BagModel
-		fields = ('bag_id', 'vendor_id', 'time')
+		fields = ('bag_id', 'collection_time', 'vendor_id')
 
 
 class QuestionsSerializer(serializers.ModelSerializer):
