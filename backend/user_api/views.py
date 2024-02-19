@@ -67,7 +67,7 @@ class VendorsView(APIView):
 	
 	def post(self, request):
 		# Deny creation of a vendor to non-vendor users
-		if not request.user.is_vendor:
+		if request.user.vendor_id is None:
 			return Response(status=status.HTTP_403_FORBIDDEN)
 		data = {
 			'name': request.data['name'],
@@ -106,8 +106,8 @@ class BagsView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		serializer = BagsSerializer(request.data)
-		print(request.data)
+		bags = BagModel.objects.all()
+		serializer = BagsSerializer(bags, many=True)
 		return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -122,13 +122,14 @@ class BagsView(APIView):
 		for i in range(num_bags):
 
 			data = {
-				'time': request.data['time'],
 				'vendor_id': vendor_id,
 				'collection_time' : collection_time
 			}
 			## clean_data
-			id = BagsSerializer.create(data)
-			print(id)
+			serializer = BagsSerializer(data=data)
+			if serializer.is_valid(raise_exception=True):
+				serializer.save()
+			print(i)
 		return Response(status=status.HTTP_201_CREATED)
 
 	def getVendor(self, vendor_id):
