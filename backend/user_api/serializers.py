@@ -56,7 +56,6 @@ class QuestionsSerializer(serializers.ModelSerializer):
 		model = QuestionModel
 		fields = ('question_id', 'question', 'answer')
 
-
 class LeaderboardSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = WebsiteUserModel
