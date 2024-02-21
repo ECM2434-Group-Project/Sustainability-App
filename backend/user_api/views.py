@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
-
+from .decorators import *
 
 # SessionAuthentication -> Check if they're in valid session
 
@@ -61,7 +61,8 @@ class VendorsView(APIView):
 		vendors = VendorModel.objects.all()
 		serializer = VendorsSerializer(vendors, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
-	
+
+	#  @allowed_users(allowed_roles=['vendors'])
 	def post(self, request):
 		# Deny creation of a vendor to non-vendor users
 		if request.user.vendor_id is None:
@@ -104,7 +105,6 @@ class BagsView(APIView):
 		bags = BagModel.objects.all()
 		serializer = BagsSerializer(bags, many=True)
 		return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
-
 
 	def post(self, request):
 		if request.user.vendor_id is None:
@@ -165,3 +165,20 @@ class WebsiteUserView(APIView):
 		return Response({'user': serializer.data, 'website_user': website_serializer.data}, status=status.HTTP_200_OK)
 
 
+class AnswerView(APIView):
+	permission_classes = (permissions.IsAuthenticated,)
+	authentication_classes = (SessionAuthentication,)
+	def post(self, request):
+		if request.data['question_id'] == request.POST['question_id']:
+
+			#TODO Add role for access to bags
+
+			current_user = request.user.id
+			user = UserModel.objects.get(id=current_user)
+			user.score += 1
+			user.save()
+
+		else:
+			print("Wrong answer")
+			# Deny access to current questions?
+			# What info to send that says we got it wrong

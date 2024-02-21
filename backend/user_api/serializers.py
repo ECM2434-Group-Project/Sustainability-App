@@ -10,6 +10,7 @@ WebsiteUserModel = models.WebsiteUserModel
 VendorModel = models.VendorModel
 BagModel = models.BagModel
 QuestionModel = models.QuestionModel
+AnswerModel = models.AnswerModel
 
 class UserRegisterSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -33,7 +34,8 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
-		fields = ('email', 'username', 'is_vendor')
+		fields = ('email', 'username')
+		# Removed is_vendor but not sure
 
 
 class VendorsSerializer(serializers.ModelSerializer):
@@ -64,3 +66,9 @@ class WebsiteUserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = WebsiteUserModel
 		fields = ('user_id', 'fname', 'lname', 'score')
+
+
+class AnswersSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = AnswerModel
+		fields = ('answer_id', 'answer', 'is_correct', 'question_id')
