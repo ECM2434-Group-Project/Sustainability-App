@@ -5,7 +5,7 @@ from . import models
 
 UserModel = get_user_model()
 BagModel = models.BagModel
-VendorModel = models.VendorModel
+#VendorModel = models.VendorModel
 
 def custom_validation(data):
     email = data['email'].strip()
@@ -31,7 +31,7 @@ def validate_bag(data):
     if not bagId:
         raise ValidationError('enter a bag id')
     ##
-    if not vendorId or not VendorModel.objects.filter(vendor_id=vendorId).exists():
+    if not vendorId or not UserModel.objects.filter(role='VENDOR').exists():
         # Maybe order of filter is other way round
         raise ValidationError('choose another password, min 8 characters')
     ##

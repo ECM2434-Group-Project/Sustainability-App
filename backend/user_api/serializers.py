@@ -6,8 +6,8 @@ from . import models
 # Returns clean data
 
 UserModel = get_user_model()
-WebsiteUserModel = models.WebsiteUserModel
-VendorModel = models.VendorModel
+#WebsiteUserModel = models.WebsiteUserModel
+#VendorModel = models.VendorModel
 BagModel = models.BagModel
 QuestionModel = models.QuestionModel
 #LeaderboardModel = models.LeaderboardModel
@@ -41,8 +41,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class VendorsSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = VendorModel
-		fields = ('vendor_id', 'name', 'num_bags', 'location')
+		model = UserModel
+		fields = ('user_id', 'name', 'role', 'location')
 
 
 class BagsSerializer(serializers.ModelSerializer):
@@ -58,5 +58,5 @@ class QuestionsSerializer(serializers.ModelSerializer):
 
 class LeaderboardSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = WebsiteUserModel
+		model = UserModel
 		fields = ('user_id', 'fname', 'lname', 'score')
