@@ -20,6 +20,7 @@ class UserRegister(APIView):
 		"username": [String],
 		"password": [String],
 		"is_vendor": [Boolean] // Optional (Only for admins)
+	}
 	"""
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = (SessionAuthentication,)
@@ -49,6 +50,24 @@ class UserRegister(APIView):
 
 
 class UserLogin(APIView):
+	'''API for user login:
+	GET:
+	POST:
+	Format:
+	{
+		"username": [String],
+		"password": [String]
+	}
+	or
+	{
+		"email": [String],
+		"password": [String]
+	}
+
+	The user can login with either their username or email, if both are provided the username will be used.
+
+
+	'''
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = (SessionAuthentication,)
 	##
@@ -58,13 +77,23 @@ class UserLogin(APIView):
 		#assert validate_email(data)
 		#assert validate_password(data)
 
-		serializer = UserLoginSerializer(data=data)
 
-		username = data['username']
+
+		if 'username' in data:
+			# if username exists
+			username = data['username']
+			email = UserModel.objects.get(username=username).email
+			data['email'] = email
+		elif 'email' in data:
+			email = data['email']
+			username = UserModel.objects.get(email=email).username
+			data['username'] = username
+		else:
+			return Response({"message":"Username or Email is missing"}, status=status.HTTP_400_BAD_REQUEST)
+
 		password = data['password']
 
-
-
+		serializer = UserLoginSerializer(data=data)
 		if serializer.is_valid(raise_exception=True):
 			user = serializer.get_user(username, password)
 			login(request, user)
@@ -88,6 +117,12 @@ class UserView(APIView):
 
 
 class VendorsView(APIView):
+	'''
+	Post:
+
+
+	Get:
+	'''
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):

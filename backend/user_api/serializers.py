@@ -25,12 +25,14 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class UserLoginSerializer(serializers.Serializer):
 	email = serializers.EmailField()
+	username = serializers.CharField()
 	password = serializers.CharField()
 	def get_user(self, username, password):
 		user = authenticate(username=username, password=password)
 		if not user:
 			raise ValidationError('user not found')
 		return user
+
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
