@@ -7,10 +7,16 @@ UserModel = get_user_model()
 BagModel = models.BagModel
 #VendorModel = models.VendorModel
 
-def custom_validation(data):
+def user_creation_validation(data):
+    print(data)
     email = data['email'].strip()
     username = data['username'].strip()
     password = data['password'].strip()
+    if 'is_vendor' in data:
+        data['role'] = 'VENDOR'
+    else:
+        data['role'] = 'USER'
+
     ##
     if not email or UserModel.objects.filter(email=email).exists():
         raise ValidationError('choose another email')
@@ -20,6 +26,7 @@ def custom_validation(data):
     ##
     if not username:
         raise ValidationError('choose another username')
+
     return data
 
 

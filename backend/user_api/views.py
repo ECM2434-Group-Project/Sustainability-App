@@ -13,13 +13,36 @@ from .decorators import *
 # SessionAuthentication -> Check if they're in valid session
 
 class UserRegister(APIView):
+	"""
+	API endpoint that allows users to be registered. The JSON format is as follows:
+	{
+		"email": [String],
+		"username": [String],
+		"password": [String],
+		"is_vendor": [Boolean] // Optional (Only for admins)
+	"""
 	permission_classes = (permissions.AllowAny,)
+	authentication_classes = (SessionAuthentication,)
 	def post(self, request):
-		clean_data = custom_validation(request.data)
+		userCreating = request.user
+
+
+
+		clean_data = user_creation_validation(request.data)
 		serializer = UserRegisterSerializer(data=clean_data)
 		if serializer.is_valid(raise_exception=True):
 			user = serializer.create(clean_data)
 			# Website user needs to be created here
+			##if userCreating.Role == 'admin':
+			print("Vendor Test:")
+			if userCreating.Role == 'ADMIN':
+				if clean_data['is_vendor']:
+					print("Creating Vendor")
+					user.Role = 'VENDOR'
+					print(f"Creating vendor: {user.email, user.Role}")
+
+
+
 			if user:
 				return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -31,11 +54,19 @@ class UserLogin(APIView):
 	##
 	def post(self, request):
 		data = request.data
-		assert validate_email(data)
-		assert validate_password(data)
+		print(data)
+		#assert validate_email(data)
+		#assert validate_password(data)
+
 		serializer = UserLoginSerializer(data=data)
+
+		username = data['username']
+		password = data['password']
+
+
+
 		if serializer.is_valid(raise_exception=True):
-			user = serializer.check_user(data)
+			user = serializer.get_user(username, password)
 			login(request, user)
 			return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -60,7 +91,7 @@ class VendorsView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		vendors = VendorModel.objects.all()
+		vendors = UserModel.objects.filter(role='VENDOR')
 		serializer = VendorsSerializer(vendors, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 

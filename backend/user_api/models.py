@@ -3,59 +3,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, User, AbstractUser
 
 from django.db.models import Choices
-
-"""class AppUserManager(BaseUserManager):
-	#docstring:Custom manager for AppUser model
-	def create_user(self, email, password=None):
-		#docstring:Create and return a regular user
-		if not email:
-			raise ValueError('An email is required.')
-		if not password:
-			raise ValueError('A password is required.')
-		email = self.normalize_email(email)
-		user = self.model(email=email)
-		user.set_password(password)
-		user.save()
-		return user
-	def create_superuser(self, email, password=None):
-		#docstring: Create and return a superuser
-		if not email:
-			raise ValueError('An email is required.')
-		if not password:
-			raise ValueError('A password is required.')
-		user = self.create_user(email, password)
-		user.is_superuser = True
-		user.save()
-		return user
-
-
-class AppUser(AbstractBaseUser, PermissionsMixin):
-	#docstringCustom user model
-	user_id = models.AutoField(primary_key=True)
-	email = models.EmailField(max_length=50, unique=True)
-	username = models.CharField(max_length=50)
-	## nullable field
-	vendor_id = models.IntegerField(null=True) ## if vendor id is null, then user is not a vendor
-	USERNAME_FIELD = 'email'
-	REQUIRED_FIELDS = ['username']
-	objects = AppUserManager()
-	def __str__(self):
-		#docstring: Return string representation of username
-		return self.username
-
-class WebsiteUserModel(models.Model):
-
-
-	user_id = models.OneToOneField(AppUser, on_delete=models.CASCADE)
-	fname = models.CharField(max_length=25)
-	lname = models.CharField(max_length=25)
-	score = models.IntegerField(default=0)
-
-	def __str__(self):
-		# docstring: Return string representation of WebsiteUserModel
-		return f'id:{self.user_id}, fname: {self.fname}, lname: {self.lname}, email: {self.email}, score: {self.score}'"""
-
-class User(AbstractUser):
+class User(AbstractUser, PermissionsMixin):
 	"""
 	Creates a User model
 
@@ -135,9 +83,21 @@ class Admin(User):
 	Command: python manage.py createsuperuser
 	"""
 
+	base_role = User.Role.ADMIN
+	permission_level = models.IntegerField(default=0)
+
+	class AdminManager(BaseUserManager):
+		def get_queryset(self, *args, **kwargs):
+			results = super().get_queryset(*args, **kwargs)
+			return results.filter(role=User.Role.ADMIN)
+
+	admin = AdminManager()
+
+
 	class Meta:
 		# Flags that Admin is a proxy model of User
-		proxy = True
+		permissions = [
+			]
 
 
 
