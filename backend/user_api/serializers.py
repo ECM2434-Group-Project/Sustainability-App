@@ -10,6 +10,7 @@ UserModel = get_user_model()
 #VendorModel = models.VendorModel
 BagModel = models.BagModel
 QuestionModel = models.QuestionModel
+
 #LeaderboardModel = models.LeaderboardModel
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -25,7 +26,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
 	email = serializers.EmailField()
 	password = serializers.CharField()
-	##
 	def check_user(self, clean_data):
 		user = authenticate(username=clean_data['email'], password=clean_data['password'])
 		if not user:
@@ -34,9 +34,9 @@ class UserLoginSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
-		# Metadata
 		model = UserModel
 		fields = ('email', 'username')
+		# Removed is_vendor but not sure
 
 
 class VendorsSerializer(serializers.ModelSerializer):
@@ -45,10 +45,11 @@ class VendorsSerializer(serializers.ModelSerializer):
 		fields = ('user_id', 'name', 'role', 'location')
 
 
+
 class BagsSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = BagModel
-		fields = ('bag_id', 'vendor_id', 'time')
+		fields = ('bag_id', 'collection_time', 'vendor_id')
 
 
 class QuestionsSerializer(serializers.ModelSerializer):
@@ -60,3 +61,4 @@ class LeaderboardSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
 		fields = ('user_id', 'fname', 'lname', 'score')
+

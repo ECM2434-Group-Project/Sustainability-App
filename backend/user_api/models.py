@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, User, AbstractUser
+
 from django.db.models import Choices
 
 """class AppUserManager(BaseUserManager):
@@ -33,7 +34,8 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
 	user_id = models.AutoField(primary_key=True)
 	email = models.EmailField(max_length=50, unique=True)
 	username = models.CharField(max_length=50)
-	score = models.IntegerField(default=0)
+	## nullable field
+	vendor_id = models.IntegerField(null=True) ## if vendor id is null, then user is not a vendor
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = ['username']
 	objects = AppUserManager()
@@ -42,7 +44,8 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
 		return self.username
 
 class WebsiteUserModel(models.Model):
-	# docstring:Extension of Custom Usermodel for the Website
+
+
 	user_id = models.OneToOneField(AppUser, on_delete=models.CASCADE)
 	fname = models.CharField(max_length=25)
 	lname = models.CharField(max_length=25)
@@ -163,6 +166,7 @@ class BagModel(models.Model):
 		"""Return string representation of the Bags"""
 		return f'id: {self.bag_id}, time: {self.time}, vendor_id: {self.vendor}'
 
+
 class ClaimModel(models.Model):
 	"""Model for the Claims"""
 	claim_id = models.AutoField(primary_key=True)
@@ -174,6 +178,7 @@ class ClaimModel(models.Model):
 	def __str__(self):
 		"""Return string representation of the bags"""
 		return f'id: {self.claim_id}, bag_id: {self.bag}, user_id: {self.user}, time: {self.time}, success: {self.success}'
+
 
 class QuestionModel(models.Model):
 	"""Model for the Qestions"""
@@ -194,3 +199,4 @@ class AnswerModel(models.Model):
 		def __str__(self):
 			"""Return string representation of the answers"""
 			return f'answer_id: {self.answer_id}, answer: {self.answer}, is_correct: {self.is_correct}, question_id: {self.question_id}'
+
