@@ -12,5 +12,5 @@ urlpatterns = [
 	path('questions', views.QuestionsView.as_view(), name='questions'),
 	path('leaderboard', views.LeaderboardView.as_view(), name='leaderboard'),
 	path('submit/<int:id_bag>', views.UserView.as_view(), name='user'),
-	path('answer/<int:question_id>', views.AnswerView.as_view(), name='answer')
+	path('quiz', views.QuizView.as_view(), name='quiz'),
 ]

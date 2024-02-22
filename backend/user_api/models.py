@@ -30,7 +30,7 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
 	email = models.EmailField(max_length=50, unique=True)
 	username = models.CharField(max_length=50)
 	## nullable field
-	vendor_id = models.IntegerField(null=True)
+	vendor_id = models.IntegerField(null=True) ## if vendor id is null, then user is not a vendor
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = ['username']
 	objects = AppUserManager()
@@ -71,7 +71,7 @@ class ClaimModel(models.Model):
 	success = models.BooleanField(default=False)
 
 	def __str__(self):
-		return f'id: {self.claim_id}, bag_id: {self.bag_id}, user_id: {self}, time: {self.time}, success: {self}'
+		return f'id: {self.claim_id}, bag_id: {self.bag_id}, user_id: {self.user_id}, time: {self.time}, success: {self.success}'
 
 class QuestionModel(models.Model):
 	question_id = models.AutoField(primary_key=True)
@@ -80,3 +80,7 @@ class QuestionModel(models.Model):
 
 	def __str__(self):
 		return f'question_id: {self.question_id}, question: {self.question}, answer: {self.answer}'
+
+class AnswerModel(models.Model):
+	def __str__(self):
+		return "NONOO STOP STOP STOP"

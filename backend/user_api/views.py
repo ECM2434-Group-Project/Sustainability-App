@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model, login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+from .models import ClaimModel
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
@@ -165,20 +167,67 @@ class WebsiteUserView(APIView):
 		return Response({'user': serializer.data, 'website_user': website_serializer.data}, status=status.HTTP_200_OK)
 
 
-class AnswerView(APIView):
+class QuizView(APIView):
+	'''JSON format:
+	{
+	\t 	"claim_id": [Int],
+	\t	"q_count": [Int],
+	\t	"questions":
+	\t\t		[{
+	\t\t\t		"question_id": [Int],
+	\t\t\t		"answer": [String]
+	\t\t		},
+	\t\t		{
+	\t\t		question_id: [Int],
+	\t\t		answer: [String]
+	\t\t		}...
+	\t	]
+	}
+
+	Copy paste:
+	{
+		"claim_id": 1,
+		"q_count": 3,
+		"questions":
+			[{
+				"question_id": 1,
+				"answer": "A"
+			},
+			{
+				"question_id": 2,
+				"answer": "B"
+			},
+			{
+				"question_id": 3,
+				"answer": "C"
+			}
+		]
+	}
+'''
+
+
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def post(self, request):
-		if request.data['question_id'] == request.POST['question_id']:
+		claim_id = request.data['claim_id']
+		user = request.user
+		## check that user owns the claim
+		claim = ClaimModel.objects.get(claim_id=claim_id)
+		## check if the claim is already successful
+		if not claim:
+			return Response(status=status.HTTP_400_BAD_REQUEST)
+		print(claim)
+		if claim.user_id != user:
+			print("User does not own the claim")
+			return Response(status=status.HTTP_403_FORBIDDEN)
 
-			#TODO Add role for access to bags
 
-			current_user = request.user.id
-			user = UserModel.objects.get(id=current_user)
-			user.score += 1
-			user.save()
+		questions = []
+		for i in range(request.data['q_count']):
+			print(f"Question: {request.data['questions'][i]['question_id']}, Answer: {request.data['questions'][i]['answer']}")
+			## gets the question and user answer
+			questions.append([QuestionModel.objects.get(question_id=request.data['questions'][i]['question_id']),
+							  request.data['questions'][i]['answer']])
 
-		else:
-			print("Wrong answer")
-			# Deny access to current questions?
-			# What info to send that says we got it wrong
+		print(questions)
+
