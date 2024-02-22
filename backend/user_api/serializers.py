@@ -6,11 +6,12 @@ from . import models
 # Returns clean data
 
 UserModel = get_user_model()
-WebsiteUserModel = models.WebsiteUserModel
-VendorModel = models.VendorModel
+#WebsiteUserModel = models.WebsiteUserModel
+#VendorModel = models.VendorModel
 BagModel = models.BagModel
 QuestionModel = models.QuestionModel
-AnswerModel = models.AnswerModel
+
+#LeaderboardModel = models.LeaderboardModel
 
 class UserRegisterSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -40,8 +41,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 class VendorsSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = VendorModel
-		fields = ('vendor_id','description', 'name', 'location')
+		model = UserModel
+		fields = ('user_id', 'name', 'role', 'location')
+
 
 
 class BagsSerializer(serializers.ModelSerializer):
@@ -55,20 +57,8 @@ class QuestionsSerializer(serializers.ModelSerializer):
 		model = QuestionModel
 		fields = ('question_id', 'question', 'answer')
 
-
 class LeaderboardSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = WebsiteUserModel
+		model = UserModel
 		fields = ('user_id', 'fname', 'lname', 'score')
 
-
-class WebsiteUserSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = WebsiteUserModel
-		fields = ('user_id', 'fname', 'lname', 'score')
-
-
-class AnswersSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = AnswerModel
-		fields = ('answer_id', 'answer', 'is_correct', 'question_id')

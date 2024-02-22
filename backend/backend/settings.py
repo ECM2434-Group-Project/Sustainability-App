@@ -91,7 +91,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'user_api.AppUser'
+AUTH_USER_MODEL = 'user_api.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
