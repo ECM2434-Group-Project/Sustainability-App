@@ -1,8 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
+from . import models
+
+# Returns clean data
 
 UserModel = get_user_model()
+WebsiteUserModel = models.WebsiteUserModel
+VendorModel = models.VendorModel
+BagModel = models.BagModel
+QuestionModel = models.QuestionModel
+AnswerModel = models.AnswerModel
 
 class UserRegisterSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -17,7 +25,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
 	email = serializers.EmailField()
 	password = serializers.CharField()
-	##
 	def check_user(self, clean_data):
 		user = authenticate(username=clean_data['email'], password=clean_data['password'])
 		if not user:
@@ -28,3 +35,40 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
 		fields = ('email', 'username')
+		# Removed is_vendor but not sure
+
+
+class VendorsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = VendorModel
+		fields = ('vendor_id','description', 'name', 'location')
+
+
+class BagsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = BagModel
+		fields = ('bag_id', 'collection_time', 'vendor_id')
+
+
+class QuestionsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = QuestionModel
+		fields = ('question_id', 'question', 'answer')
+
+
+class LeaderboardSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = WebsiteUserModel
+		fields = ('user_id', 'fname', 'lname', 'score')
+
+
+class WebsiteUserSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = WebsiteUserModel
+		fields = ('user_id', 'fname', 'lname', 'score')
+
+
+class AnswersSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = AnswerModel
+		fields = ('answer_id', 'answer', 'is_correct', 'question_id')
