@@ -4,7 +4,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .models import ClaimModel
+from .models import ClaimModel, UserModel, VendorModel, AdminModel
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
@@ -18,8 +18,7 @@ class UserRegister(APIView):
 	{
 		"email": [String],
 		"username": [String],
-		"password": [String],
-		"is_vendor": [Boolean] // Optional (Only for admins)
+		"password": [String]
 	}
 	"""
 	permission_classes = (permissions.AllowAny,)
@@ -28,21 +27,10 @@ class UserRegister(APIView):
 		userCreating = request.user
 
 
-
 		clean_data = user_creation_validation(request.data)
 		serializer = UserRegisterSerializer(data=clean_data)
 		if serializer.is_valid(raise_exception=True):
 			user = serializer.create(clean_data)
-			# Website user needs to be created here
-			##if userCreating.Role == 'admin':
-			print("Vendor Test:")
-			if userCreating.Role == 'ADMIN':
-				if clean_data['is_vendor']:
-					print("Creating Vendor")
-					user.Role = 'VENDOR'
-					print(f"Creating vendor: {user.email, user.Role}")
-
-
 
 			if user:
 				return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -64,16 +52,14 @@ class UserLogin(APIView):
 		"password": [String]
 	}
 
-	The user can login with either their username or email, if both are provided the username will be used.
-
-
+	The user can log in with either their username or email, if both are provided the username will be used.
 	'''
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = (SessionAuthentication,)
 	##
 	def post(self, request):
 		data = request.data
-		print(data)
+
 		#assert validate_email(data)
 		#assert validate_password(data)
 
@@ -92,19 +78,32 @@ class UserLogin(APIView):
 			return Response({"message":"Username or Email is missing"}, status=status.HTTP_400_BAD_REQUEST)
 
 		password = data['password']
-
+		print(data)
 		serializer = UserLoginSerializer(data=data)
+
+		users = UserModel.objects.all()
+		for user in users:
+			print(user)
+
+
+
+
 		if serializer.is_valid(raise_exception=True):
 			user = serializer.get_user(username, password)
 			login(request, user)
+
 			return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserLogout(APIView):
+	'''
+	This API logs out the user. You do not need to provide any data, simply send a POST request to this endpoint.
+	'''
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = ()
 	def post(self, request):
 		logout(request)
+		print("Logging out")
 		return Response(status=status.HTTP_200_OK)
 
 
@@ -112,6 +111,10 @@ class UserView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
+		## if the request has a user
+		if request.user is None:
+			return Response({"message" : "You are not logged in"}, status=status.HTTP_404_NOT_FOUND)
+
 		serializer = UserSerializer(request.user)
 		return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
@@ -127,7 +130,7 @@ class VendorsView(APIView):
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
 		vendors = UserModel.objects.filter(role='VENDOR')
-		serializer = VendorsSerializer(vendors, many=True)
+		serializer = VendorSerializer(vendors, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
 	#  @allowed_users(allowed_roles=['vendors'])
@@ -140,12 +143,12 @@ class VendorsView(APIView):
 			'description' : request.data['description'],
 			'location': request.data['location']
 		}
-		serializer = VendorsSerializer(data=data)
+		serializer = VendorSerializer(data=data)
 		if serializer.is_valid():
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-	
+
 
 class VendorView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
@@ -161,8 +164,8 @@ class VendorView(APIView):
 		vendor = self.get_object(vendor_id)
 		if not vendor:
 			return Response(status=status.HTTP_404_NOT_FOUND)
-		
-		serializer = VendorsSerializer(vendor)
+
+		serializer = VendorSerializer(vendor)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -215,7 +218,7 @@ class LeaderboardView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		leaderboard = WebsiteUserModel.objects.all().order_by('-score')
+		leaderboard = UserModel.objects.all().order_by('-score')
 		# First idea we can make it nicer later
 		serializer = LeaderboardSerializer(leaderboard, many=True)
 		return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
@@ -228,8 +231,8 @@ class WebsiteUserView(APIView):
 		# Get standard user info
 		serializer = UserSerializer(request.user)
 		# Get website user info
-		website_user = WebsiteUserModel.objects.get(user_id=request.user)
-		website_serializer = WebsiteUserSerializer(website_user)
+		website_user = UserModel.objects.get(user_id=request.user)
+		website_serializer = UserSerializer(website_user)
 		return Response({'user': serializer.data, 'website_user': website_serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -297,3 +300,16 @@ class QuizView(APIView):
 
 		print(questions)
 
+
+
+
+class CreateAdmin(APIView):
+	permission_classes = (permissions.AllowAny,)
+	authentication_classes = (SessionAuthentication,)
+	def post(self, request):
+		username = "admin"
+		password = "bob12345"
+		email = "admin@admin.com"
+		user = AdminModel.objects.create_user(username, email, password)
+		user.save()
+		return Response(status=status.HTTP_201_CREATED)

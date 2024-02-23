@@ -13,4 +13,5 @@ urlpatterns = [
 	path('leaderboard', views.LeaderboardView.as_view(), name='leaderboard'),
 	path('submit/<int:id_bag>', views.UserView.as_view(), name='user'),
 	path('quiz', views.QuizView.as_view(), name='quiz'),
+	path('makeadmin', views.CreateAdmin.as_view(), name='makeadmin'),
 ]

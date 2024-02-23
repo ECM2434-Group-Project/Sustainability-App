@@ -6,10 +6,10 @@ from . import models
 # Returns clean data
 
 UserModel = get_user_model()
-#WebsiteUserModel = models.WebsiteUserModel
-#VendorModel = models.VendorModel
 BagModel = models.BagModel
 QuestionModel = models.QuestionModel
+VendorModel = models.VendorModel
+AdminModel = models.AdminModel
 
 #LeaderboardModel = models.LeaderboardModel
 
@@ -37,16 +37,20 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
-		fields = ('email', 'username')
+		fields = ('id', 'username', 'email', 'role', 'password', 'first_name', 'last_name', 'score')
+		extra_kwargs = {'password': {'write_only': True}} ## not iclude password in response, but can still be used in request
 		# Removed is_vendor but not sure
 
 
-class VendorsSerializer(serializers.ModelSerializer):
+class VendorSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = UserModel
-		fields = ('user_id', 'name', 'role', 'location')
+		model = VendorModel
+		fields = ('email','username', 'name', 'role', 'location')
 
-
+class AdminSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = AdminModel
+		fields = ('email', 'username')
 
 class BagsSerializer(serializers.ModelSerializer):
 	class Meta:
