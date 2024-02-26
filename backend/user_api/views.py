@@ -10,6 +10,7 @@ from rest_framework import permissions, status
 from .validations import *
 from .decorators import *
 from .backends import VendorModelBackend, AdminModelBackend
+import datetime
 
 # SessionAuthentication -> Check if they're in valid session
 
@@ -59,7 +60,7 @@ class UserLogin(APIView):
 		if 'email' in data:
 			# if email exists, throws exception if it doesn't
 			email = data['email']
-			assert validate_email(email)
+			assert validate_email(data)
 		else:
 			return Response({"message":"Email is missing", "Data-Sent" : data}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -285,7 +286,6 @@ class QuizView(APIView):
 	}
 '''
 
-
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def post(self, request):
@@ -310,6 +310,33 @@ class QuizView(APIView):
 							  request.data['questions'][i]['answer']])
 
 		print(questions)
+
+class ClaimsView(APIView):
+	permission_classes = (permissions.IsAuthenticated,)
+	authentication_classes = (SessionAuthentication,)
+	def get(self, request):
+		claims = ClaimModel.objects.filter(user_id=request.user)
+		serializer = ClaimsSerializer(claims, many=True)
+		return Response({'claims': serializer.data}, status=status.HTTP_200_OK)
+
+class CreateClaim(APIView):
+	def post(self, request):
+
+		user = UserModel.objects.get(username=request.user.username)
+		bag = BagModel.objects.get(bag_id=0)
+		time = datetime.datetime.now()
+		success = True
+
+		data = {'user': user.id, 'bag': bag.bag_id, 'time': time, 'success': success}
+		print(f"{data} \n")
+
+		serializer = ClaimsSerializer(data=data)
+
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		else:
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
