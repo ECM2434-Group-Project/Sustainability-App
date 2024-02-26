@@ -82,6 +82,11 @@ class AnswerSerializer(serializers.ModelSerializer):
         model = AnswerModel
         fields = ('answer', 'answer_id', 'is_correct', 'question')
 
+class QuizAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnswerModel
+        fields = ('answer', 'answer_id')
+
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
