@@ -9,7 +9,7 @@ from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
 from .decorators import *
-from .backends import VendorModelBackend
+from .backends import VendorModelBackend, AdminModelBackend
 
 # SessionAuthentication -> Check if they're in valid session
 
@@ -44,16 +44,10 @@ class UserLogin(APIView):
 	POST:
 	Format:
 	{
-		"username": [String],
-		"password": [String]
-	}
-	or
-	{
 		"email": [String],
 		"password": [String]
 	}
 
-	The user can log in with either their username or email, if both are provided the username will be used.
 	'''
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = (SessionAuthentication,)
@@ -61,65 +55,55 @@ class UserLogin(APIView):
 	def post(self, request):
 		data = request.data
 
-		#assert validate_email(data)
-		#assert validate_password(data)
 
-		if 'username' in data:
-			# if username exists, throws exception if it doesn't
-			username = data['username']
-			try:
-				user = UserModel.objects.get(username=username)
-			except UserModel.DoesNotExist:
-				user = None
-		elif 'email' in data:
+		if 'email' in data:
 			# if email exists, throws exception if it doesn't
 			email = data['email']
-			try:
-				user = UserModel.objects.get(email=email)
-			except UserModel.DoesNotExist:
-				user = None
+			assert validate_email(email)
 		else:
-			return Response({"message":"Username or Email is missing"}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({"message":"Email is missing", "Data-Sent" : data}, status=status.HTTP_400_BAD_REQUEST)
 
-		# Checks tries to authenticate with the standard user model backend
-		if user:
-			password = data['password']
+		password = data['password']
+
+		## try user account
+		try:
 			serializer = UserLoginSerializer(data=data)
-
 			if serializer.is_valid(raise_exception=True):
+				username = UserModel.objects.get(email=email).username
 				user = serializer.get_user(username, password)
 				login(request, user)
 				return Response(serializer.data, status=status.HTTP_200_OK)
-		# tries to authenticate with the custom vendor model backend
-		else:
-			# If the user is not found in UserModel, try VendorModel
+		except Exception as e:
+			print(e)
+
+		# try vendor account
+		try:
 			vendor_backend = VendorModelBackend()
-			user = vendor_backend.authenticate(request, **data)
+
+			username = UserModel.objects.get(email__exact=email).username
+			user = vendor_backend.authenticate(request,username=username, password=password, **data)
 			if user is not None:
 				login(request, user)
-				return Response({"message": "Logged in successfully"}, status=status.HTTP_200_OK)
+				return Response({"message": "Logged in successfully as vendor"}, status=status.HTTP_200_OK)
+		except Exception as e:
+			print(e)
+
+		## try admin account
+		try:
+			admin_backend = AdminModelBackend()
+
+			username = UserModel.objects.get(email__exact=email).username
+			user = admin_backend.authenticate(request, username=username, password=password, **data)
+			if user is not None:
+				login(request, user)
+				return Response({"message": "Logged in successfully as admin"}, status=status.HTTP_200_OK)
+		except:
+			pass
+
+		return Response({"message":"Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-
-		password = data['password']
-		print(data)
-		serializer = UserLoginSerializer(data=data)
-
-
-
-		users = UserModel.objects.all()
-		for user in users:
-			print(user)
-
-
-
-
-		if serializer.is_valid(raise_exception=True):
-			user = serializer.get_user(username, password)
-			login(request, user)
-
-			return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserLogout(APIView):
@@ -339,4 +323,19 @@ class CreateAdmin(APIView):
 		email = "admin@admin.com"
 		user = AdminModel.objects.create_user(username, email, password)
 		user.save()
-		return Response(status=status.HTTP_201_CREATED)
+		return Response({"data":user}, status=status.HTTP_201_CREATED)
+
+class CreateVendor(APIView):
+	permission_classes = (permissions.AllowAny,)
+	authentication_classes = (SessionAuthentication,)
+	def post(self, request):
+		username = "vendor"
+		password = "bob12345"
+		email = "vendor1@v.com"
+		location = "location"
+		vendor = VendorModel.objects.create_user(username, email, password)
+		vendor.location = location
+		vendor.save()
+		serializer = VendorSerializer(vendor)
+
+		return Response({"data":serializer.data},status=status.HTTP_201_CREATED)
