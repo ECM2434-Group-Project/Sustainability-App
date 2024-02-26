@@ -93,6 +93,11 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'user_api.UserModel'
 
+AUTHENTICATION_BACKENDS = [
+    'user_api.backends.VendorModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',

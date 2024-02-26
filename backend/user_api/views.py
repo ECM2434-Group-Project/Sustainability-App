@@ -9,6 +9,7 @@ from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
 from .decorators import *
+from .backends import VendorModelBackend
 
 # SessionAuthentication -> Check if they're in valid session
 
@@ -63,23 +64,49 @@ class UserLogin(APIView):
 		#assert validate_email(data)
 		#assert validate_password(data)
 
-
-
 		if 'username' in data:
-			# if username exists
+			# if username exists, throws exception if it doesn't
 			username = data['username']
-			email = UserModel.objects.get(username=username).email
-			data['email'] = email
+			try:
+				user = UserModel.objects.get(username=username)
+			except UserModel.DoesNotExist:
+				user = None
 		elif 'email' in data:
+			# if email exists, throws exception if it doesn't
 			email = data['email']
-			username = UserModel.objects.get(email=email).username
-			data['username'] = username
+			try:
+				user = UserModel.objects.get(email=email)
+			except UserModel.DoesNotExist:
+				user = None
 		else:
 			return Response({"message":"Username or Email is missing"}, status=status.HTTP_400_BAD_REQUEST)
+
+		# Checks tries to authenticate with the standard user model backend
+		if user:
+			password = data['password']
+			serializer = UserLoginSerializer(data=data)
+
+			if serializer.is_valid(raise_exception=True):
+				user = serializer.get_user(username, password)
+				login(request, user)
+				return Response(serializer.data, status=status.HTTP_200_OK)
+		# tries to authenticate with the custom vendor model backend
+		else:
+			# If the user is not found in UserModel, try VendorModel
+			vendor_backend = VendorModelBackend()
+			user = vendor_backend.authenticate(request, **data)
+			if user is not None:
+				login(request, user)
+				return Response({"message": "Logged in successfully"}, status=status.HTTP_200_OK)
+
+
+
 
 		password = data['password']
 		print(data)
 		serializer = UserLoginSerializer(data=data)
+
+
 
 		users = UserModel.objects.all()
 		for user in users:
