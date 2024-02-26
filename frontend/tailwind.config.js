@@ -13,6 +13,8 @@ module.exports = {
         exeterDeepGreen: "#007d69",
         exeterBrightGreen: "#00c896",
         exeterHighlightGreen: "#00dca5",
+        exeterBrightRed: "#e60000",
+        exeterLightRed: "#f9423a"
       }
     },
   },

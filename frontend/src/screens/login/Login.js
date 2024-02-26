@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { TextInput } from "../../components/General/TextInput";
 
 export default function Login() {
     // Create a login page that has a form with two fields, one for email and one for password
@@ -30,23 +32,46 @@ export default function Login() {
     }
 
     return (
-        <div>
-            <h1>Login Page</h1>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button type="submit">Login</button>
+        <div className="h-screen flex flex-col justify-center p-4 bg-exeterDeepGreen text-white gap-6">
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-16">
+                <div className="flex flex-col gap-6">
+                    <h1 className="text-2xl font-bold">Login</h1>
+
+                    <TextInput
+                        label={"Your Exeter Email"}
+                        className="rounded-md p-4 py-2 bg-white text-gray-950"
+                        type="email"
+                        placeholder="you@exeter.ac.uk"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <TextInput
+                        label={"Password"}
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+
+
+
+                </div>
+
+                <button
+                    className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold"
+                    type="submit"
+                >Login</button>
             </form>
+
+            <div className="text-center">
+                <small>
+                    <Link to="/register">No Account? <span className="underline">create one</span></Link>
+                </small>
+            </div>
+
+
         </div>
     );
 }

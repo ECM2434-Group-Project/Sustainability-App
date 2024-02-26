@@ -1,6 +1,6 @@
 export function StandoutButton({ children, ...props }) {
     return (
-        <button className="bg-exeterBrightGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold" {...props}>
+        <button className="bg-exeterBrightGreen bg-gradient-to-r from-exeterDeepGreen via-exeterBrightGreen to-exeterHighlightGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold" {...props}>
             {children}
         </button>
     )
