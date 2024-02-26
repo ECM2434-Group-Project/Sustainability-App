@@ -7,6 +7,7 @@ import Register from './screens/register/Register';
 import Logout from './screens/logout/Logout';
 import { OutletPage } from './screens/outlet';
 import { SettingsPage } from './screens/settings';
+import Quiz from './screens/quiz';
 
 function App() {
   // Create a home page that has two buttons, one for login and one for register which navigate to the respective pages
@@ -18,6 +19,7 @@ function App() {
       <Route path="/logout" element={<Logout />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/outlet/:outlet" element={<OutletPage />} />
+      <Route path="/quiz" element={<Quiz />} />
     </Routes>
   );
 
