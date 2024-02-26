@@ -3,6 +3,7 @@ import { GoBackLink } from "../../components/General/GoBackLink";
 import { BagsRemainingIcon } from "../../components/General/BagsRemainingIcon";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { TbPaperBag } from "react-icons/tb";
+import { Link } from "react-router-dom";
 
 export function OutletPage() {
 
@@ -43,12 +44,12 @@ export function OutletPage() {
                     </div>
                 </div>
 
-                <div className="flex flex-col">
+                <Link to={"/quiz"} className="flex flex-col">
                     <StandoutButton>
                         <TbPaperBag />
                         <span>Claim a bag</span>
                     </StandoutButton>
-                </div>
+                </Link>
             </div>
         
         </section>
