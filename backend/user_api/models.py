@@ -61,6 +61,7 @@ class VendorModel(UserModel):
     """
     base_role = UserModel.Role.VENDOR
     location = models.CharField(max_length=25)
+    bags_left = models.IntegerField(default=0)
 
     class VendorManager(BaseUserManager):
         def get_queryset(self, *args, **kwargs):
@@ -117,7 +118,7 @@ class AdminModel(UserModel):
 class BagModel(models.Model):
     """Model for the Bags"""
     bag_id = models.AutoField(primary_key=True)
-    time = models.DateTimeField()
+    collection_time = models.DateTimeField()
     vendor = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
 
     def __str__(self):

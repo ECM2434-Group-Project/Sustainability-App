@@ -42,9 +42,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class VendorSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = VendorModel
-		fields = ('email','username', 'role', 'location')
+    class Meta:
+        model = VendorModel
+        fields = ('email', 'username', 'role', 'location', 'bags_left')
+
+
+class VendorOverviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendorModel
+        fields = ('username', 'location', 'bags_left')
 
 class AdminSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -52,9 +58,9 @@ class AdminSerializer(serializers.ModelSerializer):
 		fields = ('email', 'username')
 
 class BagsSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = BagModel
-		fields = ('bag_id', 'collection_time', 'vendor_id')
+    class Meta:
+        model = BagModel
+        fields = ('bag_id', 'collection_time', 'vendor')
 
 
 class QuestionsSerializer(serializers.ModelSerializer):
