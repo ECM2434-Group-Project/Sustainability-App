@@ -21,4 +21,8 @@ urlpatterns = [
 	path('quiz', views.QuizView.as_view(), name='quiz'),
 	path('makeadmin', views.CreateAdmin.as_view(), name='makeadmin'),
 	path('makevendor', views.CreateVendor.as_view(), name='makevendor'),
+	path('makequestion', views.CreateQuestion.as_view(), name='makequestion')
+
+
+
 ]

@@ -10,6 +10,7 @@ BagModel = models.BagModel
 QuestionModel = models.QuestionModel
 VendorModel = models.VendorModel
 AdminModel = models.AdminModel
+AnswerModel = models.AnswerModel
 
 
 # LeaderboardModel = models.LeaderboardModel
@@ -74,7 +75,12 @@ class BagsSerializer(serializers.ModelSerializer):
 class QuestionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionModel
-        fields = ('question_id', 'question', 'answer')
+        fields = ('question_id', 'question')
+
+class AnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnswerModel
+        fields = ('answer', 'answer_id', 'is_correct', 'question')
 
 
 class LeaderboardSerializer(serializers.ModelSerializer):

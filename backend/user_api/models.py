@@ -142,7 +142,7 @@ class ClaimModel(models.Model):
 class QuestionModel(models.Model):
     """Model for the Qestions"""
     question_id = models.AutoField(primary_key=True)
-    question = models.CharField(max_length=25)
+    question = models.CharField(max_length=128)
 
     def __str__(self):
         """Return string representation of the Question"""

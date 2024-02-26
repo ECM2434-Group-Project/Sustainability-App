@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model, login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.db import transaction
 
 from .models import ClaimModel, UserModel, VendorModel, AdminModel
 from .serializers import *
@@ -25,9 +26,6 @@ class UserRegister(APIView):
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = (SessionAuthentication,)
 	def post(self, request):
-		userCreating = request.user
-
-
 		clean_data = user_creation_validation(request.data)
 		serializer = UserRegisterSerializer(data=clean_data)
 		if serializer.is_valid(raise_exception=True):
@@ -339,6 +337,62 @@ class QuizView(APIView):
 							  request.data['questions'][i]['answer']])
 
 		print(questions)
+
+
+class CreateQuestion(APIView):
+	'''
+	Post:
+		{
+			"question": [String],
+			"answers":
+			[ "answer 1", "answer 2"... (unlimited) ]
+			,
+			"options" :
+			[
+				"false answer 1", "false answer 2"... (unlimited)
+			]
+		}
+
+	'''
+	permission_classes = (permissions.IsAuthenticated,)
+	authentication_classes = (SessionAuthentication,)
+	def post(self, request):
+		user = request.user
+		if user.role != UserModel.Role.ADMIN:
+			return Response({"message":"You are not an admin, you cannot create questions"}, status=status.HTTP_403_FORBIDDEN)
+
+		if 'question' and 'answers' and 'options' not in request.data:
+			return Response({"message":"You need to provide a question, answers and options"}, status=status.HTTP_400_BAD_REQUEST)
+		question = request.data['question']
+		answers = request.data['answers']
+		options = request.data['options']
+
+		if len(answers) < 1 or len(options) < 1:
+			return Response({"message":"You need at least 1 answer and 1 option"}, status=status.HTTP_400_BAD_REQUEST)
+
+		try:
+			with transaction.atomic():
+				self.createQuestion(question, answers, options)
+				return Response({"message":"Question created successfully"}, status=status.HTTP_201_CREATED)
+		except Exception as e:
+			return Response({"message":"Error creating question", "Error": e}, status=status.HTTP_400_BAD_REQUEST)
+	def createQuestion(self, question, answers, options):
+		questionSerializer = QuestionsSerializer(data={'question': question})
+		if questionSerializer.is_valid(raise_exception=True):
+			question = questionSerializer.create(questionSerializer.validated_data)
+			question.save()
+		for answer in answers:
+			answerSerializer = AnswerSerializer(data={'answer': answer, 'question': question.pk, 'is_correct': True})
+			if answerSerializer.is_valid(raise_exception=True):
+				answer = answerSerializer.create(answerSerializer.validated_data)
+				answer.save()
+		for option in options:
+			answerSerializer = AnswerSerializer(data={'answer': option, 'question': question.pk, 'is_correct': False})
+			if answerSerializer.is_valid(raise_exception=True):
+				answer = answerSerializer.create(answerSerializer.validated_data)
+				answer.save()
+
+		return 1;
 
 
 # todo: delete these 2 functions
