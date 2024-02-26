@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model, login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.db import transaction
 
 from .models import ClaimModel, UserModel, VendorModel, AdminModel
 from .serializers import *
@@ -26,9 +27,6 @@ class UserRegister(APIView):
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = (SessionAuthentication,)
 	def post(self, request):
-		userCreating = request.user
-
-
 		clean_data = user_creation_validation(request.data)
 		serializer = UserRegisterSerializer(data=clean_data)
 		if serializer.is_valid(raise_exception=True):
@@ -52,7 +50,7 @@ class UserLogin(APIView):
 	'''
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = (SessionAuthentication,)
-	##
+
 	def post(self, request):
 		data = request.data
 
@@ -66,7 +64,7 @@ class UserLogin(APIView):
 
 		password = data['password']
 
-		## try user account
+		# try user account
 		try:
 			serializer = UserLoginSerializer(data=data)
 			if serializer.is_valid(raise_exception=True):
@@ -89,7 +87,7 @@ class UserLogin(APIView):
 		except Exception as e:
 			print(e)
 
-		## try admin account
+		# try admin account
 		try:
 			admin_backend = AdminModelBackend()
 
@@ -102,9 +100,6 @@ class UserLogin(APIView):
 			pass
 
 		return Response({"message":"Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 
 
 class UserLogout(APIView):
@@ -123,7 +118,7 @@ class UserView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		## if the request has a user
+		# if the request has a user
 		if request.user is None:
 			return Response({"message" : "You are not logged in"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -133,33 +128,16 @@ class UserView(APIView):
 
 class VendorsView(APIView):
 	'''
-	Post:
-
-
+	This API endpoint returns a list of all vendors who are currently registered in the system.
 	Get:
 	'''
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		vendors = UserModel.objects.filter(role='VENDOR')
-		serializer = VendorSerializer(vendors, many=True)
+		vendors = VendorModel.objects.all()
+		serializer = VendorOverviewSerializer(vendors, many=True)
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
-	#  @allowed_users(allowed_roles=['vendors'])
-	def post(self, request):
-		# Deny creation of a vendor to non-vendor users
-		if request.user.vendor_id is None:
-			return Response(status=status.HTTP_403_FORBIDDEN)
-		data = {
-			'name': request.data['name'],
-			'description' : request.data['description'],
-			'location': request.data['location']
-		}
-		serializer = VendorSerializer(data=data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VendorView(APIView):
@@ -181,40 +159,89 @@ class VendorView(APIView):
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class BagsView(APIView):
+class IssueBagsView(APIView):
+	'''
+	This endpoint allows vendors to issue bags. The issued bags will be automatically associated with the vendor who issued them.
+	Format:
+	{
+		"num_bags": [Int],
+		"collection_time": [String],
+	}
+	'''
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
 	def get(self, request):
-		bags = BagModel.objects.all()
+		user = request.user
+		if user.role != UserModel.Role.VENDOR:
+			return Response({"message":"You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
+
+
+		bags = BagModel.objects.filter(vendor=user)
 		serializer = BagsSerializer(bags, many=True)
 		return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
 
+
 	def post(self, request):
-		if request.user.vendor_id is None:
-			return Response(status=status.HTTP_403_FORBIDDEN)
-		print(request.data)
-		num_bags = request.data['num_bags']
-		vendor_id = request.user.vendor_id
-		collection_time = request.data['collection_time']
-		collection_time = datetime.strptime(collection_time, '%Y-%m-%d %H:%M:%S')
-		for i in range(num_bags):
+		# Oscar Green
 
-			data = {
-				'vendor_id': vendor_id,
-				'collection_time' : collection_time
-			}
-			## clean_data
-			serializer = BagsSerializer(data=data)
+		# check if user is a vendor
+		if request.user.role != UserModel.Role.VENDOR:
+			return Response({"message":"You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
+		# get the vendor
+		vendor = request.user
+		# get the data
+		data = request.data
+		num_bags = data['num_bags']
+		collection_time = data['collection_time']
+
+		# create the bags
+		for i in range(int(num_bags)):
+			serializer = BagsSerializer(data={'vendor': vendor, 'collection_time': collection_time})
 			if serializer.is_valid(raise_exception=True):
-				serializer.save()
-			print(i)
-		return Response(status=status.HTTP_201_CREATED)
+				bag = serializer.create(serializer.validated_data)
+				bag.save()
 
+			# todo: create bulk insert functionality
+
+		# update the vendor bags
+		VendorModel.objects.filter(id=vendor.id).update(bags_left=vendor.bags_left + num_bags)
+
+
+
+
+		# add bags to vendorModel
+
+		return Response({"Bags Created" : num_bags}, status=status.HTTP_201_CREATED)
 	def getVendor(self, vendor_id):
 		try:
-			return VendorModel.objects.get(vendor_id=vendor_id)
+			return VendorModel.objects.get(id=vendor_id)
 		except VendorModel.DoesNotExist:
 			raise None
+
+class ClaimsView(APIView):
+	'''
+	Allows users to see any bags they haven't claimed, and the last 24hrs of bags.
+	Format:
+	{"bags":
+	[
+			"bag_id": [Int],
+			"collection_time": [String],
+			"vendor_id": [Int],
+			"claimed": [Boolean]
+			],
+			...
+	}
+	'''
+
+	permission_classes = (permissions.IsAuthenticated,)
+	authentication_classes = (SessionAuthentication,)
+	def get(self, request):
+		user = request.user
+
+		bags = BagModel.objects.filter(user=user)
+		serializer = BagsSerializer(bags, many=True)
+		return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
+
 
 
 class QuestionsView(APIView):
@@ -291,9 +318,9 @@ class QuizView(APIView):
 	def post(self, request):
 		claim_id = request.data['claim_id']
 		user = request.user
-		## check that user owns the claim
+		# check that user owns the claim
 		claim = ClaimModel.objects.get(claim_id=claim_id)
-		## check if the claim is already successful
+		# check if the claim is already successful
 		if not claim:
 			return Response(status=status.HTTP_400_BAD_REQUEST)
 		print(claim)
@@ -305,7 +332,7 @@ class QuizView(APIView):
 		questions = []
 		for i in range(request.data['q_count']):
 			print(f"Question: {request.data['questions'][i]['question_id']}, Answer: {request.data['questions'][i]['answer']}")
-			## gets the question and user answer
+			# gets the question and user answer
 			questions.append([QuestionModel.objects.get(question_id=request.data['questions'][i]['question_id']),
 							  request.data['questions'][i]['answer']])
 
@@ -339,8 +366,63 @@ class CreateClaim(APIView):
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CreateQuestion(APIView):
+	'''
+	Post:
+		{
+			"question": [String],
+			"answers":
+			[ "answer 1", "answer 2"... (unlimited) ]
+			,
+			"options" :
+			[
+				"false answer 1", "false answer 2"... (unlimited)
+			]
+		}
+
+	'''
+	permission_classes = (permissions.IsAuthenticated,)
+	authentication_classes = (SessionAuthentication,)
+	def post(self, request):
+		user = request.user
+		if user.role != UserModel.Role.ADMIN:
+			return Response({"message":"You are not an admin, you cannot create questions"}, status=status.HTTP_403_FORBIDDEN)
+
+		if 'question' and 'answers' and 'options' not in request.data:
+			return Response({"message":"You need to provide a question, answers and options"}, status=status.HTTP_400_BAD_REQUEST)
+		question = request.data['question']
+		answers = request.data['answers']
+		options = request.data['options']
+
+		if len(answers) < 1 or len(options) < 1:
+			return Response({"message":"You need at least 1 answer and 1 option"}, status=status.HTTP_400_BAD_REQUEST)
+
+		try:
+			with transaction.atomic():
+				self.createQuestion(question, answers, options)
+				return Response({"message":"Question created successfully"}, status=status.HTTP_201_CREATED)
+		except Exception as e:
+			return Response({"message":"Error creating question", "Error": e}, status=status.HTTP_400_BAD_REQUEST)
+	def createQuestion(self, question, answers, options):
+		questionSerializer = QuestionsSerializer(data={'question': question})
+		if questionSerializer.is_valid(raise_exception=True):
+			question = questionSerializer.create(questionSerializer.validated_data)
+			question.save()
+		for answer in answers:
+			answerSerializer = AnswerSerializer(data={'answer': answer, 'question': question.pk, 'is_correct': True})
+			if answerSerializer.is_valid(raise_exception=True):
+				answer = answerSerializer.create(answerSerializer.validated_data)
+				answer.save()
+		for option in options:
+			answerSerializer = AnswerSerializer(data={'answer': option, 'question': question.pk, 'is_correct': False})
+			if answerSerializer.is_valid(raise_exception=True):
+				answer = answerSerializer.create(answerSerializer.validated_data)
+				answer.save()
+
+		return 1;
 
 
+# todo: delete these 2 functions
 class CreateAdmin(APIView):
 	permission_classes = (permissions.AllowAny,)
 	authentication_classes = (SessionAuthentication,)
@@ -366,3 +448,5 @@ class CreateVendor(APIView):
 		serializer = VendorSerializer(vendor)
 
 		return Response({"data":serializer.data},status=status.HTTP_201_CREATED)
+
+
