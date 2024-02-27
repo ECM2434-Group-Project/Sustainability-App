@@ -24,6 +24,8 @@ export default function Home() {
 
         const successCallback = (position) => {
 
+            console.log(position)
+
             // Check their location here
             setLocationVerified(true)
 

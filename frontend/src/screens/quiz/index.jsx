@@ -32,15 +32,16 @@ export default function Quiz() {
     }])
 
     // state to keep track of if the user has selected an answer
-    const [selected, setSelected] = useState(false)
+    const [selected, setSelected] = useState(0)
 
     // which question is the user on
     const [page, setPage] = useState(0)
     
     useEffect(() => {
-        setSelected(false)
+        setSelected(0)        
     }, [page])
 
+    
     return page === 0 ? (
         <div className="flex flex-col justify-between h-full p-4">
                 <div className="flex flex-col gap-4">
@@ -52,7 +53,7 @@ export default function Quiz() {
                     {
                         questions[0] ? (
                             questions[0].answers.map((answer, index) => (
-                                <AnswerButton key={index} answer={answer} setSelected={setSelected} />
+                                <AnswerButton key={index} index={index + 1} selected={selected} answer={answer} setSelected={setSelected} />
                             ))
                         ) : (
                             <>not loaded in yet</>
@@ -76,7 +77,7 @@ export default function Quiz() {
                     {
                         questions[1] ? (
                             questions[1].answers.map((answer, index) => (
-                                <AnswerButton key={index} answer={answer} setSelected={setSelected} />
+                                <AnswerButton key={index} index={index + 1} selected={selected} answer={answer} setSelected={setSelected} />
                             ))
                         ) : (
                             <>not loaded in yet</>

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { TextInput } from "../../components/General/TextInput";
 
 export default function Login() {
@@ -8,28 +8,38 @@ export default function Login() {
     // On submit, the form should make a POST request to /api/login at port 8000 with the email and password in the request body
     // If the request is successful, the user should be redirected to the home page
 
+    const nav = useNavigate()
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleSubmit = async (e) => {
+    const [ error, setError ] = useState()
+
+    const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
+        setError(false)
         try {
+
             const response = await fetch("http://127.0.0.1:8000/api/login", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ email, password }),
             });
-            const data = await response.json();
+
             if (response.ok) {
-                console.log(data);
-                window.location.href = "/";
+                nav("/")
+            } else {
+                setError(true)
             }
+
         } catch (error) {
+            // Login has failed
+            setError(true)
             console.error(error);
         }
-    }
+    }, [ error, email, password ])
 
     return (
         <div className="h-screen flex flex-col justify-center p-4 bg-exeterDeepGreen text-white gap-6">
@@ -58,6 +68,14 @@ export default function Login() {
 
 
                 </div>
+
+                {
+                    error ? (
+                        <p className="p-4 text-center text-red-200">Incorrect email or password</p>
+                    ) : (
+                        <></>
+                    )
+                }
 
                 <button
                     className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold"
