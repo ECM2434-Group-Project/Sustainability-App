@@ -1,17 +1,16 @@
-from datetime import datetime
-from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth import login, logout
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
-from random import shuffle
 
-from .models import ClaimModel, UserModel, VendorModel, AdminModel
+from .models import UserModel, VendorModel, AdminModel, LocationModel
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
-from .decorators import *
 from .backends import VendorModelBackend, AdminModelBackend
+from . import geofencing
+
 
 # SessionAuthentication -> Check if they're in valid session
 
@@ -458,7 +457,8 @@ class CreateAdmin(APIView):
 		email = "admin@admin.com"
 		user = AdminModel.objects.create_user(username, email, password)
 		user.save()
-		return Response({"data":user}, status=status.HTTP_201_CREATED)
+		serializer = AdminSerializer(user)
+		return Response({"data":serializer.data}, status=status.HTTP_201_CREATED)
 
 class CreateVendor(APIView):
 	permission_classes = (permissions.AllowAny,)
@@ -475,4 +475,21 @@ class CreateVendor(APIView):
 
 		return Response({"data":serializer.data},status=status.HTTP_201_CREATED)
 
+class GeoFenceTest(APIView):
+	permission_classes = (permissions.AllowAny,)
+	authentication_classes = (SessionAuthentication,)
 
+	def get(self, request):
+
+
+		# make locaiton model:
+		location = LocationModel(latitude=37.7749, longitude=-122.4194)
+		location2 = LocationModel(latitude=37.7750, longitude=-122.4150, radius=10)
+
+		locSerializer = LocationSerializer(location)
+
+		locationFence = geofencing.GeoFencing(location)
+		distance = locationFence.distance(location2)
+		is_inside = locationFence.is_inside(location2, accuracy=0)
+
+		return Response({"location1 radius:" : location.radius,"distance": distance, "is_inside": is_inside}, status=status.HTTP_200_OK)
