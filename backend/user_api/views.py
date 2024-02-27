@@ -4,6 +4,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
+from random import shuffle
 
 from .models import ClaimModel, UserModel, VendorModel, AdminModel
 from .serializers import *
@@ -276,67 +277,119 @@ class WebsiteUserView(APIView):
 
 class QuizView(APIView):
 	'''JSON format:
-	{
-	\t 	"claim_id": [Int],
-	\t	"q_count": [Int],
-	\t	"questions":
-	\t\t		[{
-	\t\t\t		"question_id": [Int],
-	\t\t\t		"answer": [String]
-	\t\t		},
-	\t\t		{
-	\t\t		question_id: [Int],
-	\t\t		answer: [String]
-	\t\t		}...
-	\t	]
-	}
+	Get:
 
-	Copy paste:
+	Post:
 	{
-		"claim_id": 1,
-		"q_count": 3,
-		"questions":
-			[{
-				"question_id": 1,
-				"answer": "A"
-			},
+	"questions" :
+		[
 			{
-				"question_id": 2,
-				"answer": "B"
-			},
-			{
-				"question_id": 3,
-				"answer": "C"
-			}
-		]
+				"question_id" : [Int],
+	 			"answer_id" : [Int]
+	 		},
+	 		...
+	 	]
 	}
 '''
 
 
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)
-	def post(self, request):
-		claim_id = request.data['claim_id']
+
+
+	def get(self, request):
+		if not request.user:
+			return Response({"message": "You are not logged in"}, status=status.HTTP_403_FORBIDDEN)
+
 		user = request.user
-		# check that user owns the claim
-		claim = ClaimModel.objects.get(claim_id=claim_id)
-		# check if the claim is already successful
-		if not claim:
-			return Response(status=status.HTTP_400_BAD_REQUEST)
-		print(claim)
-		if claim.user_id != user:
-			print("User does not own the claim")
-			return Response(status=status.HTTP_403_FORBIDDEN)
+		if user.role != UserModel.Role.USER:
+			return Response({"message": "Only users can perform quizzes, not vendors."},
+							status=status.HTTP_403_FORBIDDEN)
+
+		q_count = 3
+		false_positives = 3
+		true_positives = 1
 
 
-		questions = []
-		for i in range(request.data['q_count']):
-			print(f"Question: {request.data['questions'][i]['question_id']}, Answer: {request.data['questions'][i]['answer']}")
-			# gets the question and user answer
-			questions.append([QuestionModel.objects.get(question_id=request.data['questions'][i]['question_id']),
-							  request.data['questions'][i]['answer']])
 
-		print(questions)
+		queryset = QuestionModel.objects.all().order_by('?')[:q_count]
+		serializer = QuestionsSerializer(queryset, many=True)
+		data = serializer.data
+
+		# for each question, get the answers
+		for i in range(len(data)):
+			question = data[i]
+			answers = AnswerModel.objects.filter(question=question['question_id'])
+
+			## get the correct answer
+			correct_answer = answers.filter(is_correct=True).order_by('?')[:true_positives]
+			false_answers = answers.filter(is_correct=False).order_by('?')[:false_positives]
+			## use QuizAnswerSerializer to get the answers without revealing the correct answer
+			serializer = QuizAnswerSerializer(correct_answer, many=True)
+			correct_answer_serialized = serializer.data
+			serializer = QuizAnswerSerializer(false_answers, many=True)
+			false_answers_serialized = serializer.data
+
+			## shuffle the answers
+			shuffled_answers = correct_answer_serialized + false_answers_serialized
+
+			data[i]['answers'] = shuffled_answers
+
+
+
+
+
+
+
+		return Response(data, status=status.HTTP_200_OK)
+	def post(self, request):
+		'''
+		Get quiz from user:
+
+		{
+		"vendor_id" : [Int],
+		"quiz" :
+		[
+			{
+				"question_id" : [Int],
+				"answer_id" : [Int]
+			},
+			...
+		]
+		}
+
+		:param request:
+		:return:
+		'''
+
+		print(request.data)
+		user = request.user
+		if user.role != UserModel.Role.USER:
+			return Response({"message":"You are not a user, you cannot submit a quiz"}, status=status.HTTP_403_FORBIDDEN)
+
+		if 'quiz' and 'vendor_id' not in request.data:
+			return Response({"message":"You need to provide a quiz and a vendor_id"}, status=status.HTTP_400_BAD_REQUEST)
+		data = request.data
+		quiz = data['quiz']
+		vendor_id = data['vendor_id']
+		for question in quiz:
+			if 'question_id' and 'answer_id' not in question:
+				return Response({"message":"You need to provide a question_id and an answer_id for each question."}, status=status.HTTP_400_BAD_REQUEST)
+			question_id = question['question_id']
+			answer_id = question['answer_id']
+			question = QuestionModel.objects.get(question_id=question_id)
+			answer = AnswerModel.objects.get(answer_id=answer_id)
+			if not answer.is_correct:
+				return Response({"message":"You have answered a question incorrectly"}, status=status.HTTP_400_BAD_REQUEST)
+
+		# get the vendor
+		print("Quiz Passed!!!")
+		return Response({"message":"Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+
+
+
 
 
 class CreateQuestion(APIView):
