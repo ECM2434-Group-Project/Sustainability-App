@@ -1,10 +1,19 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { MdLocationOn } from "react-icons/md";
 import { OutletCard } from "../../components/Dashboard/OutletCard";
 import { OnCampusIndicator } from "../../components/Dashboard/OnCampusIndicator";
 import { UserClaimView } from "../../components/User/UserClaimView";
+import axios from "axios";
+
+axios.defaults.xsrfCookieName = 'csrftoken';
+axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+axios.defaults.withCredentials = true;
+
+const client = axios.create({
+    baseURL: "http://127.0.0.1:8000"
+})
 
     // Based on state passed in which contains if logged in or not, display the home page with a login and register button
 
@@ -17,14 +26,26 @@ export default function Home() {
 
     const [ userHasClaim, setUserHasClaim ] = useState(true)
 
+    const [ outlets, setOutlets ] = useState([])
+
+    useEffect(() => {
+        client.post("/api/logout", {
+            email: "am1699@exeter.ac.uk",
+            password: "Password123"})
+            .then(response => {
+                console.log(response.data);
+            }).then(
+                client.get("/api/user").then(response => {
+                    console.log(response.data);
+                })
+            );
+    }, []);
 
     const checkLocation = useCallback(() => {
 
         console.log("clicked")
 
         const successCallback = (position) => {
-
-            console.log(position)
 
             // Check their location here
             setLocationVerified(true)
@@ -71,7 +92,9 @@ export default function Home() {
 
                             <h1 className="text-2xl font-semibold">Food outlets</h1>
 
-                            <OutletCard
+                            {outlets.map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.image} logoImage={vendor.logo} name={vendor.name} walkTime={vendor.walkTime} numBags={vendor.numBags}/>)}
+
+                            {/* <OutletCard
                                 id={"the_ram_bar"}
                                 name={"The Ram Bar"}
                                 walkTime={2}
@@ -101,7 +124,7 @@ export default function Home() {
                                 walkTime={2}
                                 bgImage={"https://liveevents.exeter.ac.uk/wp-content/uploads/2022/02/Section-1.png"}
                                 logoImage={"https://pbs.twimg.com/profile_images/1657489733/ram2_400x400.jpg"}
-                            />
+                            /> */}
 
                         </div>
 

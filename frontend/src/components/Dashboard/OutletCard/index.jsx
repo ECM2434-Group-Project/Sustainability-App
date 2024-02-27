@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { BagsRemainingIcon } from "../../General/BagsRemainingIcon";
+import { useCallback } from "react";
 
-export function OutletCard({ id, bgImage, logoImage, name, walkTime }) {
+export function OutletCard({ id, bgImage, logoImage, name, walkTime, numBags }) {
     return (
         <Link to={"/outlet/" + id} className="rounded-2xl border-[1px] border-gray-200 border-solid overflow-hidden shadow-md">
             <div className="">
@@ -33,7 +34,7 @@ export function OutletCard({ id, bgImage, logoImage, name, walkTime }) {
                 </div>
 
                 <div className="flex justify-end">
-                    <BagsRemainingIcon quantity={10} />
+                    <BagsRemainingIcon quantity={numBags} />
                 </div>
             </div>
 
