@@ -267,20 +267,6 @@ class LeaderboardView(APIView):
         serializer = LeaderboardSerializer(leaderboard, many=True)
         return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
 
-
-class WebsiteUserView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
-
-    def get(self, request):
-        # Get standard user info
-        serializer = UserSerializer(request.user)
-        # Get website user info
-        website_user = UserModel.objects.get(user_id=request.user)
-        website_serializer = UserSerializer(website_user)
-        return Response({'user': serializer.data, 'website_user': website_serializer.data}, status=status.HTTP_200_OK)
-
-
 class QuizView(APIView):
     '''JSON format:
     Get:
