@@ -120,18 +120,6 @@ class AdminModel(UserModel):
                 f', permission_level: {self.permission_level}')
 
 
-"""class VendorModel(models.Model):
-	#Model for the Vendors
-	vendor_id = models.AutoField(primary_key=True)
-	name = models.CharField(max_length=25)
-	location = models.CharField(max_length=25)
-
-	def __str__(self):
-			#Return string representation of VendorModel
-            return f'vendor_id: {self.vendor_id}, name: {self.name}, num_bags: {self.num_bags}, location: {self.location}'
-"""
-
-
 class BagModel(models.Model):
     """Model for the Bags"""
     bag_id = models.AutoField(primary_key=True)
