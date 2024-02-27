@@ -51,58 +51,76 @@ export default function Quiz() {
         console.log("use effect works")
 
         // fetch the questions from the backend
-        fetch("http://localhost:8000/api/questions").then(response => response.json()).then(data => {
-            console.log(data)
-        }  )
+        // fetch("http://localhost:8000/api/questions").then(response => response.json()).then(data => {
+        //     console.log(data)
+        // })
     }, [])
 
     // return the quiz, selecting first question or second question based on the page state
-    return page === 0 ? (
-        <div className="flex flex-col items-center pt-20">
-                <h1 className="text-2xl font-semibold">Quiz</h1>
-                <p>{questions[0] ? questions[0].question : "not yet loaded in"}</p>
-
-                {
-                    questions[0] ? (
-                        questions[0].answers.map((answer, index) => (
-                            <AnswerButton key={index} answer={answer} setSelected={setSelected} />
-                        ))
-                    ) : (
-                        <>not loaded in yet</>
-                    )
-                }
-
-                {
-                    selected ? (
+    return (
+        <div className="w-full h-full flex flex-col">
+            {
+                page === 0 ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                        <h className="font-extrabold">Welcome To Our Sustainability Quiz</h>
+                        <p className="w-3/4 pt-10">Our sustainability quiz aims to inspire and inform the student population about ways in which they can become more <small className="text-exeterBrightGreen font-bold">environmentally friendly</small> among spreading awareness about how we behave.</p>
+                        <p className="w-3/4 pt-5">To proceed to the quiz please press the next button. There will be a total of 2 questions and you will receive the bag if you finish the quiz before <small className="text-exeterBrightGreen font-bold">anyone else.</small></p>
                         <NextQuizButton setPage={setPage}/>
-                    ) : (
-                        <></>
-                    )
-                }
-        </div>
-            
-    ) : (
-        <div className="flex flex-col items-center pt-20">
-                <h1 className="text-2xl font-semibold">Quiz</h1>
-                <p>{questions[1] ? questions[1].question : "not yet loaded in"}</p>
+                    </div>
+                ) : (
+                    <>
+                        {
+                            page === 1 ? (
+                                <div className="flex flex-col items-center pt-20">
+                                    <h1 className="text-2xl font-semibold">Quiz</h1>
+                                    <p>{questions[0] ? questions[0].question : "not yet loaded in"}</p>
 
-                {
-                    questions[1] ? (
-                        questions[1].answers.map((answer, index) => (
-                            <AnswerButton key={index} answer={answer} setSelected={setSelected} />
-                        ))
-                    ) : (
-                        <>not loaded in yet</>
-                    )
-                }
+                                    {
+                                        questions[0] ? (
+                                            questions[0].answers.map((answer, index) => (
+                                                <AnswerButton key={index} answer={answer} setSelected={setSelected} />
+                                            ))
+                                        ) : (
+                                            <>not loaded in yet</>
+                                        )
+                                    }
 
-                {
-                    selected ? (
-                        <SubmitButton target="/quiz/complete"/>
-                    ) : (
-                        <></>
-                    )
-                }
+                                    {
+                                        selected ? (
+                                            <NextQuizButton setPage={setPage}/>
+                                        ) : (
+                                            <></>
+                                        )
+                                    }
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center pt-20">
+                                    <h1 className="text-2xl font-semibold">Quiz</h1>
+                                    <p>{questions[1] ? questions[1].question : "not yet loaded in"}</p>
+
+                                    {
+                                        questions[1] ? (
+                                            questions[1].answers.map((answer, index) => (
+                                                <AnswerButton key={index} answer={answer} setSelected={setSelected} />
+                                            ))
+                                        ) : (
+                                            <>not loaded in yet</>
+                                        )
+                                    }
+
+                                    {
+                                        selected ? (
+                                            <SubmitButton target="/quiz/complete"/>
+                                        ) : (
+                                            <></>
+                                        )
+                                    }
+                                </div>
+                            )
+                        }
+                    </>
+                )
+            }
         </div>
     )
 }
