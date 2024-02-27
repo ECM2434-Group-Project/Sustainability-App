@@ -125,10 +125,11 @@ class BagModel(models.Model):
     bag_id = models.AutoField(primary_key=True)
     collection_time = models.DateTimeField()
     vendor = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
+    claimed = models.BooleanField(default=False)
 
     def __str__(self):
         """Return string representation of the Bags"""
-        return f'id: {self.bag_id}, time: {self.collection_time}, vendor_id: {self.vendor}'
+        return f'id: {self.bag_id}, time: {self.collection_time}, vendor_id: {self.vendor}, claimed: {self.claimed}'
 
 
 class ClaimModel(models.Model):

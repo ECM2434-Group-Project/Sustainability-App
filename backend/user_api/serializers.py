@@ -53,8 +53,10 @@ class UserSerializer(serializers.ModelSerializer):
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorModel
-        fields = ('email', 'username', 'role', 'location', 'bags_left', 'icon', 'banner')
-
+        fields = ('email', 'username','password', 'role', 'location', 'bags_left', 'icon', 'banner')
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
 class VendorOverviewSerializer(serializers.ModelSerializer):
     class Meta:
@@ -91,10 +93,10 @@ class QuizAnswerSerializer(serializers.ModelSerializer):
 
 
 
-class ClaimsSerializer(serializers.ModelSerializer):
+class ClaimSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ClaimModel
-		fields = ('claim_id', 'bag', 'user', 'time', 'success')
+		fields = ('claim_id', 'bag', 'user', 'time')
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
