@@ -11,6 +11,7 @@ QuestionModel = models.QuestionModel
 VendorModel = models.VendorModel
 AdminModel = models.AdminModel
 AnswerModel = models.AnswerModel
+LocationModel = models.LocationModel
 
 
 # LeaderboardModel = models.LeaderboardModel
@@ -92,3 +93,8 @@ class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
         fields = ('user_id', 'fname', 'lname', 'score')
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LocationModel
+        fields = ('latitude', 'longitude', 'radius')
