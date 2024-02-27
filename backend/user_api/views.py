@@ -145,8 +145,17 @@ class VendorsView(APIView):
 
     def get(self, request):
         vendors = VendorModel.objects.all()
-        serializer = VendorOverviewSerializer(vendors, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        data = []
+        for vendor in vendors:
+            location = vendor.location
+            data.append({"username": vendor.username, "latitude" : location.latitude,
+                         "longitude" : location.longitude, "bags_left": vendor.bags_left})
+
+
+
+
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 # /vendor/<int:vendor_id>
