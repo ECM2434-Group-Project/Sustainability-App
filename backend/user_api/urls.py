@@ -14,6 +14,7 @@ urlpatterns = [
 
 	path('vendors/issuebags', views.IssueBagsView.as_view(), name='vendors'),
 	path('claims', views.ClaimsView.as_view(), name='claims'),
+	path('makeclaim', views.CreateClaim.as_view(), name='makeclaim')
 
 	path('questions', views.QuestionsView.as_view(), name='questions'),
 	path('leaderboard', views.LeaderboardView.as_view(), name='leaderboard'),
@@ -24,9 +25,9 @@ urlpatterns = [
 
 	path('makeadmin', views.CreateAdmin.as_view(), name='makeadmin'),
 	path('makevendor', views.CreateVendor.as_view(), name='makevendor'),
+
+
 	path('geotest', views.GeoFenceTest.as_view(), name='testgeo')
 
 
 
-
-]

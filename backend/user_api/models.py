@@ -144,7 +144,14 @@ class BagModel(models.Model):
 
 
 class ClaimModel(models.Model):
-    """Model for the Claims"""
+    """Model for the Claims
+
+    claim_id = unique identifier
+    bag = bag relate to claim
+    user = user relate to claim
+    time = time of claim
+    success = if claim was sucessful
+    """
     claim_id = models.AutoField(primary_key=True)
     bag = models.ForeignKey(BagModel, on_delete=models.CASCADE)
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
