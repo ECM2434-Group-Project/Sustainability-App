@@ -1,7 +1,7 @@
 export function AnswerButton({ answer, setSelected }) {
     return (
-		<div className="w-screen flex flex-col">
-			<button className="rounded-full p-4 justify-center m-1 border border-exeterDarkGreen hover:bg-exeterBrightGreen ml-10 mr-10" onClick={
+		<div className="flex flex-col">
+			<button className="rounded-full p-4 justify-center border border-exeterDarkGreen hover:bg-exeterBrightGreen w-full" onClick={
 				() => {
 					setSelected(true)
 				}

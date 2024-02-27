@@ -1,11 +1,20 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { StandoutButton } from "../../General/StandoutButton";
+import { useCallback } from "react";
 
-export function  SubmitButton({ target }) {
+export function SubmitButton({ disabled }) {
+
+	const nav = useNavigate()
+
+	const submitAnswers = useCallback(() => {
+		// Submit answers here
+	}, [])
+
     return (
-		<div className="w-screen flex flex-col mt-4">
-			<Link className="rounded-full p-2 text-center m-1 border mr-32 ml-32 hover:bg-exeterHighlightGreen" to={target}>
+		<div className="flex flex-col">
+			<StandoutButton disabled={disabled} onClick={() => nav("/quiz/complete")}>
 				Submit
-			</Link>
+			</StandoutButton>
 		</div>
 		
     )

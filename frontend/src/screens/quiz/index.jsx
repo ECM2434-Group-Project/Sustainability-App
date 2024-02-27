@@ -25,53 +25,57 @@ export default function Quiz() {
     }])
     const [selected, setSelected] = useState(false)
     const [page, setPage] = useState(0)
+    
+    useEffect(() => {
+        setSelected(false)
+    }, [page])
 
     return page === 0 ? (
-        <div className="flex flex-col items-center pt-20">
-                <h1 className="text-2xl font-semibold">Quiz</h1>
-                <p>{questions[0] ? questions[0].question : "not yet loaded in"}</p>
+        <div className="flex flex-col justify-between h-full p-4">
+                <div className="flex flex-col gap-4">
+                    <div>
+                        <h1 className="text-2xl font-semibold">Quiz</h1>
+                        <p>{questions[0] ? questions[0].question : "not yet loaded in"}</p>
+                    </div>
 
-                {
-                    questions[0] ? (
-                        questions[0].answers.map((answer, index) => (
-                            <AnswerButton key={index} answer={answer} setSelected={setSelected} />
-                        ))
-                    ) : (
-                        <>not loaded in yet</>
-                    )
-                }
+                    {
+                        questions[0] ? (
+                            questions[0].answers.map((answer, index) => (
+                                <AnswerButton key={index} answer={answer} setSelected={setSelected} />
+                            ))
+                        ) : (
+                            <>not loaded in yet</>
+                        )
+                    }
+                </div>
 
-                {
-                    selected ? (
-                        <NextQuizButton setPage={setPage}/>
-                    ) : (
-                        <></>
-                    )
-                }
+                <div>
+                    <NextQuizButton disabled={!selected} setPage={setPage}/>
+                </div>
         </div>
             
     ) : (
-        <div className="flex flex-col items-center pt-20">
-                <h1 className="text-2xl font-semibold">Quiz</h1>
-                <p>{questions[1] ? questions[1].question : "not yet loaded in"}</p>
+        <div className="flex flex-col justify-between h-full p-4">
+                <div className="flex flex-col gap-4">
+                    <div>
+                        <h1 className="text-2xl font-semibold">Quiz</h1>
+                        <p>{questions[1] ? questions[1].question : "not yet loaded in"}</p>
+                    </div>
 
-                {
-                    questions[1] ? (
-                        questions[1].answers.map((answer, index) => (
-                            <AnswerButton key={index} answer={answer} setSelected={setSelected} />
-                        ))
-                    ) : (
-                        <>not loaded in yet</>
-                    )
-                }
+                    {
+                        questions[1] ? (
+                            questions[1].answers.map((answer, index) => (
+                                <AnswerButton key={index} answer={answer} setSelected={setSelected} />
+                            ))
+                        ) : (
+                            <>not loaded in yet</>
+                        )
+                    }
+                </div>
 
-                {
-                    selected ? (
-                        <SubmitButton target="/quiz/complete"/>
-                    ) : (
-                        <></>
-                    )
-                }
+                <div>
+                    <SubmitButton disabled={!selected} />
+                </div>
         </div>
     )
 }
