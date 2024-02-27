@@ -3,6 +3,8 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
+
+from .decorators import allowed_users
 from .models import UserModel, VendorModel, AdminModel, LocationModel
 from .serializers import *
 from rest_framework import permissions, status
@@ -76,12 +78,13 @@ class UserLogin(APIView):
         except Exception as e:
             print(e)
 
-        # try vendor account
+        # We don't strictly need these (vendor and admin both work for
+        # above now, keeping as backup if something unexpected happens)
         try:
             vendor_backend = VendorModelBackend()
 
             username = UserModel.objects.get(email__exact=email).username
-            user = vendor_backend.authenticate(request, username=username, password=password, **data)
+            user = vendor_backend.authenticate(None, username, password, **data)
             if user is not None:
                 login(request, user)
                 return Response({"message": "Logged in successfully as vendor"}, status=status.HTTP_200_OK)
@@ -93,12 +96,13 @@ class UserLogin(APIView):
             admin_backend = AdminModelBackend()
 
             username = UserModel.objects.get(email__exact=email).username
-            user = admin_backend.authenticate(request, username=username, password=password, **data)
+            user = admin_backend.authenticate(None, username, password, **data)
+            request['username'] = username
             if user is not None:
                 login(request, user)
                 return Response({"message": "Logged in successfully as admin"}, status=status.HTTP_200_OK)
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
         return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -123,6 +127,7 @@ class UserView(APIView):
     def get(self, request):
         # if the request has a user
         if request.user is None:
+
             return Response({"message": "You are not logged in"}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UserSerializer(request.user)
@@ -140,8 +145,17 @@ class VendorsView(APIView):
 
     def get(self, request):
         vendors = VendorModel.objects.all()
-        serializer = VendorOverviewSerializer(vendors, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        data = []
+        for vendor in vendors:
+            location = vendor.location
+            data.append({"id" : vendor.id, "username" :  vendor.username, "latitude" : location.latitude,
+                         "longitude" : location.longitude, "bags_left": vendor.bags_left})
+
+
+
+
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 # /vendor/<int:vendor_id>
@@ -149,14 +163,11 @@ class VendorView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
-    def get_object(self, vendor_id):
-        try:
-            return VendorModel.objects.get(vendor_id=vendor_id)
-        except VendorModel.DoesNotExist:
-            raise None
-
     def get(self, request, vendor_id):
-        vendor = self.get_object(vendor_id)
+
+        if not request.user:
+            return Response({"message": "You are not logged in"}, status=status.HTTP_403_FORBIDDEN)
+        vendor = VendorModel.objects.filter(id=vendor_id).first()
         if not vendor:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -345,6 +356,8 @@ class QuizView(APIView):
         Get quiz from user:
 
         {
+        "latitude" : [Float],
+        "longitude" : [Float],
         "vendor_id" : [Int],
         "quiz" :
         [
@@ -359,8 +372,8 @@ class QuizView(APIView):
         :param request:
         :return:
         '''
+        data = request.data
 
-        print(request.data)
         user = request.user
         if user.role != UserModel.Role.USER:
             return Response({"message": "You are not a user, you cannot submit a quiz"},
@@ -369,7 +382,16 @@ class QuizView(APIView):
         if 'quiz' and 'vendor_id' not in request.data:
             return Response({"message": "You need to provide a quiz and a vendor_id"},
                             status=status.HTTP_400_BAD_REQUEST)
-        data = request.data
+
+        if 'latitude' and 'longitude' not in request.data:
+            return Response({"message": "You need to provide a latitude and a longitude"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not self.isLocationValid(data['latitude'], data['longitude'], data['vendor_id']):
+            return Response({
+                                "message": "You are not in the correct location to submit a quiz, you need to be on site to submit a quiz (500m from vendor)"},
+                            status=status.HTTP_403_FORBIDDEN)
+
         quiz = data['quiz']
         vendor_id = data['vendor_id']
         for question in quiz:
@@ -382,20 +404,70 @@ class QuizView(APIView):
             answer = AnswerModel.objects.get(answer_id=answer_id)
             if not answer.is_correct:
                 return Response({"message": "You have answered a question incorrectly"},
-                                status=status.HTTP_400_BAD_REQUEST)
+                                status=status.HTTP_200_OK)
 
         # get the vendor
         print("Quiz Passed!!!")
-        return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
+        return self.attempt_claim(vendor_id, user)
+
+
+
+    def attempt_claim(self, vendor_id, user):
+        ## start transaction
+        with transaction.atomic():
+            try:
+
+                # get the vendor
+                vendor = VendorModel.objects.get(id=vendor_id)
+                # get the bag
+                bag = BagModel.objects.filter(vendor=vendor, claimed=False).order_by('-collection_time').first()
+                if not bag:
+                    return Response({"message": "No bags to claim"}, status=status.HTTP_418_IM_A_TEAPOT)
+                # create the claim
+
+                claimSerializer = ClaimSerializer(data={'bag': bag.bag_id, 'user': user.id, 'time': datetime.datetime.now()})
+                if claimSerializer.is_valid(raise_exception=True):
+                    claim = claimSerializer.create(claimSerializer.validated_data)
+                    claim.save()
+                    # remove bag from vendor bags_left
+                    VendorModel.objects.filter(id=vendor.id).update(bags_left=vendor.bags_left - 1)
+                    # update bag to claimed
+                    BagModel.objects.filter(bag_id=bag.bag_id).update(claimed=True)
+
+
+
+
+
+
+
+                    return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
+                return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({"message": "Error creating claim", "Error": e}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def isLocationValid(self, latitude, longitude, vendor_id):
+        vendor = VendorModel.objects.get(id=vendor_id)
+        location = vendor.location
+        fence = geofencing.GeoFencing(location)
+        testLocation = LocationModel(latitude=latitude, longitude=longitude)
+        return fence.is_inside(testLocation, accuracy=0)
+
 
 
 class ClaimsView(APIView):
-	permission_classes = (permissions.IsAuthenticated,)
-	authentication_classes = (SessionAuthentication,)
-	def get(self, request):
-		claims = ClaimModel.objects.filter(user_id=request.user)
-		serializer = ClaimsSerializer(claims, many=True)
-		return Response({'claims': serializer.data}, status=status.HTTP_200_OK)
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+    def get(self, request):
+        if not request.user:
+            return Response({"message": "You are not logged in"}, status=status.HTTP_403_FORBIDDEN)
+        if request.user.role != UserModel.Role.USER:
+            return Response({"message": "Vendors cannot have claims. Only users can have claims."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        claims = ClaimModel.objects.filter(user_id=request.user)
+        serializer = ClaimSerializer(claims, many=True)
+        return Response({'claims': serializer.data}, status=status.HTTP_200_OK)
 
 class CreateClaim(APIView):
 	def post(self, request):
@@ -408,7 +480,7 @@ class CreateClaim(APIView):
 		data = {'user': user.id, 'bag': bag.bag_id, 'time': time, 'success': success}
 		print(f"{data} \n")
 
-		serializer = ClaimsSerializer(data=data)
+		serializer = ClaimSerializer(data=data)
 
 		if serializer.is_valid():
 			serializer.save()
@@ -492,10 +564,58 @@ class CreateAdmin(APIView):
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
 
 
+
 class CreateVendor(APIView):
-    permission_classes = (permissions.AllowAny,)
+    '''
+    Example Vendor:
+    {
+"email" : "vendor@v.com",
+"username" : "MikeysMash",
+"password" : "bob12345",
+"latitude" :   50.7371 ,
+"longitude":    -3.5351
+    }
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
+    def get(self, request):
+        return Response({"message": "You cannot make a get request to this page"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        if request.user.role != "ADMIN":
+            return Response({"message": "You are not an admin"}, status=status.HTTP_403_FORBIDDEN)
+        if 'latitude' and 'longitude' not in request.data:
+            return Response({"message": "You need to provide a latitude and a longitude"}, status=status.HTTP_400_BAD_REQUEST)
+
+        locationSerializer = LocationSerializer(data=request.data)
+        if locationSerializer.is_valid(raise_exception=True):
+            location = locationSerializer.create(locationSerializer.validated_data)
+            location.save()
+            data = request.data
+            # reconfigure models to have matching names
+            data['location'] = location.location_id
+            data['role'] = "VENDOR"
+
+            serializer = VendorSerializer(data=data)
+            if serializer.is_valid(raise_exception=True):
+
+
+                vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'], password=data['password'], location=location)
+                vendor.save()
+                # create location for vendor
+
+
+                VendorModel.objects.filter(id=vendor.id).update(location=location)
+
+                return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
+
+        return Response({"message": "Error creating vendor"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CreateTestVendor(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = (SessionAuthentication,)
     def post(self, request):
         username = "vendor"
         password = "bob12345"
@@ -503,23 +623,18 @@ class CreateVendor(APIView):
         latitude = 50.7371
         longitude = -3.5351
         radius = 500
-
         # Exeter coordinates
         locationSerializer = LocationSerializer(data={'latitude': latitude, 'longitude': longitude, 'radius': radius})
         if locationSerializer.is_valid(raise_exception=True):
             location = locationSerializer.create(locationSerializer.validated_data)
             location.save()
-
         else:
             return Response({"message": "Error accesing location"}, status=status.HTTP_400_BAD_REQUEST)
         vendor = VendorModel.objects.create_user(username, email, password, location=location)
         vendor.save()
         # VendorModel.objects.filter(id=vendor.id).update(location=location)
         serializer = VendorSerializer(vendor)
-
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
-
-
 class GeoFenceTest(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)

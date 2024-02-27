@@ -10,8 +10,6 @@ import { NextQuizButton } from "../../components/Quiz/NextQuizButton";
  * @returns a quiz page
  */
 export default function Quiz() {
-
-
     // TODO: Remove with the backend questions, restructure to adapt to the backend
     const [questions, setQuestions] = useState([{
         question: "What is the capital of France?",
