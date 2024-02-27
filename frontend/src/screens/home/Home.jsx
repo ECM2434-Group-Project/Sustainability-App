@@ -26,19 +26,24 @@ export default function Home() {
 
     const [ userHasClaim, setUserHasClaim ] = useState(true)
 
-    const [ outlets, setOutlets ] = useState([])
+    const [ outletIDs, setOutletIDs ] = useState([])
 
     useEffect(() => {
-        client.post("/api/logout", {
-            email: "am1699@exeter.ac.uk",
-            password: "Password123"})
-            .then(response => {
-                console.log(response.data);
-            }).then(
-                client.get("/api/user").then(response => {
-                    console.log(response.data);
-                })
-            );
+        client.get("/api/vendors").then(response => {
+            // Update the outlets with the IDs of the vendors
+            response.data.forEach(vendor => {
+                setOutletIDs([...outletIDs, vendor.id]);
+                console.log(vendor.id);
+            });
+        }).then(() => {
+            outletIDs.forEach(id => {
+                client.get("/api/vendors/" + id).then(response => {
+                    console.log(response.data)
+                });
+            });
+        }).catch(error => {
+            console.log(error);
+        });
     }, []);
 
     const checkLocation = useCallback(() => {
@@ -92,7 +97,7 @@ export default function Home() {
 
                             <h1 className="text-2xl font-semibold">Food outlets</h1>
 
-                            {outlets.map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.image} logoImage={vendor.logo} name={vendor.name} walkTime={vendor.walkTime} numBags={vendor.numBags}/>)}
+                            {/* {outlets.map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.banner} logoImage={vendor.icon} name={vendor.username} walkTime={2} numBags={vendor.bags_left}/>)} */}
 
                             {/* <OutletCard
                                 id={"the_ram_bar"}
