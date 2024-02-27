@@ -68,7 +68,7 @@ export default function Quiz() {
             {
                 page === 0 ? (
                     <>
-                        <GoBackLink href="/outlet" />
+                        <GoBackLink href="/" />
 
                         <div className="w-full h-full flex flex-col items-center justify-center">
                             <h className="font-extrabold">Welcome To Our Sustainability Quiz</h>
