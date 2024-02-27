@@ -47,6 +47,15 @@ class UserModel(AbstractUser, PermissionsMixin):
             self.role = self.base_role
             return super().save(*args, **kwargs)
 
+class LocationModel(models.Model):
+    """Model for storing locations of vendors"""
+    location_id = models.AutoField(primary_key=True)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
+    def __str__(self):
+        """Return string representation of the Locations"""
+        return f'location_id: {self.location_id}, location: {self.location}'
 
 class VendorModel(UserModel):
     """
