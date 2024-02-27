@@ -53,7 +53,7 @@ class UserSerializer(serializers.ModelSerializer):
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorModel
-        fields = ('email', 'username','password', 'role', 'location', 'bags_left', 'icon', 'banner')
+        fields = ('id','email', 'username','password', 'role', 'location', 'bags_left', 'icon', 'banner')
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -61,7 +61,7 @@ class VendorSerializer(serializers.ModelSerializer):
 class VendorOverviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorModel
-        fields = ('username', 'location', 'bags_left')
+        fields = ('id','username', 'location', 'bags_left')
 
 
 class AdminSerializer(serializers.ModelSerializer):
