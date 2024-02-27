@@ -12,6 +12,7 @@ QuestionModel = models.QuestionModel
 VendorModel = models.VendorModel
 AdminModel = models.AdminModel
 AnswerModel = models.AnswerModel
+LocationModel = models.LocationModel
 
 
 # LeaderboardModel = models.LeaderboardModel
@@ -52,7 +53,7 @@ class UserSerializer(serializers.ModelSerializer):
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorModel
-        fields = ('email', 'username', 'role', 'location', 'bags_left')
+        fields = ('email', 'username', 'role', 'location', 'bags_left', 'icon', 'banner')
 
 
 class VendorOverviewSerializer(serializers.ModelSerializer):
@@ -83,6 +84,11 @@ class AnswerSerializer(serializers.ModelSerializer):
         model = AnswerModel
         fields = ('answer', 'answer_id', 'is_correct', 'question')
 
+class QuizAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnswerModel
+        fields = ('answer', 'answer_id')
+
 
 
 class ClaimsSerializer(serializers.ModelSerializer):
@@ -94,3 +100,8 @@ class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
         fields = ('user_id', 'fname', 'lname', 'score')
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LocationModel
+        fields = ('latitude', 'longitude', 'radius')

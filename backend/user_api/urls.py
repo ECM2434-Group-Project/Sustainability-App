@@ -14,14 +14,20 @@ urlpatterns = [
 
 	path('vendors/issuebags', views.IssueBagsView.as_view(), name='vendors'),
 	path('claims', views.ClaimsView.as_view(), name='claims'),
+	path('makeclaim', views.CreateClaim.as_view(), name='makeclaim')
 
 	path('questions', views.QuestionsView.as_view(), name='questions'),
 	path('leaderboard', views.LeaderboardView.as_view(), name='leaderboard'),
-	path('submit/<int:id_bag>', views.UserView.as_view(), name='user'),
 	path('quiz', views.QuizView.as_view(), name='quiz'),
+	path('makequestion', views.CreateQuestion.as_view(), name='makequestion'),
+
+
+
 	path('makeadmin', views.CreateAdmin.as_view(), name='makeadmin'),
 	path('makevendor', views.CreateVendor.as_view(), name='makevendor'),
-	path('makequestion', views.CreateQuestion.as_view(), name='makequestion'),
-	path('claims', views.ClaimsView.as_view(), name='claims'),
-	path('makeclaim', views.CreateClaim.as_view(), name='makeclaim')
-]
+
+
+	path('geotest', views.GeoFenceTest.as_view(), name='testgeo')
+
+
+
