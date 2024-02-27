@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
 
+/**
+ * a button that takes the user to the next question in the quiz
+ * 
+ * @param {*} setPage a function to set the page state, which question is the user on
+ * @returns a jsx component that can be loaded into the DOM
+ */
 export function NextQuizButton({ setPage }) {
     return (
 		<div className="w-screen flex flex-col mt-4">

@@ -1,4 +1,10 @@
-export function  CollectBagButton({} ) {
+
+/**
+ * a function component that creates a button to collect the bag after the quiz is completed
+ *
+ * @returns a jsx component that can be loaded into the DOM
+ */
+export function CollectBagButton({} ) {
 
 	const collectBag = () => {
 		// Collect the bag
