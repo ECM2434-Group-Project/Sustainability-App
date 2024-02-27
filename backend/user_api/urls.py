@@ -19,11 +19,11 @@ urlpatterns = [
 	path('leaderboard', views.LeaderboardView.as_view(), name='leaderboard'),
 	path('quiz', views.QuizView.as_view(), name='quiz'),
 	path('makequestion', views.CreateQuestion.as_view(), name='makequestion'),
+	path('createvendor', views.CreateVendor.as_view(), name='createvendor'),
 
 
 
 	path('makeadmin', views.CreateAdmin.as_view(), name='makeadmin'),
-	path('makevendor', views.CreateVendor.as_view(), name='makevendor'),
 	path('geotest', views.GeoFenceTest.as_view(), name='testgeo')
 
 

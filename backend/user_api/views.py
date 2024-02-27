@@ -3,6 +3,8 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
+
+from .decorators import allowed_users
 from .models import UserModel, VendorModel, AdminModel, LocationModel
 from .serializers import *
 from rest_framework import permissions, status
@@ -90,12 +92,13 @@ class UserLogin(APIView):
             admin_backend = AdminModelBackend()
 
             username = UserModel.objects.get(email__exact=email).username
-            user = admin_backend.authenticate(request, username=username, password=password, **data)
+            user = admin_backend.authenticate(None, username, password, **data)
+            request['username'] = username
             if user is not None:
                 login(request, user)
                 return Response({"message": "Logged in successfully as admin"}, status=status.HTTP_200_OK)
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
         return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -341,6 +344,8 @@ class QuizView(APIView):
         Get quiz from user:
 
         {
+        "latitude" : [Float],
+        "longitude" : [Float],
         "vendor_id" : [Int],
         "quiz" :
         [
@@ -355,8 +360,8 @@ class QuizView(APIView):
         :param request:
         :return:
         '''
+        data = request.data
 
-        print(request.data)
         user = request.user
         if user.role != UserModel.Role.USER:
             return Response({"message": "You are not a user, you cannot submit a quiz"},
@@ -365,7 +370,16 @@ class QuizView(APIView):
         if 'quiz' and 'vendor_id' not in request.data:
             return Response({"message": "You need to provide a quiz and a vendor_id"},
                             status=status.HTTP_400_BAD_REQUEST)
-        data = request.data
+
+        if 'latitude' and 'longitude' not in request.data:
+            return Response({"message": "You need to provide a latitude and a longitude"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not self.isLocationValid(data['latitude'], data['longitude'], data['vendor_id']):
+            return Response({
+                                "message": "You are not in the correct location to submit a quiz, you need to be on site to submit a quiz (500m from vendor)"},
+                            status=status.HTTP_403_FORBIDDEN)
+
         quiz = data['quiz']
         vendor_id = data['vendor_id']
         for question in quiz:
@@ -378,11 +392,19 @@ class QuizView(APIView):
             answer = AnswerModel.objects.get(answer_id=answer_id)
             if not answer.is_correct:
                 return Response({"message": "You have answered a question incorrectly"},
-                                status=status.HTTP_400_BAD_REQUEST)
+                                status=status.HTTP_200_OK)
 
         # get the vendor
         print("Quiz Passed!!!")
         return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def isLocationValid(self, latitude, longitude, vendor_id):
+        vendor = VendorModel.objects.get(id=vendor_id)
+        location = vendor.location
+        locationFence = geofencing.GeoFencing(location)
+        testLocation = LocationModel(latitude=latitude, longitude=longitude)
+        is_inside = locationFence.is_inside(testLocation, accuracy=0)
+        return is_inside
 
 
 class CreateQuestion(APIView):
@@ -460,32 +482,80 @@ class CreateAdmin(APIView):
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
 
 
+
 class CreateVendor(APIView):
-    permission_classes = (permissions.AllowAny,)
+    '''
+    Example Vendor:
+    {
+"email" : "vendor@v.com",
+"username" : "MikeysMash",
+"password" : "bob12345",
+"latitude" :   50.7371 ,
+"longitude":    -3.5351
+    }
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
-    def post(self, request):
-        username = "vendor"
-        password = "bob12345"
-        email = "vendor1@v.com"
-        latitude = 50.7371
-        longitude = -3.5351
-        radius = 500
+    def get(self, request):
+        return Response({"message": "You cannot make a get request to this page"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Exeter coordinates
-        locationSerializer = LocationSerializer(data={'latitude': latitude, 'longitude': longitude, 'radius': radius})
+    def post(self, request):
+        if request.user.role != "ADMIN":
+            return Response({"message": "You are not an admin"}, status=status.HTTP_403_FORBIDDEN)
+        if 'latitude' and 'longitude' not in request.data:
+            return Response({"message": "You need to provide a latitude and a longitude"}, status=status.HTTP_400_BAD_REQUEST)
+
+        locationSerializer = LocationSerializer(data=request.data)
         if locationSerializer.is_valid(raise_exception=True):
             location = locationSerializer.create(locationSerializer.validated_data)
             location.save()
+            data = request.data
+            data['location'] = location.location_id
+            data['role'] = "VENDOR"
+            serializer = VendorSerializer(data=data)
+            if serializer.is_valid(raise_exception=True):
 
-        else:
-            return Response({"message": "Error accesing location"}, status=status.HTTP_400_BAD_REQUEST)
-        vendor = VendorModel.objects.create_user(username, email, password, location=location)
-        vendor.save()
-        # VendorModel.objects.filter(id=vendor.id).update(location=location)
-        serializer = VendorSerializer(vendor)
 
-        return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
+
+                vendor = serializer.create(serializer.validated_data)
+                vendor.save()
+                # create location for vendor
+
+
+                VendorModel.objects.filter(id=vendor.id).update(location=location)
+
+                return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
+
+        return Response({"message": "Error creating vendor"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class CreateVendor(APIView):
+#     permission_classes = (permissions.AllowAny,)
+#     authentication_classes = (SessionAuthentication,)
+#
+#     def post(self, request):
+#         username = "vendor"
+#         password = "bob12345"
+#         email = "vendor1@v.com"
+#         latitude = 50.7371
+#         longitude = -3.5351
+#         radius = 500
+#
+#         # Exeter coordinates
+#         locationSerializer = LocationSerializer(data={'latitude': latitude, 'longitude': longitude, 'radius': radius})
+#         if locationSerializer.is_valid(raise_exception=True):
+#             location = locationSerializer.create(locationSerializer.validated_data)
+#             location.save()
+#
+#         else:
+#             return Response({"message": "Error accesing location"}, status=status.HTTP_400_BAD_REQUEST)
+#         vendor = VendorModel.objects.create_user(username, email, password, location=location)
+#         vendor.save()
+#         # VendorModel.objects.filter(id=vendor.id).update(location=location)
+#         serializer = VendorSerializer(vendor)
+#
+#         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
 
 
 class GeoFenceTest(APIView):
