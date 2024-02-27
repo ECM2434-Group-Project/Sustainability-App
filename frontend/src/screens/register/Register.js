@@ -22,10 +22,11 @@ export default function Register() {
 
     const [ stage, setStage ] = useState(0)
 
-    const handleSubmit = useCallback(async (e) => {
+    const register = useCallback(async (e) => {
         e.preventDefault();
         setError(false)
         try {
+
             const response = await fetch("http://127.0.0.1:8000/api/register", {
                 method: "POST",
                 headers: {
@@ -33,10 +34,11 @@ export default function Register() {
                 },
                 body: JSON.stringify({ email, username, firstName: fName, lastName: lName, password }),
             });
-            const data = await response.json();
+
             if (response.ok) {
                 nav("/login")
             } else {
+                console.error(await response.json())
                 setError(true)
             }
             
@@ -50,7 +52,7 @@ export default function Register() {
     return (
         <div className="h-screen flex flex-col justify-center bg-exeterDeepGreen text-white gap-6">
 
-            <form onSubmit={handleSubmit} className="flex flex-col">
+            <form onSubmit={register} className="flex flex-col">
                 <div className="flex flex-col gap-6">
 
                     <div className="p-4">
@@ -110,7 +112,7 @@ export default function Register() {
 
                 {
                     error ? (
-                        <p className="p-4 text-center text-red-200">Incorrect email or password</p>
+                        <p className="p-4 text-center text-red-200">Something went wrong</p>
                     ) : (
                         <></>
                     )
