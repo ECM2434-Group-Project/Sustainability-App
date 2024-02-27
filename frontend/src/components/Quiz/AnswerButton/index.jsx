@@ -6,12 +6,20 @@
  * @param {*} setSelected the state of the button
  * @returns a jsx component that can be loaded into the DOM
  */
-export function AnswerButton({ answer, setSelected }) {
+export function AnswerButton({ answer, index, selected, setSelected }) {
     return (
 		<div className="flex flex-col">
-			<button className="rounded-full p-4 justify-center border border-exeterDarkGreen hover:bg-exeterBrightGreen w-full" onClick={
+			<button 
+				className={
+					selected === index ? (
+						"rounded-full p-4 justify-center border border-exeterDarkGreen bg-exeterBrightGreen w-full"
+					) : (
+						"rounded-full p-4 justify-center border border-exeterDarkGreen w-full"
+					)
+				}
+			onClick={
 				() => {
-					setSelected(true)
+					setSelected(index)
 				}
 			} >{answer}</button>
 		</div>

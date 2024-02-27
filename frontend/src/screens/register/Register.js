@@ -1,5 +1,6 @@
-import {React, useState} from "react";
+import {React, useCallback, useState} from "react";
 import { TextInput } from "../../components/General/TextInput";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
 // Create a register page that has a form with three fields, one for email, one for username, and one for password
@@ -7,45 +8,46 @@ export default function Register() {
 // On submit, the form should make a POST request to /api/register at port 8000 with the email, username, and password in the request body
 // If the request is HTTP_201_CREATED, the user should be redirected to the home page
 // If the request is HTTP_400_BAD_REQUEST, the user should be shown an error message
-
+    const nav = useNavigate()
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const [fName, setFName] = useState("");
     const [lName, setLName] = useState("");
+    const [ error, setError ] = useState()
 
     const [ stage, setStage ] = useState(0)
 
-    const handleSubmit = async (e) => {
+    const register = useCallback(async (e) => {
         e.preventDefault();
+        setError(false)
         try {
             const response = await fetch("http://127.0.0.1:8000/api/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, username, password }),
+                body: JSON.stringify({ email, username, firstName: fName, lastName: lName, password }),
             });
-            const data = await response.json();
-            if (response.status === 201) {
-                console.log(data);
-                console.log("Registered successfully");
-                window.location.href = "/login";
+
+            if (response.ok) {
+                nav("/login")
+            } else {
+                console.error(await response.json())
+                setError(true)
             }
-            else if (response.status === 400) {
-                console.log(data);
-            }
+            
         }
         catch (error) {
+            setError(true)
             console.error(error);
         }
-    }
+    }, [ email, username, fName, lName, password ])
 
     return (
         <div className="h-screen flex flex-col justify-center bg-exeterDeepGreen text-white gap-6">
-
-            <form onSubmit={handleSubmit} className="flex flex-col">
+            <form onSubmit={register} className="flex flex-col">
                 <div className="flex flex-col gap-6">
 
                     <div className="p-4">
@@ -62,6 +64,13 @@ export default function Register() {
                                 placeholder="Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                            <TextInput
+                                label={"Set a Username"}
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 required
                             />
                             <TextInput
@@ -87,14 +96,20 @@ export default function Register() {
                                 type="text"
                                 placeholder="Blewitt"
                                 value={lName}
-                                onChange={(e) => setFName(e.target.value)}
+                                onChange={(e) => setLName(e.target.value)}
                                 required
                             />
                         </div>
                     </div>
 
                 </div>
-
+                {
+                    error ? (
+                        <p className="p-4 text-center text-red-200">Something went wrong</p>
+                    ) : (
+                        <></>
+                    )
+                }
                 <div className="p-4 flex flex-col gap-4">
                     {
                         stage === 1 ? (

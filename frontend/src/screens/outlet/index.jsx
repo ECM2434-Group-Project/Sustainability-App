@@ -16,7 +16,7 @@ export function OutletPage() {
         console.log("getting outlets info ... ")
 
         // fetch the outlets from the backend
-        fetch("http://localhost:8000/api/outlets").then(response => response.json()).then(data => {
+        fetch("http://localhost:8000/api/vendors/").then(response => response.json()).then(data => {
             console.log(data)
         })
     }
