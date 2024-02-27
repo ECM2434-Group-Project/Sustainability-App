@@ -10,6 +10,16 @@ export function OutletPage() {
     const { outlet } = useParams()
 
     // FETCH THIS OUTLET'S INFO
+    const getOutlets = () => {
+
+        // debug
+        console.log("getting outlets info ... ")
+
+        // fetch the outlets from the backend
+        fetch("http://localhost:8000/api/outlets").then(response => response.json()).then(data => {
+            console.log(data)
+        })
+    }
 
     return (
         <section className="h-full flex flex-col ">

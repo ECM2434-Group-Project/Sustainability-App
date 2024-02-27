@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AnswerButton } from "../../components/Quiz/AnswerButton";
 import { SubmitButton } from "../../components/Quiz/SubmitButton";
 import { NextQuizButton } from "../../components/Quiz/NextQuizButton";
@@ -39,9 +39,22 @@ export default function Quiz() {
 
     // function to collect the bag after the quiz is complete
     const collectBag = () => {
+
 		// Collect the bag
 		console.log("Bag collected")
 	}
+
+    // on load, get questions from the backend
+    useEffect(() => {
+
+        // some debugging
+        console.log("use effect works")
+
+        // fetch the questions from the backend
+        fetch("http://localhost:8000/api/questions").then(response => response.json()).then(data => {
+            console.log(data)
+        }  )
+    }, [])
 
     // return the quiz, selecting first question or second question based on the page state
     return page === 0 ? (
