@@ -91,7 +91,13 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'user_api.AppUser'
+AUTH_USER_MODEL = 'user_api.UserModel'
+
+AUTHENTICATION_BACKENDS = [
+    'user_api.backends.VendorModelBackend',
+    'user_api.backends.AdminModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
