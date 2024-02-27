@@ -6,10 +6,6 @@
  */
 export function CollectBagButton({} ) {
 
-	const collectBag = () => {
-		// Collect the bag
-		console.log("Bag collected")
-	}
 
     return (
 		<div className="w-screen flex flex-col mt-4">
