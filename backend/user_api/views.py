@@ -148,7 +148,7 @@ class VendorsView(APIView):
         data = []
         for vendor in vendors:
             location = vendor.location
-            data.append({"username": vendor.username, "latitude" : location.latitude,
+            data.append({"id" : vendor.id, "username" :  vendor.username, "latitude" : location.latitude,
                          "longitude" : location.longitude, "bags_left": vendor.bags_left})
 
 
@@ -163,14 +163,11 @@ class VendorView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
-    def get_object(self, vendor_id):
-        try:
-            return VendorModel.objects.get(vendor_id=vendor_id)
-        except VendorModel.DoesNotExist:
-            raise None
-
     def get(self, request, vendor_id):
-        vendor = self.get_object(vendor_id)
+
+        if not request.user:
+            return Response({"message": "You are not logged in"}, status=status.HTTP_403_FORBIDDEN)
+        vendor = VendorModel.objects.filter(id=vendor_id).first()
         if not vendor:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
