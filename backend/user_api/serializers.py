@@ -52,7 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorModel
-        fields = ('email', 'username', 'role', 'location', 'bags_left')
+        fields = ('email', 'username', 'role', 'location', 'bags_left', 'icon', 'banner')
 
 
 class VendorOverviewSerializer(serializers.ModelSerializer):

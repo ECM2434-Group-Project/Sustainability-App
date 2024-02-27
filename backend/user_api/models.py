@@ -70,8 +70,10 @@ class VendorModel(UserModel):
         password
     """
     base_role = UserModel.Role.VENDOR
-    location = models.CharField(max_length=25)
+    location = models.ForeignKey(LocationModel, on_delete=models.CASCADE)
     bags_left = models.IntegerField(default=0)
+    icon = models.CharField(max_length=256, default='https://pbs.twimg.com/profile_images/1657489733/ram2_400x400.jpg')
+    banner = models.CharField(max_length=256, default='https://liveevents.exeter.ac.uk/wp-content/uploads/2022/02/Section-1.png')
 
     class VendorManager(BaseUserManager):
         def get_queryset(self, *args, **kwargs):
