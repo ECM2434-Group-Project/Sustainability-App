@@ -45,7 +45,7 @@ export default function Home() {
 
 
     return (
-        <section className="h-full flex flex-col justify-between h-full p-4">
+        <section className="h-full flex flex-col justify-between p-4">
             {
                 loggedIn ? (
                     <div className="flex justify-end">
