@@ -62,6 +62,8 @@ class VendorModel(UserModel):
     base_role = UserModel.Role.VENDOR
     location = models.CharField(max_length=25)
     bags_left = models.IntegerField(default=0)
+    icon = models.ImageField(default='images/default_icon.png')
+    banner = models.ImageField(default='images/default_banner.png')
 
     class VendorManager(BaseUserManager):
         def get_queryset(self, *args, **kwargs):
@@ -71,7 +73,6 @@ class VendorModel(UserModel):
     vendor = VendorManager()
 
     class Meta:
-
         permissions = [
             # addbag etc.
         ]
@@ -103,7 +104,8 @@ class AdminModel(UserModel):
         ]
 
 
-"""class VendorModel(models.Model):
+"""
+class VendorModel(models.Model):
 	#Model for the Vendors
 	vendor_id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=25)

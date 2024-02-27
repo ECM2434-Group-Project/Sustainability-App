@@ -52,7 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorModel
-        fields = ('email', 'username', 'role', 'location', 'bags_left')
+        fields = ('email', 'username', 'role', 'location', 'bags_left', 'icon', 'banner')
 
 
 class VendorOverviewSerializer(serializers.ModelSerializer):
@@ -78,17 +78,18 @@ class QuestionsSerializer(serializers.ModelSerializer):
         model = QuestionModel
         fields = ('question_id', 'question')
 
+
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnswerModel
         fields = ('answer', 'answer_id', 'is_correct', 'question')
 
 
-
 class ClaimsSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = ClaimModel
-		fields = ('claim_id', 'bag', 'user', 'time', 'success')
+    class Meta:
+        model = ClaimModel
+        fields = ('claim_id', 'bag', 'user', 'time', 'success')
+
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
