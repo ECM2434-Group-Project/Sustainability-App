@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
 from . import models
+from .models import ClaimModel
 
 # Returns clean data
 
@@ -88,6 +89,12 @@ class QuizAnswerSerializer(serializers.ModelSerializer):
         model = AnswerModel
         fields = ('answer', 'answer_id')
 
+
+
+class ClaimsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ClaimModel
+		fields = ('claim_id', 'bag', 'user', 'time', 'success')
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:

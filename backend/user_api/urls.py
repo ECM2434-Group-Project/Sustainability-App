@@ -14,6 +14,7 @@ urlpatterns = [
 
 	path('vendors/issuebags', views.IssueBagsView.as_view(), name='vendors'),
 	path('claims', views.ClaimsView.as_view(), name='claims'),
+	path('makeclaim', views.CreateClaim.as_view(), name='makeclaim')
 
 	path('questions', views.QuestionsView.as_view(), name='questions'),
 	path('leaderboard', views.LeaderboardView.as_view(), name='leaderboard'),
@@ -28,5 +29,3 @@ urlpatterns = [
 
 
 
-
-]
