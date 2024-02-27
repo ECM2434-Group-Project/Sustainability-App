@@ -1,17 +1,14 @@
-import { Link } from "react-router-dom";
 import { StandoutButton } from "../../General/StandoutButton";
 
-export function NextQuizButton({ setPage, disabled }) {
+export function CustomButton({ callback=()=>{}, disabled, text="Next" }) {
     return (
 		<div className="flex flex-col mt-4">
 			<StandoutButton
 				disabled={disabled}
 				onClick={() => {
-					setPage((page) => {
-						return page + 1
-					})
+					callback()
 				}}>
-					Next
+					{text}
 			</StandoutButton>
 		</div>
 		

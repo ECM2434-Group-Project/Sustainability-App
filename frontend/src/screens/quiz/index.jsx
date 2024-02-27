@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AnswerButton } from "../../components/Quiz/AnswerButton";
-import { NextQuizButton } from "../../components/Quiz/NextQuizButton";
+import { CustomButton } from "../../components/Quiz/CustomButton";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { Link } from "react-router-dom";
 /**
@@ -74,9 +74,9 @@ export default function Quiz() {
                             <h className="font-extrabold">Welcome To Our Sustainability Quiz</h>
                             <p className="w-3/4 pt-10">Our sustainability quiz aims to inspire and inform the student population about ways in which they can become more <small className="text-exeterBrightGreen font-bold">environmentally friendly</small> among spreading awareness about how we behave.</p>
                             <p className="w-3/4 pt-5">To proceed to the quiz please press the next button. There will be a total of 2 questions and you will receive the bag if you finish the quiz before <small className="text-exeterBrightGreen font-bold">anyone else.</small></p>
-                            <NextQuizButton callback={() => {
+                            <CustomButton callback={() => {
                                 setPage((page) => page + 1)
-                            }}/>
+                            }} text="Start"/>
                         </div>
                     </>
                     
@@ -98,7 +98,7 @@ export default function Quiz() {
                                         )
                                     }
 
-                                    <NextQuizButton disabled={!selected} callback={checkCorrect}/>
+                                    <CustomButton disabled={!selected} callback={checkCorrect} />
                                     
                                 </div>
                             ) : (
@@ -119,7 +119,7 @@ export default function Quiz() {
                                                     )
                                                 }
                                                 
-                                                <NextQuizButton disabled={!selected} callback={checkCorrect}/>
+                                                <CustomButton disabled={!selected} callback={checkCorrect} text="Finish" />
                                                     
                                             </div>
                                         ) : (
