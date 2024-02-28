@@ -12,7 +12,7 @@ from .validations import *
 from .backends import VendorModelBackend, AdminModelBackend
 
 import datetime
-
+from random import shuffle
 from . import geofencing
 
 
@@ -294,19 +294,22 @@ class WebsiteUserView(APIView):
 
 class QuizView(APIView):
     '''JSON format:
-    Get:
 
     Post:
-    {
-    "questions" :
+    submit a quiz:
+
+        {
+        "latitude" : [Float],
+        "longitude" : [Float],
+        "vendor_id" : [Int],
+        "quiz" :
         [
             {
                 "question_id" : [Int],
-                 "answer_id" : [Int]
-             },
-             ...
-         ]
-    }
+                "answer_id" : [Int]
+            },...
+            ]}
+
 '''
 
 
@@ -346,6 +349,7 @@ class QuizView(APIView):
 
             ## shuffle the answers
             shuffled_answers = correct_answer_serialized + false_answers_serialized
+            shuffle(shuffled_answers)
 
             data[i]['answers'] = shuffled_answers
 
@@ -353,21 +357,7 @@ class QuizView(APIView):
 
     def post(self, request):
         '''
-        Get quiz from user:
 
-        {
-        "latitude" : [Float],
-        "longitude" : [Float],
-        "vendor_id" : [Int],
-        "quiz" :
-        [
-            {
-                "question_id" : [Int],
-                "answer_id" : [Int]
-            },
-            ...
-        ]
-        }
 
         :param request:
         :return:
