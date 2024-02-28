@@ -86,48 +86,48 @@ export default function Home() {
 
                                         <h1 className="text-2xl font-semibold">Food outlets</h1>
 
-                            {outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.banner} logoImage={vendor.icon} name={vendor.username} walkTime={2} numBags={vendor.bags_left}/>)}
-                        </div>
+                                        {outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.banner} logoImage={vendor.icon} name={vendor.username} walkTime={2} numBags={vendor.bags_left}/>)}
+                                    </div>
 
                                 </>
                             ) : (
-                                    !locationDenied ? (
-                                        <>
+                                !locationDenied ? (
+                                    <>
 
-                                            <div>
-                                                <h1
-                                                    className="text-4xl font-semibold text-gray-700"
-                                                >Welcome back, Edward</h1>
-                                            </div>
-                        
-                                            {
-                                                userHasClaim ? (
-                                                    <div className="h-full pt-8">
-                                                        <UserClaimView />
-                                                    </div>
-                                                ) : (
-                                                    <></>
-                                                )
-                                            }
+                                        <div>
+                                            <h1
+                                                className="text-4xl font-semibold text-gray-700"
+                                            >Welcome back, {user.username}</h1>
+                                        </div>
                     
-                                            <div className="text-center flex flex-col gap-3">
-                                                <StandoutButton onClick={checkLocation}>
-                                                    <MdLocationOn />
-                                                    <span>Check my location</span>
-                                                </StandoutButton>
-                                                <small>You must be on campus to claim food</small>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="h-full flex flex-col justify-center gap-16">
-                                                <h1
-                                                    className="text-2xl font-semibold text-gray-700"
-                                                >Without your location, we cannot verify if you are on campus.</h1>
-                                                <small className="text-center">Please close the application and try again</small>
-                                            </div>
-                                        </>
-                                    )
+                                        {
+                                            userHasClaim ? (
+                                                <div className="h-full pt-8">
+                                                    <UserClaimView />
+                                                </div>
+                                            ) : (
+                                                <></>
+                                            )
+                                        }
+                
+                                        <div className="text-center flex flex-col gap-3">
+                                            <StandoutButton onClick={checkLocation}>
+                                                <MdLocationOn />
+                                                <span>Check my location</span>
+                                            </StandoutButton>
+                                            <small>You must be on campus to claim food</small>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="h-full flex flex-col justify-center gap-16">
+                                            <h1
+                                                className="text-2xl font-semibold text-gray-700"
+                                            >Without your location, we cannot verify if you are on campus.</h1>
+                                            <small className="text-center">Please close the application and try again</small>
+                                        </div>
+                                    </>
+                                )
                             )
                         }
                     </>
@@ -151,12 +151,6 @@ export default function Home() {
                     </>
                 )
             }
-        
-            
-                
-            
-
-
         </section>
     ) : (
         <div>
