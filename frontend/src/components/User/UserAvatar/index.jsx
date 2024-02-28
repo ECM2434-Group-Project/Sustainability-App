@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
+import { useUser } from "../../../contexts/userContext";
 
 export function UserAvatar({ large=false }) {
+
+    const { user } = useUser()
+
     return (
         <Link
             to={"/settings"}
@@ -10,7 +14,7 @@ export function UserAvatar({ large=false }) {
             <span
                 className="w-min h-min text-gray-600 font-bold"
                 style={!large ? { fontSize: "1rem" } : { fontSize: "3rem" } }
-            >EB</span>
+            >{user.first_name[0] + user.last_name[1]}</span>
         </Link>
     )
 }

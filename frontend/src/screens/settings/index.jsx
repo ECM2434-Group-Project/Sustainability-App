@@ -2,8 +2,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { StandoutButton } from "../../components/General/StandoutButton";
-import { useCallback } from "react";
-import axios from "axios";
 import { useUser } from "../../contexts/userContext";
 
 
