@@ -16,10 +16,21 @@ export const UserProvider = ({ children }) => {
 	const [user, setUser] = useState()
 	const [locationVerified, setLocationVerified] = useState(false)
 
-	const register = useCallback(async (email, password) => {
+	const register = useCallback(async (email, username, password, fName, lName) => {
 		console.log("registering user")
 
-		// TODO
+		const res = await client.post("/api/register", {
+			email: email,
+			username: username,
+			password: password,
+			first_name: fName,
+			last_name: lName,
+		})
+		
+		if (res.status >= 200 && res.status < 300) {
+			await refreshUser()
+			return true
+		}
 	}, [])
 
 	const login = useCallback(async (email, password) => {
@@ -34,7 +45,7 @@ export const UserProvider = ({ children }) => {
 			return true
 		}
 
-		
+
 
 	}, [])
 
