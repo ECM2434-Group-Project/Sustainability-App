@@ -64,8 +64,8 @@ export default function Home() {
     }, [ locationVerified, locationDenied ])
 
 
-    return user ? (
-        <section className="h-full flex flex-col justify-between h-full p-4">
+    return (
+        <section className="h-full flex flex-col justify-between p-4">
             {
                 user ? (
                     <>
@@ -151,9 +151,5 @@ export default function Home() {
                 )
             }
         </section>
-    ) : (
-        <div>
-            <p>you are not logged in please login</p>
-        </div>
     )
 }
