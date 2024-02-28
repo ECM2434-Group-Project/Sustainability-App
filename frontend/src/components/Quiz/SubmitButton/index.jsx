@@ -4,7 +4,7 @@ import { useCallback } from "react";
 
 
 
-export function SubmitButton({ disabled }) {
+export function SubmitButton({ disabled, setAnswer, answer}) {
 
 	const nav = useNavigate()
 
@@ -14,7 +14,11 @@ export function SubmitButton({ disabled }) {
 
     return (
 		<div className="flex flex-col">
-			<StandoutButton disabled={disabled} onClick={() => nav("/quiz/complete")}>
+			<StandoutButton disabled={disabled} onClick={() => {
+				setAnswer((answers) => {
+					return [...answers, answer]
+				});
+				}}>
 				Submit
 			</StandoutButton>
 		</div>

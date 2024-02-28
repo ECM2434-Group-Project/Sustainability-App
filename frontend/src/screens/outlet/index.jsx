@@ -23,7 +23,6 @@ export function OutletPage() {
   useEffect(() => {
     client.get("/api/vendors/" + outlet).then((response) => {
       setOutletData(response.data);
-      console.log(response.data.banner);
     });
   }, []);
 

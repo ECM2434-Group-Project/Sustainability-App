@@ -19,7 +19,7 @@ export function AnswerButton({ answer, index, selected, setSelected }) {
 				}
 			onClick={
 				() => {
-					setSelected(index)
+					setSelected(index);
 				}
 			} >{answer}</button>
 		</div>
