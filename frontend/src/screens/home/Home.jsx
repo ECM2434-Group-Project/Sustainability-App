@@ -21,30 +21,25 @@ export default function Home() {
     
     const [loggedIn, setLoggedIn] = React.useState(true);
 
-    const [ locationVerified, setLocationVerified ] = useState(false)
-    const [ locationDenied, setLocationDenied ] = useState(false)
+    const [ locationVerified, setLocationVerified ] = useState(false);
+    const [ locationDenied, setLocationDenied ] = useState(false);
 
-    const [ userHasClaim, setUserHasClaim ] = useState(true)
+    const [ userHasClaim, setUserHasClaim ] = useState(true);
 
-    const [ outletIDs, setOutletIDs ] = useState([])
+    const [ outletIDs, setOutletIDs ] = useState([]);
 
+    const [outlets, setOutlets] = useState([]);
+
+    // Get the outlet ids then get the outlet data from the at /api/outlets/{id}
     useEffect(() => {
-        client.get("/api/vendors").then(response => {
-            // Update the outlets with the IDs of the vendors
-            response.data.forEach(vendor => {
-                setOutletIDs([...outletIDs, vendor.id]);
-                console.log(vendor.id);
-            });
-        }).then(() => {
-            outletIDs.forEach(id => {
-                client.get("/api/vendors/" + id).then(response => {
-                    console.log(response.data)
-                });
-            });
-        }).catch(error => {
-            console.log(error);
-        });
-    }, []);
+        client.get("/api/vendors").then((response) => { 
+            for (let i = 0; i < response.data.length; i++) {
+                client.get("/api/vendors/" + response.data[i].id).then((vendor) => {
+                    setOutlets(prevOutlets => ([...prevOutlets, vendor.data]));
+                })
+            }
+        })
+    }, [])
 
     const checkLocation = useCallback(() => {
 
@@ -97,40 +92,7 @@ export default function Home() {
 
                             <h1 className="text-2xl font-semibold">Food outlets</h1>
 
-                            {/* {outlets.map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.banner} logoImage={vendor.icon} name={vendor.username} walkTime={2} numBags={vendor.bags_left}/>)} */}
-
-                            {/* <OutletCard
-                                id={"the_ram_bar"}
-                                name={"The Ram Bar"}
-                                walkTime={2}
-                                bgImage={"https://liveevents.exeter.ac.uk/wp-content/uploads/2022/02/Section-1.png"}
-                                logoImage={"https://pbs.twimg.com/profile_images/1657489733/ram2_400x400.jpg"}
-                            />
-
-                            <OutletCard
-                                id={"the_ram_bar"}
-                                name={"The Ram Bar"}
-                                walkTime={2}
-                                bgImage={"https://liveevents.exeter.ac.uk/wp-content/uploads/2022/02/Section-1.png"}
-                                logoImage={"https://pbs.twimg.com/profile_images/1657489733/ram2_400x400.jpg"}
-                            />
-
-                            <OutletCard
-                                id={"the_ram_bar"}
-                                name={"The Ram Bar"}
-                                walkTime={2}
-                                bgImage={"https://liveevents.exeter.ac.uk/wp-content/uploads/2022/02/Section-1.png"}
-                                logoImage={"https://pbs.twimg.com/profile_images/1657489733/ram2_400x400.jpg"}
-                            />
-
-                            <OutletCard
-                                id={"the_ram_bar"}
-                                name={"The Ram Bar"}
-                                walkTime={2}
-                                bgImage={"https://liveevents.exeter.ac.uk/wp-content/uploads/2022/02/Section-1.png"}
-                                logoImage={"https://pbs.twimg.com/profile_images/1657489733/ram2_400x400.jpg"}
-                            /> */}
-
+                            {outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.banner} logoImage={vendor.icon} name={vendor.username} walkTime={2} numBags={vendor.bags_left}/>)}
                         </div>
 
                     </>
