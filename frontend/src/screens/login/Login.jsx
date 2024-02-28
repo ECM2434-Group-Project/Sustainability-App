@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { TextInput } from "../../components/General/TextInput";
 import { useUser } from "../../contexts/userContext";
 
@@ -16,26 +16,32 @@ export default function Login() {
 
 	const [error, setError] = useState();
 
-	const { user, login } = useUser();
+	const { user, login, refreshUser } = useUser();
+
+	const { nav } = useNavigate()
 
 	const handleSubmit = useCallback(
 
 		// async function for logging in
-		async (e) => {
+		(e) => {
 			e.preventDefault();
 			setError(false);
 
 			// now login
-			const result = login(email, password);
+			login(email, password)
+			.then(() => {
+				console.log("Done")
+				nav("/")
+			})
+			.catch((error) => {
+				return error
+			})
 
-			if (result instanceof Error) {
-				setError(true);
-			}
 		},
 		[error, email, password]
 	);
 
-	return (
+	return !user ? (
 		<div className="h-screen flex flex-col justify-center p-4 bg-exeterDeepGreen text-white gap-6">
 			<form onSubmit={handleSubmit} className="flex flex-col gap-16">
 				<div className="flex flex-col gap-6">
@@ -83,5 +89,7 @@ export default function Login() {
 				</small>
 			</div>
 		</div>
-	);
+	) : (
+		<p>You are logged in already</p>
+	)
 }

@@ -27,19 +27,17 @@ export const UserProvider = ({ children }) => {
 	}, [])
 
 	const login = useCallback(async (email, password) => {
-		console.log("logging in user")
 
-		client.post("/api/login", {
+		const res = await client.post("/api/login", {
 			email: email,
 			password: password,
-		}).then((response) => {
-			console.log(response.data)
-			refreshUser()
-			nav("/")
 		})
-		.catch((error) => {
-			return error
-		})
+
+		if(res.status >= 200 && res.status < 300) {
+			await refreshUser()
+			return true
+		}
+
 	}, [])
 
 	const logout = useCallback(() => {
@@ -52,13 +50,30 @@ export const UserProvider = ({ children }) => {
 
 	// Fetches the user's data
 	const refreshUser = useCallback(() => {
-		client.get("/api/user")
-		.then(res => setUser(res))
-		.catch(err => console.error("Error getting user data", err))
+		return new Promise((res, rej) => {
+			client.get("/api/user")
+			.then(r => {
+				console.log(r.data)
+				setUser(r.data)
+				res(true)
+			})
+			.catch(err => {
+				console.error("Error getting user data", err)
+				rej(err)
+
+			})
+		})
 	}, [])
 	
 	// Get the user's data when the page loads
-	// useEffect(() => refreshUser, [])
+	useEffect(() => {
+		refreshUser()
+		.then(() => console.log("Got user"))
+	}, [])
+
+	useEffect(() => {
+		console.log(user)
+	}, [user])
 
 	
 

@@ -28,7 +28,10 @@ export default function Home() {
 
 
     // Get the outlet ids then get the outlet data from the at /api/outlets/{id}
-    useEffect(() => {
+    const getOutlets = useCallback(() => {
+
+        console.log("Getting outlets")
+        
         client.get("/api/vendors").then((response) => { 
             for (let i = 0; i < response.data.length; i++) {
                 client.get("/api/vendors/" + response.data[i].id).then((vendor) => {
@@ -36,7 +39,8 @@ export default function Home() {
                 })
             }
         })
-    }, [])
+
+    }, [outlets])
 
     const checkLocation = useCallback(() => {
 
@@ -46,6 +50,8 @@ export default function Home() {
 
             // Check their location here
             setLocationVerified(true)
+
+            getOutlets()
 
         }
           

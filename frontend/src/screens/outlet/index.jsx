@@ -16,7 +16,9 @@ const client = axios.create({
 });
 
 export function OutletPage() {
+
   const { outlet } = useParams();
+  
   const [outletData, setOutletData] = useState({});
 
   // FETCH THIS OUTLET'S INFO
