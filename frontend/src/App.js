@@ -4,7 +4,6 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './screens/home/Home';
 import Login from './screens/login/Login';
 import Register from './screens/register/Register';
-import Logout from './screens/logout/Logout';
 import { OutletPage } from './screens/outlet';
 import { SettingsPage } from './screens/settings';
 import Quiz from './screens/quiz';
