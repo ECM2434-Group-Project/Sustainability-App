@@ -72,7 +72,7 @@ export default function Home() {
                                     {
                                         userHasClaim ? (
                                             <div className="h-full pt-8">
-                                                <UserClaimView />
+                                                {/* <UserClaimView /> */}
                                             </div>
                                         ) : (
                                             <></>
