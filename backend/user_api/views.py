@@ -58,12 +58,14 @@ class UserLogin(APIView):
     def post(self, request):
         data = request.data
 
-        if 'email' in data:
-            # if email exists, throws exception if it doesn't
-            email = data['email']
-            assert validate_email(data)
-        else:
-            return Response({"message": "Email is missing", "Data-Sent": data}, status=status.HTTP_400_BAD_REQUEST)
+        valid = user_login_validation(data)
+        # if valid is an Exception
+        if valid:
+            return Response({"message": str(valid)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # if email exists, throws exception if it doesn't
+        email = data['email']
+        assert validate_email(data)
 
         password = data['password']
 
