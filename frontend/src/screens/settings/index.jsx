@@ -6,13 +6,6 @@ import { useCallback } from "react";
 import axios from "axios";
 import { useUser } from "../../contexts/userContext";
 
-axios.defaults.xsrfCookieName = "csrftoken";
-axios.defaults.xsrfHeaderName = "X-CSRFToken";
-axios.defaults.withCredentials = true;
-
-const client = axios.create({
-  baseURL: "http://127.0.0.1:8000",
-});
 
 export function SettingsPage() {
 
@@ -46,7 +39,7 @@ export function SettingsPage() {
 
                     <Link to={"/settings/change-name"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Leaderboard</Link>
 
-                    <Link to={"/settings/change-name"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Orders</Link>
+                    <Link to={"/settings/view-claim"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Claims</Link>
 
                 </div>
 

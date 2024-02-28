@@ -1,16 +1,15 @@
-import { useUser } from "../../contexts/userContext"
+
+import { UserClaimView } from "../../components/User/UserClaimView"
 
 export function ViewClaimPage() {
 
-    const { user } = useUser()
-
     return (
         <section>
-            <h1>View your claim</h1>
 
-            {
-                
-            }
+            <h1 className="text-4xl font-semibold pb-12">View your claims</h1>
+
+            <UserClaimView />
+
         </section>
     )
 }
