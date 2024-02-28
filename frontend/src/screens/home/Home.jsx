@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
 import { client } from "../../../axios";
 
-    // Based on state passed in which contains if logged in or not, display the home page with a login and register button
+// Based on state passed in which contains if logged in or not, display the home page with a login and register button
 
 export default function Home() {
     
@@ -25,6 +25,8 @@ export default function Home() {
     const [ outletIDs, setOutletIDs ] = useState([]);
 
     const [outlets, setOutlets] = useState([]);
+
+    const { user } = useUser();
 
     // Get the outlet ids then get the outlet data from the at /api/outlets/{id}
     useEffect(() => {
@@ -63,7 +65,7 @@ export default function Home() {
     }, [ locationVerified, locationDenied ])
 
 
-    return (
+    return user ? (
         <section className="h-full flex flex-col justify-between h-full p-4">
             {
                 user ? (
@@ -156,5 +158,9 @@ export default function Home() {
 
 
         </section>
+    ) : (
+        <div>
+            <p>you are not logged in please login</p>
+        </div>
     )
 }
