@@ -6,7 +6,7 @@ import React, {
 	useCallback
 } from 'react'
 import { useNavigate } from "react-router-dom"
-import { client } from '../../axios'
+import { client } from '../axios'
 
 
 

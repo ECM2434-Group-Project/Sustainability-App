@@ -7,7 +7,7 @@ import { OnCampusIndicator } from "../../components/Dashboard/OnCampusIndicator"
 import { UserClaimView } from "../../components/User/UserClaimView";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
-import { client } from "../../../axios";
+import { client } from "../../axios";
 
 // Based on state passed in which contains if logged in or not, display the home page with a login and register button
 
@@ -26,7 +26,6 @@ export default function Home() {
 
     const [outlets, setOutlets] = useState([]);
 
-    const { user } = useUser();
 
     // Get the outlet ids then get the outlet data from the at /api/outlets/{id}
     useEffect(() => {
@@ -38,6 +37,7 @@ export default function Home() {
             }
         })
     }, [])
+
 
     const checkLocation = useCallback(() => {
 
