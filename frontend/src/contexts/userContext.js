@@ -34,6 +34,7 @@ export const UserProvider = ({ children }) => {
 			password: password,
 		}).then((response) => {
 			console.log(response.data)
+			refreshUser()
 			nav("/")
 		})
 		.catch((error) => {
@@ -57,7 +58,7 @@ export const UserProvider = ({ children }) => {
 	}, [])
 	
 	// Get the user's data when the page loads
-	useEffect(() => refreshUser, [])
+	// useEffect(() => refreshUser, [])
 
 	
 
