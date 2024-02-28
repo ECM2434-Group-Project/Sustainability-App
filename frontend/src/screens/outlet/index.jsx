@@ -6,12 +6,15 @@ import { TbPaperBag } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { client } from "../../axios";
+import { useNavigate } from "react-router-dom";
 
 export function OutletPage() {
 
 	const { outlet } = useParams();
 
 	const [outletData, setOutletData] = useState({});
+
+  const nav = useNavigate();
 
 	// FETCH THIS OUTLET'S INFO
 	useEffect(() => {
@@ -63,12 +66,14 @@ export function OutletPage() {
 				</div>
 
 				{outletData.bags_left > 0 ? (
-					<Link to={"/quiz"} className="flex flex-col">
-						<StandoutButton>
-							<TbPaperBag />
-							<span>Claim a bag</span>
-						</StandoutButton>
-					</Link>
+					<StandoutButton onClick={() => {
+            const location = navigator.geolocation.getCurrentPosition((position) => {
+              nav("/quiz", {state: {vendorID: outletData.id, latitude: position.coords.latitude, longitude: position.coords.longitude}})
+            })
+          }}>
+            <TbPaperBag />
+            <span>Claim a bag</span>
+        </StandoutButton>
 				) : (
 					<div className="bg-slate-200 p-4 rounded-lg shadow-sm">
 						<p>Sorry, we're all out of bags!</p>

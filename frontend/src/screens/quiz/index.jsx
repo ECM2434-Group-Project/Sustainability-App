@@ -48,9 +48,9 @@ export default function Quiz({vendorID, latitude, longitude}) {
             return;
         }
         const req = {
-            latitude: 50,
-            longitude: -3,
-            vendor_id: 3,
+            latitude: latitude,
+            longitude: longitude,
+            vendor_id: vendorID,
             quiz: [
                 {question_id: questions[0].question_id, answer_id: answers[0]},
                 {question_id: questions[1].question_id, answer_id: answers[1]}
