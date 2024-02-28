@@ -5,18 +5,9 @@ import React, {
 	useContext,
 	useCallback
 } from 'react'
-import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import { client } from '../../axios'
 
-// setup axios to send cookies
-axios.defaults.xsrfCookieName = "csrftoken"
-axios.defaults.xsrfHeaderName = "X-CSRFToken"
-axios.defaults.withCredentials = true
-
-// create an axios client
-const client = axios.create({
-	baseURL: "http://127.0.0.1:8000",
-})
 
 
 const UserContext = createContext({})
