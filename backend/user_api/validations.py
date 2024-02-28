@@ -29,6 +29,20 @@ def user_creation_validation(data):
 
     return data
 
+def user_login_validation(data):
+    if 'email' not in data:
+        return ValidationError('You need a valid "email" field')
+    if 'password' not in data:
+        return ValidationError('You need a valid "password" field')
+
+    email = data['email'].strip()
+    password = data['password'].strip()
+    if not email:
+        return ValidationError('you need a valid email')
+    if not password:
+        return ValidationError('you need a valid password')
+
+
 
 def validate_bag(data):
 
