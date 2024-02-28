@@ -23,7 +23,8 @@ const UserContext = createContext({})
 
 export const UserProvider = ({ children }) => {
 
-	const [user, setUser] = useState({})
+	const [user, setUser] = useState()
+
 	const nav = useNavigate()
 
 
@@ -52,9 +53,20 @@ export const UserProvider = ({ children }) => {
 		console.log("logging out user")
 	}, [])
 
+	// Fetches the user's data
+	const refreshUser = useCallback(() => {
+		client.get("/api/login")
+		.then(res => setUser(res))
+		.catch(err => console.error("Error getting user data", err))
+	}, [])
+	
+	// Get the user's data when the page loads
+	useEffect((refreshUser, []))
+
+
 	return (
 		<UserContext.Provider
-			value={{ register, login, logout, user }}
+			value={{ register, refreshUser, login, logout, user }}
 		>
 			{children}
 		</UserContext.Provider>
