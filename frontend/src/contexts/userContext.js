@@ -53,7 +53,7 @@ export const UserProvider = ({ children }) => {
 	// Fetches the user's data
 	const refreshUser = useCallback(() => {
 		client.get("/api/user")
-		.then(res => setUser(res))
+		.then(res => setUser(res.data.user))
 		.catch(err => console.error("Error getting user data", err))
 	}, [])
 	
