@@ -2,6 +2,7 @@ import { useUser } from "../../contexts/userContext"
 import { OutletCard } from "../../components/Dashboard/OutletCard";
 import { OnCampusIndicator } from "../../components/Dashboard/OnCampusIndicator";
 import { UserAvatar } from "../../components/User/UserAvatar";
+import { GoBackLink } from "../../components/General/GoBackLink";
 
 import { useState, useCallback, useEffect } from "react";
 import { client } from "../../axios";
@@ -34,6 +35,11 @@ export function VendorPage() {
 
 	return (
 		<div className="p-6">
+
+			<div className="absolute top-2 left-2 z-10">
+				<GoBackLink href={"/"} />
+			</div>
+
 			<div className="flex justify-end">
 				<UserAvatar />
 			</div>
