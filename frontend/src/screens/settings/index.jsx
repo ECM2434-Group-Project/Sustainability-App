@@ -4,6 +4,7 @@ import { GoBackLink } from "../../components/General/GoBackLink";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { useCallback } from "react";
 import axios from "axios";
+import { useUser } from "../../contexts/userContext";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -17,19 +18,9 @@ export function SettingsPage() {
 
     const nav = useNavigate();
 
-    const handleLogout = useCallback(async(e) => {
-        e.preventDefault();
-        console.log("logging out")
-        client.post("/api/logout", {withCredentials: true}).then((response) => {
-            if (response.status === 200) {
-                nav("/login");
-            }
-        }
-        ).catch((error) => {
-            console.log(error);
-        })
-    }, [])
+    const { user, logout } = useUser()
     
+
     return (
         <section className="p-4 flex flex-col gap-8">
 
@@ -41,7 +32,7 @@ export function SettingsPage() {
                 <div>
                     <p className="text-gray-500">Logged in as</p>
 
-                    <h1 className="font-semibold text-3xl">Edward Blewitt</h1>
+                    <h1 className="font-semibold text-3xl">{user?.username}</h1>
                 </div>
             </div>
 
@@ -59,7 +50,7 @@ export function SettingsPage() {
 
                 </div>
 
-                <StandoutButton onClick={handleLogout} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Log out</StandoutButton>
+                <StandoutButton onClick={logout} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Log out</StandoutButton>
 
             </div>
 

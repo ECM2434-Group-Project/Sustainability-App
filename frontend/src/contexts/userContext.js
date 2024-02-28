@@ -40,8 +40,20 @@ export const UserProvider = ({ children }) => {
 
 	}, [])
 
-	const logout = useCallback(() => {
-		console.log("logging out user")
+	const logout = useCallback(async () => {
+		try {
+
+			const res = await client.post("/api/logout")
+
+			if(res.status >= 200 && res.status < 300) {
+				await refreshUser()
+				return true
+			}
+        }
+        catch (error) {
+            console.error(error);
+			return false
+        }
 	}, [])
 
 	const verifyLocation = useCallback(() => {
@@ -69,6 +81,7 @@ export const UserProvider = ({ children }) => {
 	useEffect(() => {
 		refreshUser()
 		.then(() => console.log("Got user"))
+		.catch(() => setUser(null))
 	}, [])
 
 	useEffect(() => {

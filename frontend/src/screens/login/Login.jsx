@@ -16,7 +16,7 @@ export default function Login() {
 
 	const [error, setError] = useState();
 
-	const { user, login, refreshUser } = useUser();
+	const { user, login } = useUser();
 
 	const { nav } = useNavigate()
 
