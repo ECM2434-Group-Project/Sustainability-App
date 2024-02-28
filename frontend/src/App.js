@@ -23,14 +23,13 @@ function App() {
 				<Route path="/" element={<Home />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
-				<Route path="/logout" element={<Logout />} />
 				<Route path="/settings" element={<SettingsPage />} />
 				<Route path="/outlet" element={<VendorPage />} />
 				<Route path="/outlet/:outlet" element={<OutletPage />} />
 				<Route path="/quiz" element={<Quiz />} />
 				<Route path="/quiz/complete" element={<QuizComplete />} />
 				<Route path="/quiz/incorrect" element={<Incorrect />} />
-        <Route path="/view-claim" element={<ViewClaimPage />} />
+        		<Route path="/view-claim" element={<ViewClaimPage />} />
 			</Routes>
 		</UserProvider>
 		

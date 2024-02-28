@@ -48,9 +48,9 @@ export default function Quiz({vendorID, latitude, longitude}) {
             return;
         }
         const req = {
-            latitude: 50,
-            longitude: -3,
-            vendor_id: 3,
+            latitude: latitude,
+            longitude: longitude,
+            vendor_id: vendorID,
             quiz: [
                 {question_id: questions[0].question_id, answer_id: answers[0]},
                 {question_id: questions[1].question_id, answer_id: answers[1]}
@@ -61,6 +61,10 @@ export default function Quiz({vendorID, latitude, longitude}) {
             console.log(response.data);
             if (response.data.message === "You have answered a question incorrectly") {
                 nav("/quiz/incorrect");
+            } else if (response.status === 418) {
+                nav("/outlet/"+vendorID);
+            } else if (response.data.message === "Claim created successfully") {
+                nav("/quiz/complete");
             }
         }).catch((error) => {
             console.log(error);
