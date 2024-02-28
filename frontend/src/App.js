@@ -10,6 +10,7 @@ import { SettingsPage } from './screens/settings';
 import Quiz from './screens/quiz';
 import QuizComplete from './screens/quiz/complete';
 import { UserProvider } from './contexts/userContext';
+import { VendorPage } from './screens/Vendor'
 import Incorrect from './screens/quiz/incorrect';
 import { ViewClaimPage } from './screens/view-claim';
 
@@ -24,6 +25,7 @@ function App() {
 				<Route path="/register" element={<Register />} />
 				<Route path="/logout" element={<Logout />} />
 				<Route path="/settings" element={<SettingsPage />} />
+				<Route path="/outlet" element={<VendorPage />} />
 				<Route path="/outlet/:outlet" element={<OutletPage />} />
 				<Route path="/quiz" element={<Quiz />} />
 				<Route path="/quiz/complete" element={<QuizComplete />} />

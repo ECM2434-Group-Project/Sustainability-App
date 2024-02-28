@@ -2,8 +2,7 @@ import React, { useCallback, useState, useEffect } from "react";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { MdLocationOn } from "react-icons/md";
-import { OutletCard } from "../../components/Dashboard/OutletCard";
-import { OnCampusIndicator } from "../../components/Dashboard/OnCampusIndicator";
+
 import { UserClaimView } from "../../components/User/UserClaimView";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
@@ -17,62 +16,37 @@ export default function Home() {
 
     const { user } = useUser()
 
-    const [ locationVerified, setLocationVerified ] = useState(false);
     const [ locationDenied, setLocationDenied ] = useState(false);
 
     const [ userHasClaim, setUserHasClaim ] = useState(true);
 
-    const [ outletIDs, setOutletIDs ] = useState([]);
 
-    const [outlets, setOutlets] = useState([]);
+    // const checkLocation = useCallback(() => {
 
+    //     console.log("clicked")
 
-    // Get the outlet ids then get the outlet data from the at /api/outlets/{id}
-    const getOutlets = useCallback(() => {
+    //     const successCallback = (position) => {
 
-        console.log("Getting outlets")
-        
-        client.get("/api/vendors").then((response) => { 
-            for (let i = 0; i < response.data.length; i++) {
-                client.get("/api/vendors/" + response.data[i].id).then((vendor) => {
-                    setOutlets(prevOutlets => ([...prevOutlets, vendor.data]));
-                })
-            }
-        })
+    //         // Check their location here
+    //         setLocationVerified(true)
 
-    }, [outlets])
+    //         getOutlets()
 
-    useEffect(() => {
-        console.log("user has changed")
-        console.log(user)
-    }, [user])
-
-    const checkLocation = useCallback(() => {
-
-        console.log("clicked")
-
-        const successCallback = (position) => {
-
-            // Check their location here
-            setLocationVerified(true)
-
-            getOutlets()
-
-        }
+    //     }
           
-        const errorCallback = (error) => {
-            setLocationDenied(true)
+    //     const errorCallback = (error) => {
+    //         setLocationDenied(true)
 
 
-            // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
-            setLocationVerified(true)
+    //         // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
+    //         setLocationVerified(true)
 
-        }
+    //     }
           
-        // Get the user's location
-        navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
+    //     // Get the user's location
+    //     navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
 
-    }, [ locationVerified, locationDenied ])
+    // }, [ locationVerified, locationDenied ])
 
 
     return (
@@ -81,63 +55,45 @@ export default function Home() {
                 user ? (
                     <>
                         {
-                            locationVerified ? (
+                            
+                            !locationDenied ? (
                                 <>
 
-                                    <div className="flex justify-end">
-                                        <UserAvatar />
+                                    <div>
+                                        <h1
+                                            className="text-4xl font-semibold text-gray-700"
+                                        >Welcome back, {user.username}</h1>
                                     </div>
-
-                                    <div className="sticky top-0">
-                                        <OnCampusIndicator />
+                
+                                    {
+                                        userHasClaim ? (
+                                            <div className="h-full pt-8">
+                                                <UserClaimView />
+                                            </div>
+                                        ) : (
+                                            <></>
+                                        )
+                                    }
+            
+                                    <div className="text-center flex flex-col gap-3">
+                                        <StandoutButton onClick={() => {
+                                            nav("/outlet")
+                                        }}>
+                                            <MdLocationOn />
+                                            <span>Check my location</span>
+                                        </StandoutButton>
+                                        <small>You must be on campus to claim food</small>
                                     </div>
-
-                                    <div className="flex flex-col gap-8 pb-4">
-
-                                        <h1 className="text-2xl font-semibold">Food outlets</h1>
-
-                                        {outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.banner} logoImage={vendor.icon} name={vendor.username} walkTime={2} numBags={vendor.bags_left}/>)}
-                                    </div>
-
                                 </>
                             ) : (
-                                !locationDenied ? (
-                                    <>
-
-                                        <div>
-                                            <h1
-                                                className="text-4xl font-semibold text-gray-700"
-                                            >Welcome back, {user.username}</h1>
-                                        </div>
-                    
-                                        {
-                                            userHasClaim ? (
-                                                <div className="h-full pt-8">
-                                                    <UserClaimView />
-                                                </div>
-                                            ) : (
-                                                <></>
-                                            )
-                                        }
-                
-                                        <div className="text-center flex flex-col gap-3">
-                                            <StandoutButton onClick={checkLocation}>
-                                                <MdLocationOn />
-                                                <span>Check my location</span>
-                                            </StandoutButton>
-                                            <small>You must be on campus to claim food</small>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="h-full flex flex-col justify-center gap-16">
-                                            <h1
-                                                className="text-2xl font-semibold text-gray-700"
-                                            >Without your location, we cannot verify if you are on campus.</h1>
-                                            <small className="text-center">Please close the application and try again</small>
-                                        </div>
-                                    </>
-                                )
+                                <>
+                                    <div className="h-full flex flex-col justify-center gap-16">
+                                        <h1
+                                            className="text-2xl font-semibold text-gray-700"
+                                        >Without your location, we cannot verify if you are on campus.</h1>
+                                        <small className="text-center">Please close the application and try again</small>
+                                    </div>
+                                </>
                             )
                         }
                     </>
