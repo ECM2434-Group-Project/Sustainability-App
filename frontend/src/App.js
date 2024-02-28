@@ -11,6 +11,7 @@ import Quiz from './screens/quiz';
 import QuizComplete from './screens/quiz/complete';
 import { UserProvider } from './contexts/userContext';
 import Incorrect from './screens/quiz/incorrect';
+import { ViewClaimPage } from './screens/view-claim';
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
 				<Route path="/quiz" element={<Quiz />} />
 				<Route path="/quiz/complete" element={<QuizComplete />} />
 				<Route path="/quiz/incorrect" element={<Incorrect />} />
+        <Route path="/view-claim" element={<ViewClaimPage />} />
 			</Routes>
 		</UserProvider>
 		
