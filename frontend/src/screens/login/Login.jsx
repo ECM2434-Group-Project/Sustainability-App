@@ -18,24 +18,23 @@ export default function Login() {
 
 	const { user, login } = useUser();
 
-	const { nav } = useNavigate()
+	const nav = useNavigate()
 
 	const handleSubmit = useCallback(
 
 		// async function for logging in
-		(e) => {
+		async (e) => {
 			e.preventDefault();
 			setError(false);
 
 			// now login
-			login(email, password)
-			.then(() => {
-				console.log("Done")
+			const result = await login(email, password)
+			
+			if (result === true) {
 				nav("/")
-			})
-			.catch((error) => {
-				return error
-			})
+			} else {
+				setError(result)
+			}
 
 		},
 		[error, email, password]

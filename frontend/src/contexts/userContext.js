@@ -5,7 +5,6 @@ import React, {
 	useContext,
 	useCallback
 } from 'react'
-import { useNavigate } from "react-router-dom"
 import { client } from '../axios'
 
 
@@ -35,6 +34,8 @@ export const UserProvider = ({ children }) => {
 			return true
 		}
 
+		
+
 	}, [])
 
 	const logout = useCallback(async () => {
@@ -43,7 +44,7 @@ export const UserProvider = ({ children }) => {
 			const res = await client.post("/api/logout")
 
 			if(res.status >= 200 && res.status < 300) {
-				await refreshUser()
+				setUser(null)
 				return true
 			}
         }
@@ -75,11 +76,11 @@ export const UserProvider = ({ children }) => {
 	}, [])
 	
 	// Get the user's data when the page loads
-	useEffect(() => {
-		refreshUser()
-		.then(() => console.log("Got user"))
-		.catch(() => setUser(null))
-	}, [])
+	// useEffect(() => {
+	// 	refreshUser()
+	// 	.then(() => console.log("Got user"))
+	// 	.catch(() => setUser(null))
+	// }, [])
 
 	useEffect(() => {
 		console.log(user)

@@ -59,6 +59,10 @@ export default function Home() {
                             !locationDenied ? (
                                 <>
 
+                                    <div className="flex justify-end">
+                                        <UserAvatar />
+                                    </div>
+
                                     <div>
                                         <h1
                                             className="text-4xl font-semibold text-gray-700"
