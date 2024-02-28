@@ -53,8 +53,8 @@ export const UserProvider = ({ children }) => {
 		return new Promise((res, rej) => {
 			client.get("/api/user")
 			.then(r => {
-				console.log(r.data)
-				setUser(r.data)
+				console.log(r.data.user)
+				setUser(r.data.user)
 				res(true)
 			})
 			.catch(err => {
