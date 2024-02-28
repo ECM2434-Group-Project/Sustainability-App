@@ -10,6 +10,7 @@ import { SettingsPage } from './screens/settings';
 import Quiz from './screens/quiz';
 import QuizComplete from './screens/quiz/complete';
 import { UserProvider } from './contexts/userContext';
+import Incorrect from './screens/quiz/incorrect';
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
 				<Route path="/outlet/:outlet" element={<OutletPage />} />
 				<Route path="/quiz" element={<Quiz />} />
 				<Route path="/quiz/complete" element={<QuizComplete />} />
+				<Route path="/quiz/incorrect" element={<Incorrect />} />
 			</Routes>
 		</UserProvider>
 		

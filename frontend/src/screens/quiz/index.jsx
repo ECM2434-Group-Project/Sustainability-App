@@ -58,8 +58,9 @@ export default function Quiz({vendorID, latitude, longitude}) {
         }
         console.log(JSON.stringify(req));
         client.post("/api/quiz", req).then((response) => {
-            if (response.status === 200) {
-                nav("/quiz/complete");
+            console.log(response.data);
+            if (response.data.message === "You have answered a question incorrectly") {
+                nav("/quiz/incorrect");
             }
         }).catch((error) => {
             console.log(error);
