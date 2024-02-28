@@ -50,7 +50,14 @@ export function SettingsPage() {
 
                 </div>
 
-                <StandoutButton onClick={logout} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Log out</StandoutButton>
+                <StandoutButton onClick={() => {
+                    if (logout()) {
+                        nav("/")
+                    } else {
+                        console.error("Could not log out")
+                    }
+                
+                }} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Log out</StandoutButton>
 
             </div>
 

@@ -5,7 +5,6 @@ import React, {
 	useContext,
 	useCallback
 } from 'react'
-import { useNavigate } from "react-router-dom"
 import { client } from '../axios'
 
 
@@ -34,6 +33,8 @@ export const UserProvider = ({ children }) => {
 			await refreshUser()
 			return true
 		}
+
+		
 
 	}, [])
 
