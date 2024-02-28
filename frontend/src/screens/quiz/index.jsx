@@ -61,6 +61,10 @@ export default function Quiz({vendorID, latitude, longitude}) {
             console.log(response.data);
             if (response.data.message === "You have answered a question incorrectly") {
                 nav("/quiz/incorrect");
+            } else if (response.status === 418) {
+                nav("/outlet/"+vendorID);
+            } else if (response.data.message === "Claim created successfully") {
+                nav("/quiz/complete");
             }
         }).catch((error) => {
             console.log(error);
