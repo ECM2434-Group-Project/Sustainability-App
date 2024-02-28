@@ -52,7 +52,7 @@ export const UserProvider = ({ children }) => {
 	}, [])
 	
 	// Get the user's data when the page loads
-	useEffect((refreshUser, []))
+	useEffect(() => refreshUser, [])
 
 
 	return (
