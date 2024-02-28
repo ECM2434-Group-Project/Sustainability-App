@@ -90,6 +90,9 @@ export default function Login() {
 			</div>
 		</div>
 	) : (
-		<p>You are logged in already</p>
+		<section className="p-4 text-center flex flex-col items-center">
+			<p>You are logged in already</p>
+			<Link to={"/"}>Go back home</Link>
+		</section>
 	)
 }

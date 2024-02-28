@@ -17,9 +17,6 @@ export const UserProvider = ({ children }) => {
 	const [user, setUser] = useState()
 	const [locationVerified, setLocationVerified] = useState(false)
 
-	const nav = useNavigate()
-
-
 	const register = useCallback(async (email, password) => {
 		console.log("registering user")
 
