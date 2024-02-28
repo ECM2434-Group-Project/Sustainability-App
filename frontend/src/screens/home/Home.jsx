@@ -42,6 +42,11 @@ export default function Home() {
 
     }, [outlets])
 
+    useEffect(() => {
+        console.log("user has changed")
+        console.log(user)
+    }, [user])
+
     const checkLocation = useCallback(() => {
 
         console.log("clicked")

@@ -4,16 +4,8 @@ import { BagsRemainingIcon } from "../../components/General/BagsRemainingIcon";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { TbPaperBag } from "react-icons/tb";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import { useEffect, useState } from "react";
-
-axios.defaults.xsrfCookieName = "csrftoken";
-axios.defaults.xsrfHeaderName = "X-CSRFToken";
-axios.defaults.withCredentials = true;
-
-const client = axios.create({
-  baseURL: "http://127.0.0.1:8000",
-});
+import { client } from "../../axios";
 
 export function OutletPage() {
 
