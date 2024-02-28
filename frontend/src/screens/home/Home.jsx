@@ -38,7 +38,6 @@ export default function Home() {
         })
     }, [])
 
-
     const checkLocation = useCallback(() => {
 
         console.log("clicked")
