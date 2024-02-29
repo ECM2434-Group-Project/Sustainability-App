@@ -3,7 +3,7 @@ import { AnswerButton } from "../../components/Quiz/AnswerButton";
 import { SubmitButton } from "../../components/Quiz/SubmitButton";
 import { NextQuizButton } from "../../components/Quiz/NextQuizButton";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -19,7 +19,7 @@ const client = axios.create({
  * 
  * @returns a quiz page
  */
-export default function Quiz({vendorID, latitude, longitude}) {
+export default function Quiz() {
     // TODO: Remove with the backend questions, restructure to adapt to the backend
     const [questions, setQuestions] = useState([]);
 
@@ -32,6 +32,7 @@ export default function Quiz({vendorID, latitude, longitude}) {
     const [answers, setAnswers] = useState([]);
 
     const nav = useNavigate();
+    const location = useLocation();
     
     useEffect(() => {
         setSelected(0)        
@@ -48,9 +49,9 @@ export default function Quiz({vendorID, latitude, longitude}) {
             return;
         }
         const req = {
-            latitude: latitude,
-            longitude: longitude,
-            vendor_id: vendorID,
+            latitude: location.state.latitude,
+            longitude: location.state.longitude,
+            vendor_id: location.state.vendorID,
             quiz: [
                 {question_id: questions[0].question_id, answer_id: answers[0]},
                 {question_id: questions[1].question_id, answer_id: answers[1]}
@@ -62,7 +63,7 @@ export default function Quiz({vendorID, latitude, longitude}) {
             if (response.data.message === "You have answered a question incorrectly") {
                 nav("/quiz/incorrect");
             } else if (response.status === 418) {
-                nav("/outlet/"+vendorID);
+                nav("/outlet/"+location.state.vendorID);
             } else if (response.data.message === "Claim created successfully") {
                 nav("/quiz/complete");
             }
