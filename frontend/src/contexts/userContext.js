@@ -18,19 +18,28 @@ export const UserProvider = ({ children }) => {
 
 	const register = useCallback(async (email, username, password, fName, lName) => {
 		console.log("registering user")
+		try {
+			const res = await client.post("/api/register", {
+				email: email,
+				username: username,
+				password: password,
+				first_name: fName,
+				last_name: lName,
+			})
+			
+			if (res.status >= 200 && res.status < 300) {
+				await login(email, password)
+				await refreshUser()
+				return true
+			} else {
+				return res.err
+			}
 
-		const res = await client.post("/api/register", {
-			email: email,
-			username: username,
-			password: password,
-			first_name: fName,
-			last_name: lName,
-		})
-		
-		if (res.status >= 200 && res.status < 300) {
-			await refreshUser()
-			return true
+		} catch (error) {
+			console.error(error)
+			return error
 		}
+		
 	}, [])
 
 	const login = useCallback(async (email, password) => {

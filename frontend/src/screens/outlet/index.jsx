@@ -67,7 +67,8 @@ export function OutletPage() {
 
 				{outletData.bags_left > 0 ? (
 					<StandoutButton onClick={() => {
-            const location = navigator.geolocation.getCurrentPosition((position) => {
+            navigator.geolocation.getCurrentPosition((position) => {
+			  console.log(position.coords);
               nav("/quiz", {state: {vendorID: outletData.id, latitude: position.coords.latitude, longitude: position.coords.longitude}})
             })
           }}>

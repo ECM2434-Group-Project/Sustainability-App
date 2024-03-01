@@ -1,6 +1,7 @@
 import { React, useCallback, useState } from "react";
 import { TextInput } from "../../components/General/TextInput";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../../contexts/userContext";
 
 export default function Register() {
 	// Create a register page that has a form with three fields, one for email, one for username, and one for password
@@ -19,16 +20,22 @@ export default function Register() {
 
 	const [stage, setStage] = useState(0);
 
-	const register = useCallback(
+	const { register } = useUser();
+
+	const submitForm = useCallback(
 		async (e) => {
-			// e.preventDefault();
+			e.preventDefault();
 			setError(false);
-			const result = register(email, password, username, fName, lName)
+
+			const result = await register(email, username, password, fName, lName)
 
 			if (result === true) {
+				console.log(result);
 				nav("/");
 			} else {
-				setError("somethine went wrong");
+				console.log("this is the error")
+				console.log(result);
+				setError(result);
 			}
 		},
 		[email, username, fName, lName, password]
@@ -36,7 +43,7 @@ export default function Register() {
 
 	return (
 		<div className="h-screen flex flex-col justify-center bg-exeterDeepGreen text-white gap-6">
-			<form onSubmit={register} className="flex flex-col">
+			<form onSubmit={submitForm} className="flex flex-col">
 				<div className="flex flex-col gap-6">
 					<div className="p-4">
 						<h1 className="text-2xl font-bold">Register</h1>

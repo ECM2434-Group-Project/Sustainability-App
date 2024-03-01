@@ -467,7 +467,7 @@ class ClaimsView(APIView):
 
         claims = ClaimModel.objects.filter(user_id=request.user)
         serializer = ClaimSerializer(claims, many=True)
-        return Response({'claims': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CreateClaim(APIView):
 	def post(self, request):
