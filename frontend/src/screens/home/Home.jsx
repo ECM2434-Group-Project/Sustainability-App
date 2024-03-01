@@ -22,7 +22,7 @@ export default function Home() {
     const [ userHasClaim, setUserHasClaim ] = useState(true);
 
 
-    const checkLocation = useCallback(() => {
+    const checkLocation = useCallback(async () => {
 
         console.log("clicked")
 
@@ -33,7 +33,7 @@ export default function Home() {
         }
           
         const errorCallback = (error) => {
-            setLocationDenied(true)
+            setLocationDenied(false)
 
 
             // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
@@ -44,6 +44,12 @@ export default function Home() {
         navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
 
     }, [ locationVerified, locationDenied ])
+
+    useEffect(() => {
+        if (locationVerified) {
+            nav("/outlet")
+        }
+    }, [locationVerified])
 
 
     return (
@@ -77,9 +83,8 @@ export default function Home() {
                                     }
             
                                     <div className="text-center flex flex-col gap-3">
-                                        <StandoutButton onClick={() => {
-                                            checkLocation()
-                                            nav("/outlet")
+                                        <StandoutButton onClick={async () => {
+                                            await checkLocation()
                                         }}>
                                             <MdLocationOn />
                                             <span>Check my location</span>
