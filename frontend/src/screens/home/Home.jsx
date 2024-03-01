@@ -45,11 +45,6 @@ export default function Home() {
 
     }, [ locationVerified, locationDenied ])
 
-    useEffect(() => {
-        if (user) {
-            checkLocation()
-        }
-    }, [user])
 
     return (
         <section className="h-full flex flex-col justify-between p-4">
@@ -116,7 +111,10 @@ export default function Home() {
                         </div>
 
                         <div className="text-center flex flex-col gap-3">
-                            <StandoutButton onClick={() => nav("/login")}>
+                            <StandoutButton onClick={() => {
+                                checkLocation()
+                                nav("/login")
+                            }}>
                                 <span>Log in / Register</span>
                             </StandoutButton>
                         </div>
