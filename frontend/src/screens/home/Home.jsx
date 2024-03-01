@@ -17,37 +17,39 @@ export default function Home() {
     const { user } = useUser()
 
     const [ locationDenied, setLocationDenied ] = useState(false);
+    const [ locationVerified, setLocationVerified ] = useState(false);
 
     const [ userHasClaim, setUserHasClaim ] = useState(true);
 
 
-    // const checkLocation = useCallback(() => {
+    const checkLocation = useCallback(() => {
 
-    //     console.log("clicked")
+        console.log("clicked")
 
-    //     const successCallback = (position) => {
+        const successCallback = (position) => {
 
-    //         // Check their location here
-    //         setLocationVerified(true)
-
-    //         getOutlets()
-
-    //     }
+            // Check their location here
+            setLocationVerified(true)
+        }
           
-    //     const errorCallback = (error) => {
-    //         setLocationDenied(true)
+        const errorCallback = (error) => {
+            setLocationDenied(true)
 
 
-    //         // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
-    //         setLocationVerified(true)
-
-    //     }
+            // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
+            setLocationVerified(true)
+        }
           
-    //     // Get the user's location
-    //     navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
+        // Get the user's location
+        navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
 
-    // }, [ locationVerified, locationDenied ])
+    }, [ locationVerified, locationDenied ])
 
+    useEffect(() => {
+        if (user) {
+            checkLocation()
+        }
+    }, [user])
 
     return (
         <section className="h-full flex flex-col justify-between p-4">
