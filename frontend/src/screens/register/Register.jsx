@@ -46,7 +46,7 @@ export default function Register() {
 					<div className="flex overflow-x-hidden relative h-[50vh]">
 						<div
 							className="flex flex-col gap-4 w-screen absolute left-0 p-4 transition-[1s]"
-							style={{ transform: `translateX(${stage === 0 ? "0" : "100"}%)` }}
+							style={{ transform: `translateX(${stage === 0 ? "0" : "-100"}%)` }}
 						>
 							<TextInput
 								label={"Exeter email"}
