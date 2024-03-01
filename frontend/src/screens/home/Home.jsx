@@ -36,8 +36,8 @@ export default function Home() {
             setLocationDenied(false)
 
 
-            // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
-            setLocationVerified(true)
+            // // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
+            // setLocationVerified(true)
         }
           
         // Get the user's location
