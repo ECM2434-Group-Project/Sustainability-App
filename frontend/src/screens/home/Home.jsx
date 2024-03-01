@@ -33,7 +33,7 @@ export default function Home() {
         }
           
         const errorCallback = (error) => {
-            setLocationDenied(false)
+            setLocationDenied(true)
 
 
             // // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
