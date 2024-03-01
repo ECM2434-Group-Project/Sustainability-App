@@ -78,6 +78,7 @@ export default function Home() {
             
                                     <div className="text-center flex flex-col gap-3">
                                         <StandoutButton onClick={() => {
+                                            checkLocation()
                                             nav("/outlet")
                                         }}>
                                             <MdLocationOn />
@@ -112,7 +113,6 @@ export default function Home() {
 
                         <div className="text-center flex flex-col gap-3">
                             <StandoutButton onClick={() => {
-                                checkLocation()
                                 nav("/login")
                             }}>
                                 <span>Log in / Register</span>
