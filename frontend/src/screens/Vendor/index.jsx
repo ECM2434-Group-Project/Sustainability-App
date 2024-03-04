@@ -52,7 +52,7 @@ export function VendorPage() {
 
 				<h1 className="text-2xl font-semibold">Food outlets</h1>
 
-				{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.banner} logoImage={vendor.icon} name={vendor.username} walkTime={2} numBags={vendor.bags_left}/>)}
+				{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.banner} logoImage={vendor.icon} name={vendor.first_name} walkTime={2} numBags={vendor.bags_left}/>)}
 			</div>
 		</div>
 	)

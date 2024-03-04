@@ -14,7 +14,7 @@ export function UserAvatar({ large=false }) {
             <span
                 className="w-min h-min text-gray-600 font-bold"
                 style={!large ? { fontSize: "1rem" } : { fontSize: "3rem" } }
-            >{user.first_name[0] + user.last_name[1]}</span>
+            >{user?.first_name[0] + user?.last_name[0]}</span>
         </Link>
     )
 }

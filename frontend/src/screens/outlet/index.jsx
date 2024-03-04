@@ -44,14 +44,14 @@ export function OutletPage() {
 						<img
 							className="w-20 w-20 rounded-md object-cover"
 							src={
-								"https://pbs.twimg.com/profile_images/1657489733/ram2_400x400.jpg"
+								outletData.icon
 							}
 							alt="Logo of the outlet"
 						/>
 
 						<div>
 							{/* Outlet name */}
-							<h2 className="text-2xl font-semibold">{outletData.username}</h2>
+							<h2 className="text-2xl font-semibold">{outletData.first_name}</h2>
 							{/* Outlet mins walk */}
 							<p className="text-gray-400 text-sm">
 								<span>2</span> mins walk

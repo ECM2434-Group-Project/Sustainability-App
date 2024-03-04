@@ -64,6 +64,8 @@ export default function Quiz() {
                 nav("/quiz/incorrect");
             } else if (response.status === 418) {
                 nav("/outlet/"+location.state.vendorID);
+            } else if (response.data.message === "You are not in the correct location to submit a quiz, you need to be on site to submit a quiz (500m from vendor)"){
+                nav("/incorrect-location");
             } else if (response.data.message === "Claim created successfully") {
                 nav("/quiz/complete");
             }
