@@ -141,6 +141,7 @@ class BagGroupModel(models.Model):
     bag_group_id = models.AutoField(primary_key=True)
     vendor = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
     allergen = models.ForeignKey(AllergenModel, on_delete=models.CASCADE)
+    bags_unclaimed = models.IntegerField() # no default, this must be set
 
 class BagModel(models.Model):
     """Model for the Bags"""
