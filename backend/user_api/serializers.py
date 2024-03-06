@@ -53,7 +53,7 @@ class UserSerializer(serializers.ModelSerializer):
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorModel
-        fields = ('id','email', 'username','password', 'role', 'location', 'bags_left', 'icon', 'banner')
+        fields = ('id','email', 'username','password', 'role', 'location', 'bags_left', 'icon', 'banner', 'first_name')
         extra_kwargs = {
             'password': {'write_only': True}
         }
