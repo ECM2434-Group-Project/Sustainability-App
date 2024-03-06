@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
 from . import models
-from .models import ClaimModel
 
 # Returns clean data
 
@@ -13,6 +12,8 @@ VendorModel = models.VendorModel
 AdminModel = models.AdminModel
 AnswerModel = models.AnswerModel
 LocationModel = models.LocationModel
+ClaimModel = models.ClaimModel
+BagGroupModel = models.BagGroupModel
 
 
 # LeaderboardModel = models.LeaderboardModel
@@ -70,10 +71,21 @@ class AdminSerializer(serializers.ModelSerializer):
         fields = ('email', 'username')
 
 
-class BagsSerializer(serializers.ModelSerializer):
+class BagSerializer(serializers.ModelSerializer):
     class Meta:
         model = BagModel
-        fields = ('bag_id', 'collection_time', 'vendor')
+        fields = ('bag_id', 'collection_time', 'bag_group', 'claimed')
+
+class BagGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BagGroupModel
+        fields = ('bag_group_id', 'vendor', 'allergen')
+
+class AllergenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AllergenModel
+        fields = ('allergen_id', 'milk', 'eggs', 'fish', 'crustacean', 'tree_nuts', 'peanuts', 'wheat', 'soybeans', 'sesame')
+
 
 
 class QuestionsSerializer(serializers.ModelSerializer):

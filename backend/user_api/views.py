@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.db import transaction
 
 from .decorators import allowed_users
-from .models import UserModel, VendorModel, AdminModel, LocationModel
+from .models import UserModel, VendorModel, AdminModel, LocationModel, BagGroupModel, AllergenModel
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
@@ -185,6 +185,37 @@ class IssueBagsView(APIView):
         "num_bags": [Int],
         "collection_time": [String],
     }
+
+    Example JSON for post:
+    {
+    "bags": [
+        {
+            "bag_group": 1,
+            "allergens": {
+                "allergen_id": 1,
+                "milk": true,
+                "eggs": false,
+                "fish": false,
+                "crustacean": false,
+                "tree_nuts": false,
+                "peanuts": false,
+                "wheat": false,
+                "soybeans": false,
+                "sesame": false
+            },
+            "bags": [
+                {
+                    "bag_id": 1,
+                    "collection_time": "2024-02-27T16:32:00Z",
+                    "bag_group": 1,
+                    "claimed": false
+                },
+                {
+                    "bag_id": 2,
+                    "collection_time": "2024-02-27T16:32:00Z",
+                    "bag_group": 1,
+                    "claimed": false
+                }...
     '''
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
@@ -193,10 +224,28 @@ class IssueBagsView(APIView):
         user = request.user
         if user.role != UserModel.Role.VENDOR:
             return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
+        # get bag groups issued to vendor
+        bag_groups = BagGroupModel.objects.filter(vendor=user)
+        serializer = BagGroupSerializer(bag_groups, many=True)
 
-        bags = BagModel.objects.filter(vendor=user)
-        serializer = BagsSerializer(bags, many=True)
-        return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
+        data = []
+
+        # get groups
+        for group in bag_groups:
+            bags = BagModel.objects.filter(bag_group=group)
+            bagserializer = BagSerializer(bags, many=True)
+            allergen = AllergenModel.objects.get(allergen_id=group.allergen.allergen_id)
+            allergenserializer = AllergenSerializer(allergen)
+
+
+
+
+
+
+            data.append({"bag_group": group.bag_group_id,"allergens" : allergenserializer.data, "bags": bagserializer.data})
+
+
+        return Response({'bags': data}, status=status.HTTP_200_OK)
 
     def post(self, request):
         # Oscar Green
@@ -208,15 +257,33 @@ class IssueBagsView(APIView):
         vendor = request.user
         # get the data
         data = request.data
+
+        # Verification here
+        # ==================
+
         num_bags = data['num_bags']
         collection_time = data['collection_time']
+        allergendict = self.parse_allergens(data)
 
-        # create the bags
+        # create allergen model
+        allergenSerializer = AllergenSerializer(data=allergendict)
+        if allergenSerializer.is_valid(raise_exception=True):
+            allergen = allergenSerializer.create(allergenSerializer.validated_data)
+            allergen.save()
+
+        # create bag group
+        bagGroupSerializer = BagGroupSerializer(data={'vendor': vendor.id, 'allergen': allergen.allergen_id})
+        if bagGroupSerializer.is_valid(raise_exception=True):
+            bagGroup = bagGroupSerializer.create(bagGroupSerializer.validated_data)
+            bagGroup.save()
+
+
         for i in range(int(num_bags)):
-            serializer = BagsSerializer(data={'vendor': vendor, 'collection_time': collection_time})
+            serializer = BagSerializer(data={'collection_time': collection_time, 'bag_group': bagGroup.bag_group_id})
             if serializer.is_valid(raise_exception=True):
                 bag = serializer.create(serializer.validated_data)
                 bag.save()
+
 
         # todo: create bulk insert functionality
 
@@ -232,6 +299,12 @@ class IssueBagsView(APIView):
             return VendorModel.objects.get(id=vendor_id)
         except VendorModel.DoesNotExist:
             raise None
+    def parse_allergens(self, data):
+        allergendict = {}
+        for key in data:
+            if key in ['milk', 'eggs', 'fish', 'crustacean', 'tree_nuts', 'peanuts', 'wheat', 'soybeans', 'sesame']:
+                allergendict[key] = data[key]
+        return allergendict
 
 
 class ClaimsView(APIView):
