@@ -459,7 +459,7 @@ class ClaimsView(APIView):
 
         claims = ClaimModel.objects.filter(user_id=request.user)
         serializer = ClaimSerializer(claims, many=True)
-        return Response({'claims': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CreateClaim(APIView):
 	def post(self, request):
@@ -505,7 +505,7 @@ class CreateQuestion(APIView):
             return Response({"message": "You are not an admin, you cannot create questions"},
                             status=status.HTTP_403_FORBIDDEN)
 
-        if 'question' and 'answers' and 'options' not in request.data:
+        if 'question' not in request.data or 'answers' not in request.data or 'options' not in request.data:
             return Response({"message": "You need to provide a question, answers and options"},
                             status=status.HTTP_400_BAD_REQUEST)
         question = request.data['question']
@@ -537,8 +537,6 @@ class CreateQuestion(APIView):
             if answerSerializer.is_valid(raise_exception=True):
                 answer = answerSerializer.create(answerSerializer.validated_data)
                 answer.save()
-
-        return 1;
 
 
 # todo: delete these 2 functions
@@ -593,7 +591,7 @@ class CreateVendor(APIView):
             if serializer.is_valid(raise_exception=True):
 
 
-                vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'], password=data['password'], location=location)
+                vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'], password=data['password'], location=location, bags_left=data['bags_left'])
                 vendor.save()
                 # create location for vendor
 
