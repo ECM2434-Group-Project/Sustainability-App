@@ -9,6 +9,7 @@ urlpatterns = [
 	path('vendors', views.VendorsView.as_view(), name='vendors'), # see all vendors, low fidelity view
   path('vendors/<int:vendor_id>', views.VendorView.as_view(), name='specific-vendor-view'), # see a specific vendor
 	path('vendors/issuebags', views.IssueBagsView.as_view(), name='vendors'),
+	path('allergens/<int:allergen_id>', views.AllergenView.as_view(), name='allergen'),
 	path('claims', views.ClaimsView.as_view(), name='claims'),
 	path('makeclaim', views.CreateClaim.as_view(), name='makeclaim'),
 	path('questions', views.QuestionsView.as_view(), name='questions'),

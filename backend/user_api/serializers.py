@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
 from . import models
-from .models import ClaimModel
 
 # Returns clean data
 
@@ -13,6 +12,8 @@ VendorModel = models.VendorModel
 AdminModel = models.AdminModel
 AnswerModel = models.AnswerModel
 LocationModel = models.LocationModel
+ClaimModel = models.ClaimModel
+BagGroupModel = models.BagGroupModel
 
 
 # LeaderboardModel = models.LeaderboardModel
@@ -24,7 +25,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     def create(self, clean_data):
         user_obj = UserModel.objects.create_user(email=clean_data['email'], password=clean_data['password'],
-                                                 username=clean_data['username'], role=clean_data['role'], first_name=clean_data['first_name'], last_name=clean_data['last_name'])
+                                                 username=clean_data['username'], first_name=clean_data['first_name'], last_name=clean_data['last_name'])
         user_obj.username = clean_data['username']
         user_obj.save()
         return user_obj
@@ -70,10 +71,21 @@ class AdminSerializer(serializers.ModelSerializer):
         fields = ('email', 'username')
 
 
-class BagsSerializer(serializers.ModelSerializer):
+class BagSerializer(serializers.ModelSerializer):
     class Meta:
         model = BagModel
-        fields = ('bag_id', 'collection_time', 'vendor')
+        fields = ('bag_id', 'collection_time', 'bag_group', 'claimed')
+
+class BagGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BagGroupModel
+        fields = ('bag_group_id', 'vendor', 'allergen', 'bags_unclaimed')
+
+class AllergenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AllergenModel
+        fields = ('allergen_id', 'milk', 'eggs', 'fish', 'crustacean', 'tree_nuts', 'peanuts', 'wheat', 'soybeans', 'sesame')
+
 
 
 class QuestionsSerializer(serializers.ModelSerializer):

@@ -119,17 +119,40 @@ class AdminModel(UserModel):
         return (f'username: {self.username}, email: {self.email}, role: {self.role}'
                 f', permission_level: {self.permission_level}')
 
+class AllergenModel(models.Model):
+    '''Model for the Allergens'''
+    allergen_id = models.AutoField(primary_key=True)
+    milk = models.BooleanField(default=False)
+    eggs = models.BooleanField(default=False)
+    fish = models.BooleanField(default=False)
+    crustacean = models.BooleanField(default=False)
+    tree_nuts = models.BooleanField(default=False)
+    peanuts = models.BooleanField(default=False)
+    wheat = models.BooleanField(default=False)
+    soybeans = models.BooleanField(default=False)
+    sesame = models.BooleanField(default=False)
+
+
+    def __str__(self):
+        """Return string representation of the Allergens"""
+        return f'allergen_id: {self.allergen_id}, milk: {self.milk}, eggs: {self.eggs}, fish: {self.fish}, crustacean: {self.crustacean}, tree_nuts: {self.tree_nuts}, peanuts: {self.peanuts}, wheat: {self.wheat}, soybeans: {self.soybeans}, sesame: {self.sesame}'
+class BagGroupModel(models.Model):
+    '''Model for the BagGroups'''
+    bag_group_id = models.AutoField(primary_key=True)
+    vendor = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
+    allergen = models.ForeignKey(AllergenModel, on_delete=models.CASCADE)
+    bags_unclaimed = models.IntegerField() # no default, this must be set
 
 class BagModel(models.Model):
     """Model for the Bags"""
     bag_id = models.AutoField(primary_key=True)
+    bag_group = models.ForeignKey(BagGroupModel, on_delete=models.CASCADE)
     collection_time = models.DateTimeField()
-    vendor = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
     claimed = models.BooleanField(default=False)
 
     def __str__(self):
         """Return string representation of the Bags"""
-        return f'id: {self.bag_id}, time: {self.collection_time}, vendor_id: {self.vendor}, claimed: {self.claimed}'
+        return f'id: {self.bag_id}, time: {self.collection_time}, claimed: {self.claimed}, allergen_id: {self.bag_group.allergen.allergen_id}'
 
 
 class ClaimModel(models.Model):
