@@ -1,8 +1,11 @@
 from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser, User
 
 from django.db.models import Choices
+from django.utils.crypto import get_random_string
+
+from django.conf import settings
 
 
 class UserModel(AbstractUser, PermissionsMixin):
@@ -46,6 +49,8 @@ class UserModel(AbstractUser, PermissionsMixin):
         if not self.pk:
             self.role = self.base_role
             return super().save(*args, **kwargs)
+
+
 
 
 class VendorModel(UserModel):
@@ -159,3 +164,12 @@ class AnswerModel(models.Model):
     def __str__(self):
         """Return string representation of the answers"""
         return f'answer_id: {self.answer_id}, answer: {self.answer}, is_correct: {self.is_correct}, question_id: {self.question_id}'
+class EmailVerification(models.Model):
+    user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
+    token = models.CharField(max_length=100, unique=True)
+    is_verified = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = get_random_string(length=32)
+        super().save(*args, **kwargs)

@@ -1,17 +1,24 @@
 from datetime import datetime
+from random import random
+
 from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
 
-from .models import ClaimModel, UserModel, VendorModel, AdminModel
+from .models import ClaimModel, UserModel, VendorModel, AdminModel, EmailVerification
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
 from .decorators import *
 from .backends import VendorModelBackend, AdminModelBackend
 
+# Email verification
+from django_email_verification import send_email
 # SessionAuthentication -> Check if they're in valid session
 
 class UserRegister(APIView):
@@ -32,6 +39,7 @@ class UserRegister(APIView):
 			user = serializer.create(clean_data)
 
 			if user:
+				send_verification_email(request,user)
 				return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -423,3 +431,27 @@ class CreateVendor(APIView):
 		return Response({"data":serializer.data},status=status.HTTP_201_CREATED)
 
 
+def send_verification_email(request,user):
+	email_verification, created = EmailVerification.objects.get_or_create(user=user)
+	if not email_verification.is_verified:
+		token = email_verification.token
+		verification_link = request.build_absolute_uri('/verify-email/') + token + '/'
+		subject = "Verify your email address"
+		message = render_to_string('verification_email.html', {'verification_link': verification_link})
+		send_mail(subject, message, "noreply@ecogo.com", [user.email], fail_silently=False)
+		return HttpResponse("Verification email sent.")
+	return HttpResponse("Email already verified.")
+
+
+def verify_email(request, token):
+	try:
+		email_verification = EmailVerification.objects.get(token=token)
+	except EmailVerification.DoesNotExist:
+		return HttpResponse("Invalid verification link.")
+
+	if email_verification.is_verified:
+		return HttpResponse("Email already verified.")
+
+	email_verification.is_verified = True
+	email_verification.save()
+	return HttpResponse("Email verified successfully.")

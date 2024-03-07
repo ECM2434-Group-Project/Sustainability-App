@@ -1,5 +1,7 @@
 from django.urls import path
+from django.urls import path, include
 from . import views
+from .views import send_verification_email, verify_email
 
 urlpatterns = [
 	path('register', views.UserRegister.as_view(), name='register'), # register a user
@@ -21,8 +23,9 @@ urlpatterns = [
 	path('quiz', views.QuizView.as_view(), name='quiz'),
 	path('makeadmin', views.CreateAdmin.as_view(), name='makeadmin'),
 	path('makevendor', views.CreateVendor.as_view(), name='makevendor'),
-	path('makequestion', views.CreateQuestion.as_view(), name='makequestion')
+	path('makequestion', views.CreateQuestion.as_view(), name='makequestion'),
 
-
+	path('send-verification-email/', send_verification_email, name='send_verification_email'),
+    path('verify-email/<str:token>/', verify_email, name='verify_email'),
 
 ]

@@ -5,6 +5,7 @@ The Django project is located in `/backend`.
 `django`
 `djangorestframework`
 `django-cors-headers`
+`django-email-verification`
 
 ### Starting the Django Server
 The django server can be started by doing the following from inside `/backend`:
