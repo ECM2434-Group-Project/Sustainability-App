@@ -195,3 +195,8 @@ class AnswerModel(models.Model):
         """Return string representation of the answers"""
         return f'answer_id: {self.answer_id}, answer: {self.answer}, is_correct: {self.is_correct}, question_id: {self.answer_id}'
 
+class QuizRecordModel(models.Model):
+    """Model to record active quiz by hash"""
+    quiz_record_id = models.AutoField(primary_key=True)
+    quiz_hash = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
