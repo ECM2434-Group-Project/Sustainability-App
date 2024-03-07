@@ -499,6 +499,8 @@ class QuizView(APIView):
 
         # get the vendor
         print("Quiz Passed!!!")
+        # Update users score
+        UserModel.objects.filter(id=user.id).update(score=user.score + 1)
         return self.attempt_claim(bag_group, user)
 
 
