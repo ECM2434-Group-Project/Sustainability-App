@@ -408,15 +408,21 @@ class QuizView(APIView):
         queryset = QuestionModel.objects.all().order_by('?')[:q_count]
         serializer = QuestionsSerializer(queryset, many=True)
         data = serializer.data
-
+        questions = []
+        answers = []
         # for each question, get the answers
         for i in range(len(data)):
             question = data[i]
             answers = AnswerModel.objects.filter(question=question['question_id'])
+            questions.append(question['question_id'])
 
             ## get the correct answer
             correct_answer = answers.filter(is_correct=True).order_by('?')[:true_positives]
             false_answers = answers.filter(is_correct=False).order_by('?')[:false_positives]
+            # add answer id to answers
+
+
+
             ## use QuizAnswerSerializer to get the answers without revealing the correct answer
             serializer = QuizAnswerSerializer(correct_answer, many=True)
             correct_answer_serialized = serializer.data
@@ -428,6 +434,15 @@ class QuizView(APIView):
             shuffle(shuffled_answers)
 
             data[i]['answers'] = shuffled_answers
+
+        hash = self.getQuizHash(questions, user)
+        # create Quiz Record
+        quizRecordSerializer = QuizRecordSerializer(data={'quiz_hash': hash})
+        if quizRecordSerializer.is_valid(raise_exception=True):
+            quizRecord = quizRecordSerializer.create(quizRecordSerializer.validated_data)
+            quizRecord.save()
+
+
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -457,6 +472,10 @@ class QuizView(APIView):
             return Response({
                                 "message": "You are not in the correct location to submit a quiz, you need to be on site to submit a quiz (500m from vendor)"},
                             status=status.HTTP_200_OK)
+
+        # get all question ID's to check if the quiz has actually been issued using Quiz Records
+        questions_ids = [x['question_id'] for x in data['quiz']]
+
 
         quiz = data['quiz']
         bag_group = data['bag_group']
@@ -524,6 +543,19 @@ class QuizView(APIView):
         fence = geofencing.GeoFencing(location)
         testLocation = LocationModel(latitude=latitude, longitude=longitude)
         return fence.is_inside(testLocation, accuracy=0)
+
+    def getQuizHash(self, questions, user):
+        user_id = user.id
+        # questions and answers are an array of ints
+        # sort lists to be deterministic
+        questions.sort()
+        # concatenate into string
+        questions = ''.join(str(question) for question in questions)
+
+
+
+        return hash((user_id, questions))
+
 
 
 

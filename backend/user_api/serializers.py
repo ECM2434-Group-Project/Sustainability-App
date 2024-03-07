@@ -119,3 +119,8 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LocationModel
         fields = ('latitude', 'longitude', 'radius')
+
+class QuizRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.QuizRecordModel
+        fields = ('quiz_record_id', 'quiz_hash', 'created_at')
