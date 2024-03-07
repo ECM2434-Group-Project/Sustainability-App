@@ -6,6 +6,7 @@ urlpatterns = [
 	path('login', views.UserLogin.as_view(), name='login'), # login a user
  	path('logout', views.UserLogout.as_view(), name='logout'), # logout a user
 	path('user', views.UserView.as_view(), name='user'), # see user info for logged in user
+	path('user/deleteuser', views.DeleteUser.as_view(), name='deleteuser'), # delete a user
 	path('vendors', views.VendorsView.as_view(), name='vendors'), # see all vendors, low fidelity view
   path('vendors/<int:vendor_id>', views.VendorView.as_view(), name='specific-vendor-view'), # see a specific vendor
 	path('vendors/issuebags', views.IssueBagsView.as_view(), name='vendors'),

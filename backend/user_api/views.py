@@ -775,3 +775,22 @@ class AllergenView(APIView):
             return Response({"message": "Error accessing allergen"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class DeleteUser(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+    def post(self, request):
+
+        if not request.user:
+            return Response( status=status.HTTP_403_FORBIDDEN)
+
+
+        data = request.data
+        email = data['email']
+        password = data['password']
+        # verify login details
+        user = UserModel.objects.get(email=email)
+        if user.check_password(password):
+            user.delete()
+            return Response({"message": "User deleted"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
