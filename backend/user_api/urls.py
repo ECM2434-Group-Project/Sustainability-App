@@ -25,7 +25,7 @@ urlpatterns = [
 	path('makevendor', views.CreateVendor.as_view(), name='makevendor'),
 	path('makequestion', views.CreateQuestion.as_view(), name='makequestion'),
 
-	path('send-verification-email/', send_verification_email, name='send_verification_email'),
-    path('verify-email/<str:token>/', verify_email, name='verify_email'),
+	path('send_verification_email/', send_verification_email, name='send_verification_email'),
+    path('verify_email/<str:token>/', verify_email, name='verify_email'),
 
 ]

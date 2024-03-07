@@ -435,7 +435,7 @@ def send_verification_email(request,user):
 	email_verification, created = EmailVerification.objects.get_or_create(user=user)
 	if not email_verification.is_verified:
 		token = email_verification.token
-		verification_link = request.build_absolute_uri('/verify-email/') + token + '/'
+		verification_link = request.build_absolute_uri('verify_email/') + token + '/'
 		subject = "Verify your email address"
 		message = render_to_string('verification_email.html', {'verification_link': verification_link})
 		send_mail(subject, message, "noreply@ecogo.com", [user.email], fail_silently=False)
