@@ -14,6 +14,7 @@ import Incorrect from './screens/quiz/incorrect';
 import { ViewClaimPage } from './screens/view-claim';
 import { IncorrectLocation } from './screens/incorrect-location';
 import { ClaimDetailPage } from './screens/view-claim/claim-detail';
+import LeaderboardPage from './screens/leaderboard/leaderboard';
 function App() {
 
 	// Create a home page that has two buttons, one for login and one for register which navigate to the respective pages
@@ -32,6 +33,7 @@ function App() {
         		<Route path="/view-claim" element={<ViewClaimPage />} />
 				<Route path="/incorrect-location" element={<IncorrectLocation />} />
 				<Route path="/claim/:claim" element={<ClaimDetailPage />} />
+				<Route path="/leaderboard" element={<LeaderboardPage />} />
 			</Routes>
 		</UserProvider>
 		
