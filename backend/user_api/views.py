@@ -12,7 +12,7 @@ from .validations import *
 from .backends import VendorModelBackend, AdminModelBackend
 
 import datetime
-
+from random import shuffle
 from . import geofencing
 
 
@@ -58,12 +58,14 @@ class UserLogin(APIView):
     def post(self, request):
         data = request.data
 
-        if 'email' in data:
-            # if email exists, throws exception if it doesn't
-            email = data['email']
-            assert validate_email(data)
-        else:
-            return Response({"message": "Email is missing", "Data-Sent": data}, status=status.HTTP_400_BAD_REQUEST)
+        valid = user_login_validation(data)
+        # if valid is an Exception
+        if valid:
+            return Response({"message": str(valid)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # if email exists, throws exception if it doesn't
+        email = data['email']
+        assert validate_email(data)
 
         password = data['password']
 
@@ -294,19 +296,22 @@ class WebsiteUserView(APIView):
 
 class QuizView(APIView):
     '''JSON format:
-    Get:
 
     Post:
-    {
-    "questions" :
+    submit a quiz:
+
+        {
+        "latitude" : [Float],
+        "longitude" : [Float],
+        "vendor_id" : [Int],
+        "quiz" :
         [
             {
                 "question_id" : [Int],
-                 "answer_id" : [Int]
-             },
-             ...
-         ]
-    }
+                "answer_id" : [Int]
+            },...
+            ]}
+
 '''
 
 
@@ -346,6 +351,7 @@ class QuizView(APIView):
 
             ## shuffle the answers
             shuffled_answers = correct_answer_serialized + false_answers_serialized
+            shuffle(shuffled_answers)
 
             data[i]['answers'] = shuffled_answers
 
@@ -353,21 +359,7 @@ class QuizView(APIView):
 
     def post(self, request):
         '''
-        Get quiz from user:
 
-        {
-        "latitude" : [Float],
-        "longitude" : [Float],
-        "vendor_id" : [Int],
-        "quiz" :
-        [
-            {
-                "question_id" : [Int],
-                "answer_id" : [Int]
-            },
-            ...
-        ]
-        }
 
         :param request:
         :return:
@@ -390,7 +382,7 @@ class QuizView(APIView):
         if not self.isLocationValid(data['latitude'], data['longitude'], data['vendor_id']):
             return Response({
                                 "message": "You are not in the correct location to submit a quiz, you need to be on site to submit a quiz (500m from vendor)"},
-                            status=status.HTTP_403_FORBIDDEN)
+                            status=status.HTTP_200_OK)
 
         quiz = data['quiz']
         vendor_id = data['vendor_id']
@@ -599,7 +591,7 @@ class CreateVendor(APIView):
             if serializer.is_valid(raise_exception=True):
 
 
-                vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'], password=data['password'], location=location, bags_left=data['bags_left'])
+                vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'], password=data['password'], location=location)
                 vendor.save()
                 # create location for vendor
 

@@ -17,36 +17,39 @@ export default function Home() {
     const { user } = useUser()
 
     const [ locationDenied, setLocationDenied ] = useState(false);
+    const [ locationVerified, setLocationVerified ] = useState(false);
 
     const [ userHasClaim, setUserHasClaim ] = useState(true);
 
 
-    // const checkLocation = useCallback(() => {
+    const checkLocation = useCallback(async () => {
 
-    //     console.log("clicked")
+        console.log("clicked")
 
-    //     const successCallback = (position) => {
+        const successCallback = (position) => {
 
-    //         // Check their location here
-    //         setLocationVerified(true)
-
-    //         getOutlets()
-
-    //     }
+            // Check their location here
+            setLocationVerified(true)
+        }
           
-    //     const errorCallback = (error) => {
-    //         setLocationDenied(true)
+        const errorCallback = (error) => {
+            setLocationDenied(true)
 
 
-    //         // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
-    //         setLocationVerified(true)
-
-    //     }
+            // // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
+            // setLocationVerified(true)
+        }
           
-    //     // Get the user's location
-    //     navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
+        // Get the user's location
+        navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
 
-    // }, [ locationVerified, locationDenied ])
+    }, [ locationVerified, locationDenied ])
+
+    useEffect(() => {
+        if (locationVerified) {
+            nav("/outlet")
+        }
+    }, [locationVerified])
 
 
     return (
@@ -80,8 +83,8 @@ export default function Home() {
                                     }
             
                                     <div className="text-center flex flex-col gap-3">
-                                        <StandoutButton onClick={() => {
-                                            nav("/outlet")
+                                        <StandoutButton onClick={async () => {
+                                            await checkLocation()
                                         }}>
                                             <MdLocationOn />
                                             <span>Check my location</span>
@@ -114,7 +117,9 @@ export default function Home() {
                         </div>
 
                         <div className="text-center flex flex-col gap-3">
-                            <StandoutButton onClick={() => nav("/login")}>
+                            <StandoutButton onClick={() => {
+                                nav("/login")
+                            }}>
                                 <span>Log in / Register</span>
                             </StandoutButton>
                         </div>

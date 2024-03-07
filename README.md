@@ -54,3 +54,21 @@ All of frontend has been authored Ed, Wiktor and Arjun.
 API Routes - Oscar and Mikey
 Database Models - Finn
 Authentication - Finn and Arjun
+
+
+### Routes / Pages
+#### Wiktor
+`/quiz`
+`/quiz/complete`
+`/quiz/incorrect`
+`/outlet`
+
+#### Ed
+`/`
+`/settings`
+`/outlet/{id}`
+`/view-claim`
+
+#### Both
+`/login`
+`/register`

@@ -56,6 +56,7 @@ class GeoFencing:
 
         distance = self.distance(location)
         distance -= accuracy # accuracy is given in meters
-
+        print(distance)
+        print(self.radius)
         return distance <= self.radius
 

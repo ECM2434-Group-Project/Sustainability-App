@@ -96,11 +96,11 @@ export const UserProvider = ({ children }) => {
 	}, [])
 	
 	// Get the user's data when the page loads
-	// useEffect(() => {
-	// 	refreshUser()
-	// 	.then(() => console.log("Got user"))
-	// 	.catch(() => setUser(null))
-	// }, [])
+	useEffect(() => {
+		refreshUser()
+		.then(() => console.log("Got user"))
+		.catch(() => setUser(null))
+	}, [])
 
 	useEffect(() => {
 		console.log(user)

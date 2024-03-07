@@ -15,7 +15,7 @@ export function SettingsPage() {
     return (
         <section className="p-4 flex flex-col gap-8">
 
-            <GoBackLink href={"/"} />
+            <GoBackLink href={"/outlet"} />
 
             <div className="flex flex-col gap-4">
                 {/* <UserAvatar large={true} /> */}

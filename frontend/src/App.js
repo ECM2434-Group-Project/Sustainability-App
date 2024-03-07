@@ -12,7 +12,8 @@ import { UserProvider } from './contexts/userContext';
 import { VendorPage } from './screens/Vendor'
 import Incorrect from './screens/quiz/incorrect';
 import { ViewClaimPage } from './screens/view-claim';
-
+import { IncorrectLocation } from './screens/incorrect-location';
+import { ClaimDetailPage } from './screens/view-claim/claim-detail';
 function App() {
 
 	// Create a home page that has two buttons, one for login and one for register which navigate to the respective pages
@@ -29,6 +30,8 @@ function App() {
 				<Route path="/quiz/complete" element={<QuizComplete />} />
 				<Route path="/quiz/incorrect" element={<Incorrect />} />
         		<Route path="/view-claim" element={<ViewClaimPage />} />
+				<Route path="/incorrect-location" element={<IncorrectLocation />} />
+				<Route path="/claim/:claim" element={<ClaimDetailPage />} />
 			</Routes>
 		</UserProvider>
 		
