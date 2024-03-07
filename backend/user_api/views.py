@@ -530,13 +530,6 @@ class QuizView(APIView):
                     # update group bags_unclaimed
                     BagGroupModel.objects.filter(bag_group_id=bag.bag_group.bag_group_id).update(bags_unclaimed=bag.bag_group.bags_unclaimed - 1)
 
-
-
-
-
-
-
-
                     return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
                 return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
             except Exception as e:
@@ -774,4 +767,59 @@ class AllergenView(APIView):
         except:
             return Response({"message": "Error accessing allergen"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class VerifyClaim(APIView):
+    '''Takes in claim information and verifies that it exsits
+    {
+    "claim_id" : [Int],
+    "user_id" : [Int]
+    }
+
+
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        data = request.data
+        if 'claim_id' and 'user_id' not in data:
+            return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
+        claim_id = data['claim_id']
+        user_id = data['user_id']
+        claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
+        if not claim:
+            return Response({"message": "Claim does not exist"}, status=status.HTTP_200_OK)
+        return Response({"message": "Claim exists"}, status=status.HTTP_200_OK)
+
+
+
+
+class ClaimClaim(APIView):
+    '''Takes in claim information and claims the claim
+    {
+    "claim_id" : [Int],
+    "user_id" : [Int]
+    }
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        data = request.data
+        if 'claim_id' and 'user_id' not in data:
+            return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
+        claim_id = data['claim_id']
+        user_id = data['user_id']
+        claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
+        if not claim:
+            return Response({"message": "Claim does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        claim.success = True
+        claim.save()
+        return Response({"message": "Claim successful"}, status=status.HTTP_200_OK)
 
