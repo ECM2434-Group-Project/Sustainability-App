@@ -1,3 +1,4 @@
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
@@ -5,7 +6,12 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Abstr
 from django.db.models import Choices
 
 
+class MyValidator(UnicodeUsernameValidator):
+    regex = r"^[\w.@+-]+\Z "
+
+
 class UserModel(AbstractUser, PermissionsMixin):
+    # username_validator = MyValidator()
     """
     Creates a User model
 
@@ -47,16 +53,18 @@ class UserModel(AbstractUser, PermissionsMixin):
             self.role = self.base_role
             return super().save(*args, **kwargs)
 
+
 class LocationModel(models.Model):
     """Model for storing locations of vendors"""
     location_id = models.AutoField(primary_key=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    radius = models.FloatField(default=500) # meters
+    radius = models.FloatField(default=500)  # meters
 
     def __str__(self):
         """Return string representation of the Locations"""
         return f'location_id: {self.location_id}, latitude: {self.latitude}, longitude: {self.longitude}, radius: {self.radius}'
+
 
 class VendorModel(UserModel):
     """
@@ -73,7 +81,8 @@ class VendorModel(UserModel):
     location = models.ForeignKey(LocationModel, on_delete=models.CASCADE)
     bags_left = models.IntegerField(default=0)
     icon = models.CharField(max_length=256, default='https://pbs.twimg.com/profile_images/1657489733/ram2_400x400.jpg')
-    banner = models.CharField(max_length=256, default='https://liveevents.exeter.ac.uk/wp-content/uploads/2022/02/Section-1.png')
+    banner = models.CharField(max_length=256,
+                              default='https://liveevents.exeter.ac.uk/wp-content/uploads/2022/02/Section-1.png')
 
     class VendorManager(BaseUserManager):
         def get_queryset(self, *args, **kwargs):
@@ -83,7 +92,6 @@ class VendorModel(UserModel):
     vendor = VendorManager()
 
     class Meta:
-
         permissions = [
             # addbag etc.
         ]
@@ -169,6 +177,10 @@ class ClaimModel(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     time = models.DateTimeField()
 
+    # Make claim unsessful if 1h passes after time field
+    success = models.BooleanField(default=False)
+
+
     def __str__(self):
         """Return string representation of the bags"""
         return f'id: {self.claim_id}, bag_id: {self.bag}, user_id: {self.user}, time: {self.time}'
@@ -194,4 +206,3 @@ class AnswerModel(models.Model):
     def __str__(self):
         """Return string representation of the answers"""
         return f'answer_id: {self.answer_id}, answer: {self.answer}, is_correct: {self.is_correct}, question_id: {self.answer_id}'
-

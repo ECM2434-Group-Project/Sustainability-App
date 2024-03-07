@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'user_api.apps.UserApiConfig',
+    #'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +129,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+"""
+CRONJOBS = [
+    ('*/30 * * * *', 'user_api.tasks.check_claims')
+]
+"""
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

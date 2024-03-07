@@ -108,7 +108,7 @@ class QuizAnswerSerializer(serializers.ModelSerializer):
 class ClaimSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ClaimModel
-		fields = ('claim_id', 'bag', 'user', 'time')
+		fields = ('claim_id', 'bag', 'user', 'time', 'success')
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
