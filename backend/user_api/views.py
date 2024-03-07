@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.db import transaction
 
 from .decorators import allowed_users
-from .models import UserModel, VendorModel, AdminModel, LocationModel, BagGroupModel, AllergenModel
+from .models import UserModel, VendorModel, AdminModel, LocationModel, BagGroupModel, AllergenModel, QuizRecordModel
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
@@ -475,7 +475,13 @@ class QuizView(APIView):
 
         # get all question ID's to check if the quiz has actually been issued using Quiz Records
         questions_ids = [x['question_id'] for x in data['quiz']]
-
+        hash = self.getQuizHash(questions_ids, user)
+        quiz_record = QuizRecordModel.objects.filter(quiz_hash=hash).first()
+        if not quiz_record:
+            return Response({"message": "You have not been issued a quiz"}, status=status.HTTP_200_OK)
+        else:
+            # delete record from the DB
+            QuizRecordModel.objects.filter(quiz_hash=hash).delete()
 
         quiz = data['quiz']
         bag_group = data['bag_group']
@@ -553,7 +559,7 @@ class QuizView(APIView):
         questions = ''.join(str(question) for question in questions)
 
 
-
+        print("Hashing: " + str(user_id) + questions)
         return hash((user_id, questions))
 
 
