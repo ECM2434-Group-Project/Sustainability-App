@@ -2,9 +2,9 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import ClaimModel, UserModel, BagModel
 
-# We will be running this with django-cron, only available in linux
 
-def check_claims():
+# We will be running this with django-cron, only available in linux
+def drop_unclaimed_bags():
     # Get the threshold time
     threshold_time = timezone.now() - timedelta(hours=2)
 
@@ -25,3 +25,8 @@ def check_claims():
 
         # Delete the claim
         claim.delete()
+
+
+# Remove every bag in BagModel at 6pm every day
+def remove_all_bags():
+    BagModel.objects.all().delete()
