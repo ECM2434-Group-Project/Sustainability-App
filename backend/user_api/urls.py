@@ -8,7 +8,7 @@ urlpatterns = [
 	path('user', views.UserView.as_view(), name='user'), # see user info for logged in user
 	path('user/deleteuser', views.DeleteUser.as_view(), name='deleteuser'), # delete a user
 	path('vendors', views.VendorsView.as_view(), name='vendors'), # see all vendors, low fidelity view
-  path('vendors/<int:vendor_id>', views.VendorView.as_view(), name='specific-vendor-view'), # see a specific vendor
+  	path('vendors/<int:vendor_id>', views.VendorView.as_view(), name='specific-vendor-view'), # see a specific vendor
 	path('vendors/issuebags', views.IssueBagsView.as_view(), name='vendors'),
 	path('allergens/<int:allergen_id>', views.AllergenView.as_view(), name='allergen'),
 	path('claims', views.ClaimsView.as_view(), name='claims'),
@@ -21,5 +21,6 @@ urlpatterns = [
 	path('makeadmin', views.CreateAdmin.as_view(), name='makeadmin'),
 	path('geotest', views.GeoFenceTest.as_view(), name='testgeo'),
 	path('testvendor', views.CreateTestVendor.as_view(), name='testvendor'),
-	path('geotest', views.GeoFenceTest.as_view(), name='testgeo')
+	path('geotest', views.GeoFenceTest.as_view(), name='testgeo'),
+	path('vendors/<int:group_id>', views.GetBagGroups.as_view(), name='baggroup'),
 ]
