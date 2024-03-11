@@ -22,7 +22,7 @@ urlpatterns = [
 	path('makeadmin', views.CreateAdmin.as_view(), name='makeadmin'),
 	path('geotest', views.GeoFenceTest.as_view(), name='testgeo'),
 	path('testvendor', views.CreateTestVendor.as_view(), name='testvendor'),
-	path('geotest', views.GeoFenceTest.as_view(), name='testgeo')
+	path('geotest', views.GeoFenceTest.as_view(), name='testgeo'),
 
 	path('send_verification_email/', send_verification_email, name='send_verification_email'),
     path('verify_email/<str:token>/', verify_email, name='verify_email'),
