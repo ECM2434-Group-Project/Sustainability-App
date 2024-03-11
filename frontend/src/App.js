@@ -21,9 +21,8 @@ import { VendorScanPage } from './screens/vendor-admin/scan/VendorScanPage';
 import { VendorSettingsPage } from './screens/vendor-admin/settings/VendorSettingsPage';
 import { VendorAccountDetails } from './screens/vendor-admin/settings/details/VendorAccountDetails';
 import { VendorChangePassword } from './screens/vendor-admin/settings/change-password/VendorChangePassword';
-
-
-
+import ChangeUsername from './screens/change-username';
+import ChangePassword from './screens/change-password';
 function App() {
 
 	return (
@@ -48,6 +47,8 @@ function App() {
 				<Route path="/vendor-admin/settings" element={<VendorSettingsPage />} />
 				<Route path="/vendor-admin/settings/details" element={<VendorAccountDetails />} />
 				<Route path="/vendor-admin/settings/change-password" element={<VendorChangePassword />} />
+				<Route path="/settings/change-username" element={<ChangeUsername />} />
+				<Route path="/settings/change-password" element={<ChangePassword />} />
 			</Routes>
 		</UserProvider>
 		
