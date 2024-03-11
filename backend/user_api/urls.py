@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-from .views import send_verification_email, verify_email
 
 urlpatterns = [
 	path('register', views.UserRegister.as_view(), name='register'), # register a user
@@ -22,8 +21,8 @@ urlpatterns = [
 	path('makeadmin', views.CreateAdmin.as_view(), name='makeadmin'),
 	path('geotest', views.GeoFenceTest.as_view(), name='testgeo'),
 	path('testvendor', views.CreateTestVendor.as_view(), name='testvendor'),
+	path('vendors/groups/<int:group_id>', views.GetBagGroups.as_view(), name='baggroup'),
 	path('geotest', views.GeoFenceTest.as_view(), name='testgeo')
-
-	path('send_verification_email/', send_verification_email, name='send_verification_email'),
-    path('verify_email/<str:token>/', verify_email, name='verify_email'),
+	path('send_verification_email/', views.send_verification_email, name='send_verification_email'),
+  path('verify_email/<str:token>/', views.verify_email, name='verify_email'),
 ]
