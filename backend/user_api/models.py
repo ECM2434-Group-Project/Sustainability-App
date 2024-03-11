@@ -200,3 +200,13 @@ class QuizRecordModel(models.Model):
     quiz_record_id = models.AutoField(primary_key=True)
     quiz_hash = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class EmailVerification(models.Model):
+    user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
+    token = models.CharField(max_length=100, unique=True)
+    is_verified = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = get_random_string(length=32)
+        super().save(*args, **kwargs)

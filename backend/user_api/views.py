@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from django.db import transaction
 
 from .decorators import allowed_users
-from .models import UserModel, VendorModel, AdminModel, LocationModel, BagGroupModel, AllergenModel, QuizRecordModel
+from .models import UserModel, VendorModel, AdminModel, LocationModel, BagGroupModel, AllergenModel, QuizRecordModel, \
+    EmailVerification
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
@@ -14,6 +15,11 @@ from .backends import VendorModelBackend, AdminModelBackend
 import datetime
 from random import shuffle
 from . import geofencing
+
+# Email verification
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 
 
 # SessionAuthentication -> Check if they're in valid session
@@ -794,3 +800,27 @@ class DeleteUser(APIView):
             return Response({"message": "User deleted"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+def send_verification_email(request, user):
+    email_verification, created = EmailVerification.objects.get_or_create(user=user)
+    if not email_verification.is_verified:
+        token = email_verification.token
+        verification_link = request.build_absolute_uri('verify_email/') + token + '/'
+        subject = "Verify your email address"
+        message = render_to_string('verification_email.html', {'verification_link': verification_link})
+        send_mail(subject, message, "noreply@ecogo.com", [user.email], fail_silently=False)
+        return HttpResponse("Verification email sent.")
+    return HttpResponse("Email already verified.")
+
+def verify_email(request, token):
+    try:
+        email_verification = EmailVerification.objects.get(token=token)
+    except EmailVerification.DoesNotExist:
+        return Response("Invalid verification link.")
+
+    if email_verification.is_verified:
+        return Response("Email already verified.")
+
+    email_verification.is_verified = True
+    email_verification.save()
+    return HttpResponse("Email verified successfully.")
