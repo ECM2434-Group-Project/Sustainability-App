@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { TextInput } from "../../components/General/TextInput"
 import { GoBackLink } from "../../components/General/GoBackLink"
 import { UserAvatar } from "../../components/User/UserAvatar"
@@ -6,6 +6,10 @@ import { UserAvatar } from "../../components/User/UserAvatar"
 export default function CreateVendorPage() {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
+
+	const createVendor = useCallback(() => {
+
+	}, [])
 
 	return (
 		<div className="flex flex-col bg-exeterBlue p-4 h-screen justify-center">
