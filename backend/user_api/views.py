@@ -807,6 +807,8 @@ class DeleteBags(APIView):
             for bagsId in data:
                 BagGroupModel.objects.filter(bag_group_id=bagsId).delete()
 
+        BagGroupModel.objects.filter(bag_group_id=group.bag_group_id).update(bags_unclaimed=group.bags_unclaimed - len(data))
+
 
 # Get bag groups
 class GetBagGroups(APIView):
@@ -817,7 +819,6 @@ class GetBagGroups(APIView):
         if request.user.role != UserModel.Role.VENDOR:
             return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
 
-        vendor = request.user
         group = BagGroupModel.objects.filter(bag_group_id=group_id)
         serializer = BagGroupSerializer(group, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
