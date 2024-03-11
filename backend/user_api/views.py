@@ -79,7 +79,7 @@ class UserLogin(APIView):
         try:
             serializer = UserLoginSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
-                username = UserModel.objects.get(email=email).username
+                username = UserModel.objects.get(email__exact=email).username
                 user = serializer.get_user(username, password)
                 login(request, user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
