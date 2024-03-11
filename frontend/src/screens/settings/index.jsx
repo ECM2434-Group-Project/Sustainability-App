@@ -33,9 +33,9 @@ export function SettingsPage() {
 
                     <Link to={"/settings/change-password"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change password</Link>
 
-                    <Link to={"/settings/change-name"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change name</Link>
+                    <Link to={"/settings/change-username"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change name</Link>
 
-                    <Link to={"/settings/change-name"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Leaderboard</Link>
+                    <Link to={"/leaderboard"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Leaderboard</Link>
 
                     <Link to={"/view-claim"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Claims</Link>
 
