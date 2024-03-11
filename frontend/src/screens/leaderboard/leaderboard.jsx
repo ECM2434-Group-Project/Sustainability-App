@@ -19,7 +19,7 @@ export default function LeaderboardPage() {
     return (
         <section className="p-6">
             <div className="absolute top-2 left-2 z-10">
-				<GoBackLink href={"/outlet"} />
+				<GoBackLink href={"/settings"} />
 			</div>
             <br></br>
             <h1>Leaderboard</h1>
