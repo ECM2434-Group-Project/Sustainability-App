@@ -23,6 +23,9 @@ import { VendorAccountDetails } from './screens/vendor-admin/settings/details/Ve
 import { VendorChangePassword } from './screens/vendor-admin/settings/change-password/VendorChangePassword';
 import ChangeUsername from './screens/change-username';
 import ChangePassword from './screens/change-password';
+import AdminLogin from './screens/admin-login';
+import AdminPage from './screens/admin';
+import CreateVendorPage from './screens/create-vendor';
 function App() {
 
 	return (
@@ -41,6 +44,9 @@ function App() {
 				<Route path="/incorrect-location" element={<IncorrectLocation />} />
 				<Route path="/claim/:claim" element={<ClaimDetailPage />} />
 				<Route path="/leaderboard" element={<LeaderboardPage />} />
+				<Route path="/admin-login" element={<AdminLogin />} />
+				<Route path="/admin" element={<AdminPage />} />
+				<Route path="/admin/create-vendor" element={<CreateVendorPage />} />
 				<Route path="/vendor-admin" element={<VendorAdminScreen />} />
 				<Route path="/vendor-admin/login" element={<VendorLoginPage />} />
 				<Route path="/vendor-admin/scan" element={<VendorScanPage />} />
