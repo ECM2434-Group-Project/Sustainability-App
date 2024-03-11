@@ -1,4 +1,9 @@
+import base64
+import io
+
+from PIL.Image import Image
 from django.contrib.auth import login, logout
+from django.shortcuts import render, redirect
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,7 +11,7 @@ from django.db import transaction
 
 from .decorators import allowed_users
 from .models import UserModel, VendorModel, AdminModel, LocationModel, BagGroupModel, AllergenModel, QuizRecordModel, \
-    EmailVerification
+    EmailVerification, ImageModel
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
@@ -135,7 +140,6 @@ class UserView(APIView):
     def get(self, request):
         # if the request has a user
         if request.user is None:
-
             return Response({"message": "You are not logged in"}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UserSerializer(request.user)
@@ -156,12 +160,8 @@ class VendorsView(APIView):
         data = []
         for vendor in vendors:
             location = vendor.location
-            data.append({"id" : vendor.id, "username" :  vendor.username, "latitude" : location.latitude,
-                         "longitude" : location.longitude, "bags_left": vendor.bags_left})
-
-
-
-
+            data.append({"id": vendor.id, "username": vendor.username, "latitude": location.latitude,
+                         "longitude": location.longitude, "bags_left": vendor.bags_left})
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -249,8 +249,8 @@ class IssueBagsView(APIView):
             allergen = AllergenModel.objects.get(allergen_id=group.allergen.allergen_id)
             allergenserializer = AllergenSerializer(allergen)
 
-            data.append({"bag_group": group.bag_group_id,"allergens" : allergenserializer.data, "bags": bagserializer.data})
-
+            data.append(
+                {"bag_group": group.bag_group_id, "allergens": allergenserializer.data, "bags": bagserializer.data})
 
         return Response({'bags': data}, status=status.HTTP_200_OK)
 
@@ -279,18 +279,17 @@ class IssueBagsView(APIView):
             allergen.save()
 
         # create bag group
-        bagGroupSerializer = BagGroupSerializer(data={'vendor': vendor.id, 'allergen': allergen.allergen_id, 'bags_unclaimed': num_bags})
+        bagGroupSerializer = BagGroupSerializer(
+            data={'vendor': vendor.id, 'allergen': allergen.allergen_id, 'bags_unclaimed': num_bags})
         if bagGroupSerializer.is_valid(raise_exception=True):
             bagGroup = bagGroupSerializer.create(bagGroupSerializer.validated_data)
             bagGroup.save()
-
 
         for i in range(int(num_bags)):
             serializer = BagSerializer(data={'collection_time': collection_time, 'bag_group': bagGroup.bag_group_id})
             if serializer.is_valid(raise_exception=True):
                 bag = serializer.create(serializer.validated_data)
                 bag.save()
-
 
         # todo: create bulk insert functionality
 
@@ -306,6 +305,7 @@ class IssueBagsView(APIView):
             return VendorModel.objects.get(id=vendor_id)
         except VendorModel.DoesNotExist:
             raise None
+
     def parse_allergens(self, data):
         allergendict = {}
         for key in data:
@@ -394,7 +394,6 @@ class QuizView(APIView):
 
 '''
 
-
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
@@ -427,8 +426,6 @@ class QuizView(APIView):
             false_answers = answers.filter(is_correct=False).order_by('?')[:false_positives]
             # add answer id to answers
 
-
-
             ## use QuizAnswerSerializer to get the answers without revealing the correct answer
             serializer = QuizAnswerSerializer(correct_answer, many=True)
             correct_answer_serialized = serializer.data
@@ -447,8 +444,6 @@ class QuizView(APIView):
         if quizRecordSerializer.is_valid(raise_exception=True):
             quizRecord = quizRecordSerializer.create(quizRecordSerializer.validated_data)
             quizRecord.save()
-
-
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -476,8 +471,8 @@ class QuizView(APIView):
 
         if not self.isLocationValid(data['latitude'], data['longitude'], data['vendor_id']):
             return Response({
-                                "message": "You are not in the correct location to submit a quiz, you need to be on site to submit a quiz (500m from vendor)"},
-                            status=status.HTTP_200_OK)
+                "message": "You are not in the correct location to submit a quiz, you need to be on site to submit a quiz (500m from vendor)"},
+                status=status.HTTP_200_OK)
 
         # get all question ID's to check if the quiz has actually been issued using Quiz Records
         questions_ids = [x['question_id'] for x in data['quiz']]
@@ -507,8 +502,6 @@ class QuizView(APIView):
         print("Quiz Passed!!!")
         return self.attempt_claim(bag_group, user)
 
-
-
     def attempt_claim(self, bag_group, user):
         ## start transaction
         with transaction.atomic():
@@ -522,7 +515,8 @@ class QuizView(APIView):
                     return Response({"message": "No bags to claim"}, status=status.HTTP_418_IM_A_TEAPOT)
                 # create the claim
 
-                claimSerializer = ClaimSerializer(data={'bag': bag.bag_id, 'user': user.id, 'time': datetime.datetime.now()})
+                claimSerializer = ClaimSerializer(
+                    data={'bag': bag.bag_id, 'user': user.id, 'time': datetime.datetime.now()})
                 if claimSerializer.is_valid(raise_exception=True):
                     claim = claimSerializer.create(claimSerializer.validated_data)
                     claim.save()
@@ -534,20 +528,13 @@ class QuizView(APIView):
                     # update bag to claimed
                     BagModel.objects.filter(bag_id=bag.bag_id).update(claimed=True)
                     # update group bags_unclaimed
-                    BagGroupModel.objects.filter(bag_group_id=bag.bag_group.bag_group_id).update(bags_unclaimed=bag.bag_group.bags_unclaimed - 1)
-
-
-
-
-
-
-
+                    BagGroupModel.objects.filter(bag_group_id=bag.bag_group.bag_group_id).update(
+                        bags_unclaimed=bag.bag_group.bags_unclaimed - 1)
 
                     return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
                 return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({"message": "Error creating claim", "Error": e}, status=status.HTTP_400_BAD_REQUEST)
-
 
     def isLocationValid(self, latitude, longitude, vendor_id):
         vendor = VendorModel.objects.get(id=vendor_id)
@@ -564,16 +551,14 @@ class QuizView(APIView):
         # concatenate into string
         questions = ''.join(str(question) for question in questions)
 
-
         print("Hashing: " + str(user_id) + questions)
         return hash((user_id, questions))
-
-
 
 
 class ClaimsView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
+
     def get(self, request):
         if not request.user:
             return Response({"message": "You are not logged in"}, status=status.HTTP_403_FORBIDDEN)
@@ -585,24 +570,25 @@ class ClaimsView(APIView):
         serializer = ClaimSerializer(claims, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class CreateClaim(APIView):
-	def post(self, request):
+    def post(self, request):
 
-		user = UserModel.objects.get(username=request.user.username)
-		bag = BagModel.objects.get(bag_id=0)
-		time = datetime.datetime.now()
-		success = True
+        user = UserModel.objects.get(username=request.user.username)
+        bag = BagModel.objects.get(bag_id=0)
+        time = datetime.datetime.now()
+        success = True
 
-		data = {'user': user.id, 'bag': bag.bag_id, 'time': time, 'success': success}
-		print(f"{data} \n")
+        data = {'user': user.id, 'bag': bag.bag_id, 'time': time, 'success': success}
+        print(f"{data} \n")
 
-		serializer = ClaimSerializer(data=data)
+        serializer = ClaimSerializer(data=data)
 
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		else:
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateQuestion(APIView):
@@ -678,7 +664,6 @@ class CreateAdmin(APIView):
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
 
 
-
 class CreateVendor(APIView):
     '''
     Example Vendor:
@@ -700,7 +685,8 @@ class CreateVendor(APIView):
         if request.user.role != "ADMIN":
             return Response({"message": "You are not an admin"}, status=status.HTTP_403_FORBIDDEN)
         if 'latitude' and 'longitude' not in request.data:
-            return Response({"message": "You need to provide a latitude and a longitude"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "You need to provide a latitude and a longitude"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         locationSerializer = LocationSerializer(data=request.data)
         if locationSerializer.is_valid(raise_exception=True):
@@ -713,12 +699,10 @@ class CreateVendor(APIView):
 
             serializer = VendorSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
-
-
-                vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'], password=data['password'], location=location)
+                vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'],
+                                                         password=data['password'], location=location)
                 vendor.save()
                 # create location for vendor
-
 
                 VendorModel.objects.filter(id=vendor.id).update(location=location)
 
@@ -730,6 +714,7 @@ class CreateVendor(APIView):
 class CreateTestVendor(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)
+
     def post(self, request):
         username = "vendor"
         password = "bob12345"
@@ -749,6 +734,8 @@ class CreateTestVendor(APIView):
         # VendorModel.objects.filter(id=vendor.id).update(location=location)
         serializer = VendorSerializer(vendor)
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
+
+
 class GeoFenceTest(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)
@@ -766,10 +753,13 @@ class GeoFenceTest(APIView):
 
         return Response({"location1 radius:": location.radius, "distance": distance, "is_inside": is_inside},
                         status=status.HTTP_200_OK)
+
+
 # @allowed_users(allowed_roles=['admin'])
 class AllergenView(APIView):
     permissions_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
+
     def get(self, request, allergen_id):
         allergen = AllergenModel.objects.get(allergen_id=allergen_id)
         serializer = AllergenSerializer(allergen)
@@ -784,11 +774,11 @@ class AllergenView(APIView):
 class DeleteUser(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
+
     def post(self, request):
 
         if not request.user:
-            return Response( status=status.HTTP_403_FORBIDDEN)
-
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         data = request.data
         email = data['email']
@@ -801,6 +791,49 @@ class DeleteUser(APIView):
         else:
             return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
+class UploadImageView(APIView):
+    """
+    Post
+    'vendorid': vendormodel
+    'name': 'String'
+    'image': 'base64_encoded_image'
+    """
+    def post(self, request):
+        #=request.vendor.vendor_id) add later
+        # Retrieve vendor based on ID
+        vendor_id = request.data.get("vendor_id")
+        try:
+            vendor = VendorModel.objects.get(id=vendor_id)
+        except VendorModel.DoesNotExist:
+            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Decode and save the image
+        image_data = request.data.get("image")
+        try:
+            image_data = base64.b64decode(image_data)
+            image = Image.open(io.BytesIO(image_data))
+            # You can save the image to the filesystem or use Django's ImageField to save it to the database
+            # For simplicity, let's assume you are saving it to a filesystem
+            image_path = f"path/to/save/{vendor_id}.jpg"
+            image.save(image_path)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Prepare data for serialization
+        data = {'vendor_id': vendor_id, 'name': request.data.get('name'), 'image': image_path}
+
+        # Serialize and save data
+        serializer = ImageSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Image uploaded successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def success(request):
+    return HttpResponse('successfully uploaded')
+
+
 def send_verification_email(request, user):
     email_verification, created = EmailVerification.objects.get_or_create(user=user)
     if not email_verification.is_verified:
@@ -811,6 +844,7 @@ def send_verification_email(request, user):
         send_mail(subject, message, "noreply@ecogo.com", [user.email], fail_silently=False)
         return HttpResponse("Verification email sent.")
     return HttpResponse("Email already verified.")
+
 
 def verify_email(request, token):
     try:

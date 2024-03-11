@@ -26,4 +26,7 @@ urlpatterns = [
 
 	path('send_verification_email/', send_verification_email, name='send_verification_email'),
     path('verify_email/<str:token>/', verify_email, name='verify_email'),
-]
+	path('uploadvendorimage/', views.UploadImageView.as_view(), name='upload-image'),
+	#path('deletevendorimage/<int:pk>/', views.DeleteImageModel.as_view(), name='delete-image'),
+]                                 
+
