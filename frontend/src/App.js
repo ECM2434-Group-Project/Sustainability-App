@@ -15,9 +15,17 @@ import { ViewClaimPage } from './screens/view-claim';
 import { IncorrectLocation } from './screens/incorrect-location';
 import { ClaimDetailPage } from './screens/view-claim/claim-detail';
 import LeaderboardPage from './screens/leaderboard/leaderboard';
+import VendorAdminScreen from './screens/vendor-admin/VendorAdminScreen';
+import { VendorLoginPage } from './screens/vendor-admin/login/VendorLoginPage';
+import { VendorScanPage } from './screens/vendor-admin/scan/VendorScanPage';
+import { VendorSettingsPage } from './screens/vendor-admin/settings/VendorSettingsPage';
+import { VendorAccountDetails } from './screens/vendor-admin/settings/details/VendorAccountDetails';
+import { VendorChangePassword } from './screens/vendor-admin/settings/change-password/VendorChangePassword';
+
+
+
 function App() {
 
-	// Create a home page that has two buttons, one for login and one for register which navigate to the respective pages
 	return (
 		<UserProvider>
 			<Routes>
@@ -34,6 +42,12 @@ function App() {
 				<Route path="/incorrect-location" element={<IncorrectLocation />} />
 				<Route path="/claim/:claim" element={<ClaimDetailPage />} />
 				<Route path="/leaderboard" element={<LeaderboardPage />} />
+				<Route path="/vendor-admin" element={<VendorAdminScreen />} />
+				<Route path="/vendor-admin/login" element={<VendorLoginPage />} />
+				<Route path="/vendor-admin/scan" element={<VendorScanPage />} />
+				<Route path="/vendor-admin/settings" element={<VendorSettingsPage />} />
+				<Route path="/vendor-admin/settings/details" element={<VendorAccountDetails />} />
+				<Route path="/vendor-admin/settings/change-password" element={<VendorChangePassword />} />
 			</Routes>
 		</UserProvider>
 		
