@@ -851,4 +851,4 @@ def verify_email(request, token):
 
     email_verification.is_verified = True
     email_verification.save()
-    return HttpResponse("Email verified successfully."
+    return HttpResponse("Email verified successfully.")

@@ -3,6 +3,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
 
 from django.db.models import Choices
+from django.utils.crypto import get_random_string
 
 
 class UserModel(AbstractUser, PermissionsMixin):
