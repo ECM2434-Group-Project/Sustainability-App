@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import send_verification_email, verify_email
+from .views import send_verification_email, verify_email, getimage
 
 urlpatterns = [
 	path('register', views.UserRegister.as_view(), name='register'), # register a user
@@ -27,6 +27,7 @@ urlpatterns = [
 	path('send_verification_email/', send_verification_email, name='send_verification_email'),
     path('verify_email/<str:token>/', verify_email, name='verify_email'),
 	path('uploadvendorimage/', views.UploadImageView.as_view(), name='upload-image'),
-	#path('deletevendorimage/<int:pk>/', views.DeleteImageModel.as_view(), name='delete-image'),
+	path('deletevendorimage/', views.DeleteImageView.as_view(), name='delete-image'),
+	path('getvendorimage/<str:image_name>', getimage, name='get-image'),
 ]                                 
 

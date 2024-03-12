@@ -215,4 +215,4 @@ class ImageModel(models.Model):
     id = models.AutoField(primary_key=True)
     vendor_id = models.OneToOneField(VendorModel, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=128, default='your_default_value')
-    image = models.ImageField(upload_to='images/')
+    image_url = models.CharField(max_length=128, default='your_default_value')

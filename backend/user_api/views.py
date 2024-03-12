@@ -1,7 +1,7 @@
 import os
 
 from django.contrib.auth import login, logout
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -798,9 +798,10 @@ class DeleteUser(APIView):
 class UploadImageView(APIView):
     """
     Post
-    'vendorid': vendormodel
-    'name': 'String'
-    'image': 'base64_encoded_image'
+    {'vendorid': [Int]
+    'name': '[String]
+    'image': [String] }
+    make sure that image is a base64_encoded_image string
     """
     def post(self, request):
         #=request.vendor.vendor_id) add later
@@ -822,13 +823,12 @@ class UploadImageView(APIView):
 
             image_filename = f"{vendor_id}.jpg"
             image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
-            image.show()
             image.save(image_path)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         # Prepare data for serialization
-        data = {'vendor_id': vendor_id, 'name': request.data.get('name'), 'image': image_path}
+        data = {'vendor_id': vendor_id, 'name': image_filename, 'image_url': image_path}
 
         # Serialize and save data
         serializer = ImageSerializer(data=data)
@@ -837,10 +837,25 @@ class UploadImageView(APIView):
             return Response({'message': 'Image uploaded successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class DeleteImageView(APIView):
+    """
+    Post
+    {
+    vendor_id
+    name
+    """
+    def post(self, request):
+        vendor_id = request.data["vendor_id"]
+        image = ImageModel.objects.get(vendor_id=vendor_id)
+        if image:
+            # Delete the associated image file
+            image.image.delete(save=False)
 
-def success(request):
-    return HttpResponse('successfully uploaded')
-
+            # Delete the ImageModel instance from the database
+            image.delete()
+            return Response({"message": "User deleted"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
 def send_verification_email(request, user):
     email_verification, created = EmailVerification.objects.get_or_create(user=user)
@@ -866,3 +881,23 @@ def verify_email(request, token):
     email_verification.is_verified = True
     email_verification.save()
     return HttpResponse("Email verified successfully.")
+
+def getimage(request, image_name):
+    # Construct the absolute path to the image
+    absolute_image_path = os.path.join(settings.MEDIA_ROOT, image_name)
+
+    # Check if the file exists
+    if os.path.exists(absolute_image_path):
+        # Open the file in binary mode
+        with open(absolute_image_path, 'rb') as f:
+            # Read the file data
+            image_data = f.read()
+
+        # Determine the content type based on the file extension
+        content_type = 'image/jpeg' if image_name.endswith('.jpg') else 'image/png'
+
+        # Return the image data with the appropriate content type
+        return HttpResponse(image_data, content_type=content_type)
+    else:
+        # Return 404 if the file does not exist
+        return HttpResponse({"message": "Image not found"},status=404)
