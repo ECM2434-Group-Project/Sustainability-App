@@ -1,7 +1,5 @@
-import base64
-import io
+import os
 
-from PIL.Image import Image
 from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect
 from rest_framework.authentication import SessionAuthentication
@@ -25,6 +23,12 @@ from . import geofencing
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+
+# images
+import base64
+import io
+import PIL.Image
+from django.conf import settings
 
 
 # SessionAuthentication -> Check if they're in valid session
@@ -808,13 +812,17 @@ class UploadImageView(APIView):
             return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Decode and save the image
-        image_data = request.data.get("image")
+        image_data = request.data["image"]
         try:
-            image_data = base64.b64decode(image_data)
-            image = Image.open(io.BytesIO(image_data))
-            # You can save the image to the filesystem or use Django's ImageField to save it to the database
-            # For simplicity, let's assume you are saving it to a filesystem
-            image_path = f"path/to/save/{vendor_id}.jpg"
+            decoded_image_data = base64.b64decode(image_data)
+            image_stream = io.BytesIO(decoded_image_data)
+            image = PIL.Image.open(image_stream)
+            # Convert the image to RGB mode (remove alpha channel)
+            image = image.convert("RGB")
+
+            image_filename = f"{vendor_id}.jpg"
+            image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
+            image.show()
             image.save(image_path)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
