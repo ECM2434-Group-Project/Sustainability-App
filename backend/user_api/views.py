@@ -46,6 +46,10 @@ class UserRegister(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def post(self, request):
+        data = request.data
+        # if email exists and is exeter email, throws exception if it doesn't
+        email = data['email']
+        assert validate_email_register(data)
         clean_data = user_creation_validation(request.data)
         serializer = UserRegisterSerializer(data=clean_data)
         if serializer.is_valid(raise_exception=True):
