@@ -1,4 +1,7 @@
+import os
+
 from django.contrib.auth import login, logout
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,7 +9,7 @@ from django.db import transaction
 
 from .decorators import allowed_users
 from .models import UserModel, VendorModel, AdminModel, LocationModel, BagGroupModel, AllergenModel, QuizRecordModel, \
-    EmailVerification
+    EmailVerification, ImageModel
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
@@ -20,6 +23,12 @@ from . import geofencing
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+
+# images
+import base64
+import io
+import PIL.Image
+from django.conf import settings
 
 
 # SessionAuthentication -> Check if they're in valid session
@@ -829,6 +838,75 @@ class GetBagGroups(APIView):
         serializer = BagGroupSerializer(group, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class UploadImageView(APIView):
+    """
+    Post
+    {'vendorid': [Int]
+    'name': [String]
+    'type': [String] banner or icon
+    'image': [String]
+    }
+    make sure that image is a base64_encoded_image string
+    """
+    def post(self, request):
+        #=request.vendor.vendor_id) add later
+        # Retrieve vendor based on ID
+        vendor_id = request.data.get("vendor_id")
+        try:
+            vendor = VendorModel.objects.get(id=vendor_id)
+        except VendorModel.DoesNotExist:
+            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Decode and save the image
+        image_data = request.data["image"]
+        image_filename = f"{vendor.username}_{request.data['type']}.jpg"
+        image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
+
+        # Prepare data for serialization
+        data = {'vendor_id': vendor_id, 'name': image_filename, 'image_url': image_path}
+
+        # Serialize and save data + image
+        serializer = ImageSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            try:
+                # Decode and save image
+                decoded_image_data = base64.b64decode(image_data)
+                image_stream = io.BytesIO(decoded_image_data)
+                image = PIL.Image.open(image_stream)
+                # Convert the image to RGB mode (remove alpha channel)
+                image = image.convert("RGB")
+                image.save(image_path)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Image uploaded successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class DeleteImageView(APIView):
+    """
+    Post
+    {
+    vendor_id
+    name
+    """
+    def post(self, request, image_name):
+
+
+        try:
+            image = ImageModel.objects.get(name=image_name)
+        except ImageModel.DoesNotExist:
+            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if image:
+            # Delete the associated image file
+            os.remove(image.image_url)
+
+            # Delete the ImageModel instance from the database
+            image.delete()
+            return HttpResponse({"message": "Image deleted"}, status=status.HTTP_200_OK)
+        else:
+            return HttpResponse({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
 def send_verification_email(request, user):
     email_verification, created = EmailVerification.objects.get_or_create(user=user)
     if not email_verification.is_verified:
@@ -839,6 +917,7 @@ def send_verification_email(request, user):
         send_mail(subject, message, "noreply@ecogo.com", [user.email], fail_silently=False)
         return HttpResponse("Verification email sent.")
     return HttpResponse("Email already verified.")
+
 
 def verify_email(request, token):
     try:
@@ -852,3 +931,23 @@ def verify_email(request, token):
     email_verification.is_verified = True
     email_verification.save()
     return HttpResponse("Email verified successfully.")
+
+def getimage(request, image_name):
+    # Construct the absolute path to the image
+    absolute_image_path = os.path.join(settings.MEDIA_ROOT, image_name)
+
+    # Check if the file exists
+    if os.path.exists(absolute_image_path):
+        # Open the file in binary mode
+        with open(absolute_image_path, 'rb') as f:
+            # Read the file data
+            image_data = f.read()
+
+        # Determine the content type based on the file extension
+        content_type = 'image/jpeg' if image_name.endswith('.jpg') else 'image/png'
+
+        # Return the image data with the appropriate content type
+        return HttpResponse(image_data, content_type=content_type)
+    else:
+        # Return 404 if the file does not exist
+        return HttpResponse({"message": "Image not found"},status=404)
