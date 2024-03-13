@@ -27,7 +27,7 @@ urlpatterns = [
 	path('send_verification_email/', send_verification_email, name='send_verification_email'),
     path('verify_email/<str:token>/', verify_email, name='verify_email'),
 	path('uploadvendorimage/', views.UploadImageView.as_view(), name='upload-image'),
-	path('deletevendorimage/', views.DeleteImageView.as_view(), name='delete-image'),
+	path('deletevendorimage/<str:image_name>', views.DeleteImageView.as_view(), name='delete-image'),
 	path('getvendorimage/<str:image_name>', getimage, name='get-image'),
 ]                                 
 

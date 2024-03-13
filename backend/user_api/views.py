@@ -799,8 +799,10 @@ class UploadImageView(APIView):
     """
     Post
     {'vendorid': [Int]
-    'name': '[String]
-    'image': [String] }
+    'name': [String]
+    'type': [String] banner or icon
+    'image': [String]
+    }
     make sure that image is a base64_encoded_image string
     """
     def post(self, request):
@@ -814,26 +816,26 @@ class UploadImageView(APIView):
 
         # Decode and save the image
         image_data = request.data["image"]
-        try:
-            decoded_image_data = base64.b64decode(image_data)
-            image_stream = io.BytesIO(decoded_image_data)
-            image = PIL.Image.open(image_stream)
-            # Convert the image to RGB mode (remove alpha channel)
-            image = image.convert("RGB")
-
-            image_filename = f"{vendor_id}.jpg"
-            image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
-            image.save(image_path)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        image_filename = f"{vendor.username}_{request.data['type']}.jpg"
+        image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
 
         # Prepare data for serialization
         data = {'vendor_id': vendor_id, 'name': image_filename, 'image_url': image_path}
 
-        # Serialize and save data
+        # Serialize and save data + image
         serializer = ImageSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+            try:
+                # Decode and save image
+                decoded_image_data = base64.b64decode(image_data)
+                image_stream = io.BytesIO(decoded_image_data)
+                image = PIL.Image.open(image_stream)
+                # Convert the image to RGB mode (remove alpha channel)
+                image = image.convert("RGB")
+                image.save(image_path)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             return Response({'message': 'Image uploaded successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -844,18 +846,23 @@ class DeleteImageView(APIView):
     vendor_id
     name
     """
-    def post(self, request):
-        vendor_id = request.data["vendor_id"]
-        image = ImageModel.objects.get(vendor_id=vendor_id)
+    def post(self, request, image_name):
+
+
+        try:
+            image = ImageModel.objects.get(name=image_name)
+        except ImageModel.DoesNotExist:
+            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+
         if image:
             # Delete the associated image file
-            image.image.delete(save=False)
+            os.remove(image.image_url)
 
             # Delete the ImageModel instance from the database
             image.delete()
-            return Response({"message": "User deleted"}, status=status.HTTP_200_OK)
+            return HttpResponse({"message": "Image deleted"}, status=status.HTTP_200_OK)
         else:
-            return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
 def send_verification_email(request, user):
     email_verification, created = EmailVerification.objects.get_or_create(user=user)

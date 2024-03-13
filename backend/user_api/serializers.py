@@ -128,4 +128,4 @@ class QuizRecordSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ImageModel
-        fields = ('vendor_id', "name", "image")
+        fields = ('vendor_id', "name", "image_url")
