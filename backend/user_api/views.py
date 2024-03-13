@@ -349,7 +349,7 @@ class LeaderboardView(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def get(self, request):
-        leaderboard = UserModel.objects.all().order_by('-score')
+        leaderboard = UserModel.objects.all().order_by('-score')[:10]
         # First idea we can make it nicer later
         serializer = LeaderboardSerializer(leaderboard, many=True)
         return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)

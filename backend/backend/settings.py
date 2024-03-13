@@ -132,7 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
 """
 CRONJOBS = [
     ('*/30 * * * *', 'user_api.tasks.check_claims')
-    ('0 18 * * *', 'user_api.tasks.remove_all_bags')
+    ('0 18 * * *', 'user_api.tasks.closing_time')
 ]
 """
 
