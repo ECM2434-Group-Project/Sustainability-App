@@ -557,6 +557,7 @@ class LeaderboardView(APIView):
     authentication_classes = (SessionAuthentication,)
     # If leaderboard has 10 users, user is there, if it has 11, user is the last one
     def get(self, request):
+<<<<<<< HEAD
         # Get the top 10 users ordered by score and filter roles
         leaderboard = UserModel.objects.filter(role=UserModel.Role.USER).order_by('-score')[:10]
         serializer = LeaderboardSerializer(leaderboard, many=True)
@@ -568,6 +569,12 @@ class LeaderboardView(APIView):
             if user not in leaderboard:
                 serializer.data.append(user_serializer.data)
         return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
+=======
+        leaderboard = UserModel.objects.filter(role=UserModel.Role.USER).order_by('-score')
+        # First idea we can make it nicer later
+        serializer = LeaderboardSerializer(leaderboard, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+>>>>>>> 8615d8e (Fixed backend leaderboard)
 
 
 class WebsiteUserView(APIView):
