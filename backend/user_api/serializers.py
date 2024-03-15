@@ -124,3 +124,8 @@ class QuizRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.QuizRecordModel
         fields = ('quiz_record_id', 'quiz_hash', 'created_at')
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ImageModel
+        fields = ('vendor_id', "name", "image_url")

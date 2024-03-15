@@ -3,6 +3,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
 
 from django.db.models import Choices
+from django.utils.crypto import get_random_string
 
 
 class UserModel(AbstractUser, PermissionsMixin):
@@ -210,3 +211,8 @@ class EmailVerification(models.Model):
         if not self.token:
             self.token = get_random_string(length=32)
         super().save(*args, **kwargs)
+class ImageModel(models.Model):
+    id = models.AutoField(primary_key=True)
+    vendor_id = models.OneToOneField(VendorModel, on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=128, default='your_default_value')
+    image_url = models.CharField(max_length=128, default='your_default_value')
