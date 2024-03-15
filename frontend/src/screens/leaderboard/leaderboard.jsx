@@ -9,8 +9,12 @@ export default function LeaderboardPage() {
 
     const [leaderboard, setLeaderboard] = React.useState([]);
     const [isTop5, setIsTop5] = React.useState(false);
+    useEffect(() => {
+        client.get("/api/leaderboard").then((response) => {
+            setLeaderboard(response.data);
+        })
+    }, []);
 
-<<<<<<< HEAD
     const userContext = useUser();
 
     useEffect(() => {
@@ -99,32 +103,6 @@ export default function LeaderboardPage() {
                     </tbody>
                 </table>
             </div>
-=======
-    return (
-        <section className="p-6">
-            <div className="absolute top-2 left-2 z-10">
-				<GoBackLink href={"/settings"} />
-			</div>
-            <br></br>
-            <h1>Leaderboard</h1>
-        <div id="leaderboard">
-            <div class="ribbon"></div>
-            <table>
-                <tr>
-                    <th>Rank</th>
-                    <th>Name</th>
-                    <th>Score</th>
-                </tr>
-                {leaderboard.map((user, index) => (
-                    <tr>
-                    <td>{index + 1}</td>
-                    <td>{user.name}</td>
-                    <td>{user.score}</td>
-                    </tr>
-                ))}
-            </table>
-        </div>
->>>>>>> ef1b201 (Rebase frontend onto main)
         </section>
     ) : (
         <></>
