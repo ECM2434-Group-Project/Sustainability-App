@@ -1,7 +1,8 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { VendorItem } from "../../components/Admin/VendorItem";
 import { Link, useNavigate } from "react-router-dom";
+import { Popup } from "../../components/General/Popup";
 
 export default function AdminPage() {
 
@@ -108,13 +109,23 @@ export default function AdminPage() {
 		},
 	])
 
-	const [creating, setCreating] = useState(false)
+	const [editing, setEditing] = useState(false)
 
 
 	const nav = useNavigate()
 
+	useEffect(() => {
+
+}, 	[])
+
 	return(
 		<section className="p-4 pl-36">
+			<Popup trigger={editing} setTrigger={setEditing} size="large">
+				<div className="bg-white p-4 rounded-lg">
+					content inside popup
+				</div>
+			</Popup>
+
 			<div className="flex justify-between sticky top-0 bg-white pb-2 pt-2">
 				<div className="flex justify-between w-full pr-36">
 					<h1 className="font-extrabold text-4xl p-2 b-0 m-0">Welcome Admin</h1>
@@ -137,7 +148,7 @@ export default function AdminPage() {
 				{
 					vendors.map((vendor, index) => {
 						return (
-							<VendorItem key={index} vendor={vendor} />
+							<VendorItem key={index} vendor={vendor} setEditing={setEditing}/>
 						)
 					})
 				}
