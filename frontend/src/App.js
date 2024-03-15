@@ -26,6 +26,8 @@ import ChangePassword from './screens/change-password';
 import AdminLogin from './screens/admin-login';
 import AdminPage from './screens/admin';
 import CreateVendorPage from './screens/create-vendor';
+import PrivacyPolicy from './screens/privacy-policy';
+import TermsAndConditions from './screens/terms-and-conditions';
 function App() {
 
 	return (
@@ -55,6 +57,8 @@ function App() {
 				<Route path="/vendor-admin/settings/change-password" element={<VendorChangePassword />} />
 				<Route path="/settings/change-username" element={<ChangeUsername />} />
 				<Route path="/settings/change-password" element={<ChangePassword />} />
+				<Route path="/privacy-policy" element={<PrivacyPolicy />} />
+				<Route path="/terms-and-conditions" element={<TermsAndConditions />} />
 			</Routes>
 		</UserProvider>
 		
