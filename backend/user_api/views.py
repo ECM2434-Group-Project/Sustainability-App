@@ -363,6 +363,7 @@ class LeaderboardView(APIView):
     authentication_classes = (SessionAuthentication,)
     # If leaderboard has 10 users, user is there, if it has 11, user is the last one
     def get(self, request):
+        # Get the top 10 users ordered by score and filter roles
         leaderboard = UserModel.objects.filter(role=UserModel.Role.USER).order_by('-score')[:10]
         serializer = LeaderboardSerializer(leaderboard, many=True)
 
@@ -792,6 +793,7 @@ class DeleteUser(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def post(self, request):
+
         if not request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -806,7 +808,7 @@ class DeleteUser(APIView):
         else:
             return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
           
-          
+
 class VerifyClaim(APIView):
     '''Takes in claim information and verifies that it exsits
     {
@@ -869,6 +871,10 @@ class DeleteBags(APIView):
         "bag_group_id": [11,7,3,...]
     }
     """
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
     def post(self, request):
         if request.user.role != UserModel.Role.VENDOR:
             return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
@@ -899,6 +905,8 @@ class GetBagGroups(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UploadImageView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
     """
     Post
     {'vendorid': [Int]
@@ -911,7 +919,19 @@ class UploadImageView(APIView):
     def post(self, request):
         #=request.vendor.vendor_id) add later
         # Retrieve vendor based on ID
+        if (request.user.role != UserModel.Role.VENDOR) or UserModel.Role.ADMIN:
+            return Response({"message": "You are not a vendor or admin"},status=status.HTTP_403_FORBIDDEN)
+        # checked vendor id sent is the same as vendor logged in
+        elif request.user.role == UserModel.Role.VENDOR:
+            try:
+                vendor = VendorModel.objects.get(id=request.data.get('vendor_id'))
+                if not (request.user.id == vendor.id):
+                    return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
+            except VendorModel.DoesNotExist:
+                return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+
         vendor_id = request.data.get("vendor_id")
+
         try:
             vendor = VendorModel.objects.get(id=vendor_id)
         except VendorModel.DoesNotExist:
@@ -921,6 +941,10 @@ class UploadImageView(APIView):
         image_data = request.data["image"]
         image_filename = f"{vendor.username}_{request.data['type']}.jpg"
         image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
+
+        # check if path exists
+        if os.path.exists(image_path):
+            return Response({'error': 'File already exists please delete before you update your image'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Prepare data for serialization
         data = {'vendor_id': vendor_id, 'name': image_filename, 'image_url': image_path}
@@ -951,11 +975,24 @@ class DeleteImageView(APIView):
     """
     def post(self, request, image_name):
 
+        # Split the filename string using '_' as a delimiter and get the first part
+        vendor_username = image_name.split('_')[0]
+
+        if (request.user.role != UserModel.Role.VENDOR) or UserModel.Role.ADMIN:
+            return Response({"message": "You are not a vendor or admin"},status=status.HTTP_403_FORBIDDEN)
+        # Check so vendors cannot delete other vendors images
+        elif request.user.role == UserModel.Role.VENDOR:
+            try:
+                vendor = VendorModel.objects.get(id=request.data.get('vendor_id'))
+                if not (vendor_username == vendor.username):
+                    return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
+            except VendorModel.DoesNotExist:
+                return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             image = ImageModel.objects.get(name=image_name)
         except ImageModel.DoesNotExist:
-            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
 
         if image:
             # Delete the associated image file
@@ -963,9 +1000,9 @@ class DeleteImageView(APIView):
 
             # Delete the ImageModel instance from the database
             image.delete()
-            return HttpResponse({"message": "Image deleted"}, status=status.HTTP_200_OK)
+            return Response({"message": "Image deleted"}, status=status.HTTP_200_OK)
         else:
-            return HttpResponse({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
 def send_verification_email(request, user):
     email_verification, created = EmailVerification.objects.get_or_create(user=user)
@@ -975,8 +1012,8 @@ def send_verification_email(request, user):
         subject = "Verify your email address"
         message = render_to_string('verification_email.html', {'verification_link': verification_link})
         send_mail(subject, message, "noreply@ecogo.com", [user.email], fail_silently=False)
-        return HttpResponse("Verification email sent.")
-    return HttpResponse("Email already verified.")
+        return Response("Verification email sent.")
+    return Response("Email already verified.")
 
 
 def verify_email(request, token):
@@ -990,7 +1027,7 @@ def verify_email(request, token):
 
     email_verification.is_verified = True
     email_verification.save()
-    return HttpResponse("Email verified successfully.")
+    return Response("Email verified successfully.")
 
 def getimage(request, image_name):
     # Construct the absolute path to the image
@@ -1007,10 +1044,10 @@ def getimage(request, image_name):
         content_type = 'image/jpeg' if image_name.endswith('.jpg') else 'image/png'
 
         # Return the image data with the appropriate content type
-        return HttpResponse(image_data, content_type=content_type)
+        return Response(image_data, content_type=content_type)
     else:
         # Return 404 if the file does not exist
-        return HttpResponse({"message": "Image not found"},status=404)
+        return Response({"message": "Image not found"},status=404)
 
 class UpdateUser(APIView):
     permission_classes = (permissions.IsAuthenticated,)
