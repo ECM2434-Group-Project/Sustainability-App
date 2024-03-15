@@ -73,7 +73,7 @@ export default function CreateVendorPage() {
 						required
 					/>
 
-					<button className="bg-white text-black flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold" type="submit">
+					<button className="bg-white text-black flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold hover:shadow-lg" type="submit">
 						Login
 					</button>
 					
