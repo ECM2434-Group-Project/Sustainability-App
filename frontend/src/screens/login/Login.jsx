@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TextInput } from "../../components/General/TextInput";
 import { useUser } from "../../contexts/userContext";
+import GDPR from "../../components/General/GDPR";
 
 
 
@@ -87,6 +88,7 @@ export default function Login() {
 					</Link>
 				</small>
 			</div>
+			<GDPR />
 		</div>
 	) : (
 		<section className="p-4 text-center flex flex-col items-center">

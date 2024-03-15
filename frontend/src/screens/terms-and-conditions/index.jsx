@@ -4,7 +4,7 @@ export default function TermsAndConditions() {
     return (
         <section className="p-6">
             <div className="absolute top-2 left-2 z-10">
-                <GoBackLink href={"/settings"} />
+                <GoBackLink href={-1} />
             </div>
             <br></br>
             <h1>Terms and Conditions for RePlate</h1>

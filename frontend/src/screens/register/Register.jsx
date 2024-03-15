@@ -2,6 +2,7 @@ import { React, useCallback, useState } from "react";
 import { TextInput } from "../../components/General/TextInput";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
+import GDPR from "../../components/General/GDPR";
 
 export default function Register() {
 	// Create a register page that has a form with three fields, one for email, one for username, and one for password
@@ -138,6 +139,7 @@ export default function Register() {
 					)}
 				</div>
 			</form>
+			<GDPR />
 		</div>
 	);
 }
