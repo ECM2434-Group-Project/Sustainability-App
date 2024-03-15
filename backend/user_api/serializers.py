@@ -113,7 +113,7 @@ class ClaimSerializer(serializers.ModelSerializer):
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ('user_id', 'fname', 'lname', 'score')
+        fields = ('id', 'username', 'score')
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -124,3 +124,8 @@ class QuizRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.QuizRecordModel
         fields = ('quiz_record_id', 'quiz_hash', 'created_at')
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ImageModel
+        fields = ('vendor_id', "name", "image_url")
