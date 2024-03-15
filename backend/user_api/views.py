@@ -536,8 +536,10 @@ class QuizView(APIView):
                     # update bag to claimed
                     BagModel.objects.filter(bag_id=bag.bag_id).update(claimed=True)
                     # update group bags_unclaimed
+
                     BagGroupModel.objects.filter(bag_group_id=bag.bag_group.bag_group_id).update(
                         bags_unclaimed=bag.bag_group.bags_unclaimed - 1)
+
 
                     return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
                 return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
@@ -784,8 +786,7 @@ class DeleteUser(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def post(self, request):
-
-        if not request.user:
+      if not request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         data = request.data
@@ -799,8 +800,60 @@ class DeleteUser(APIView):
         else:
             return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
           
+          
+class VerifyClaim(APIView):
+    '''Takes in claim information and verifies that it exsits
+    {
+    "claim_id" : [Int],
+    "user_id" : [Int]
+    }
 
-# Delete bags in groups
+
+    '''
+    user = request.user
+    if user.role != UserModel.Role.VENDOR:
+        return Response(status=status.HTTP_403_FORBIDDEN)
+    data = request.data
+    if 'claim_id' and 'user_id' not in data:
+        return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
+    claim_id = data['claim_id']
+    user_id = data['user_id']
+    claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
+    if not claim:
+        return Response({"message": "Claim does not exist"}, status=status.HTTP_200_OK)
+    return Response({"message": "Claim exists"}, status=status.HTTP_200_OK)
+
+
+
+
+class ClaimClaim(APIView):
+    '''Takes in claim information and claims the claim
+    {
+    "claim_id" : [Int],
+    "user_id" : [Int]
+    }
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        data = request.data
+        if 'claim_id' and 'user_id' not in data:
+            return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
+        claim_id = data['claim_id']
+        user_id = data['user_id']
+        claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
+        if not claim:
+            return Response({"message": "Claim does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        claim.success = True
+        claim.save()
+        return Response({"message": "Claim successful"}, status=status.HTTP_200_OK)
+
+
 class DeleteBags(APIView):
 
     """
@@ -809,24 +862,19 @@ class DeleteBags(APIView):
         "bag_group_id": [11,7,3,...]
     }
     """
+    if request.user.role != UserModel.Role.VENDOR:
+        return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
 
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
+    data = request.data
+    # Data is list of ids to delete
+    vendor = request.user
+    group = BagGroupModel.objects.filter(vendor=vendor.id)
+    # Check that vendor owns the bag groups
+    if vendor.id == group.bag_group_id:
+        for bagsId in data:
+            BagGroupModel.objects.filter(bag_group_id=bagsId).delete()
 
-    def post(self, request):
-        if request.user.role != UserModel.Role.VENDOR:
-            return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
-
-        data = request.data
-        # Data is list of ids to delete
-        vendor = request.user
-        group = BagGroupModel.objects.filter(vendor=vendor.id)
-        # Check that vendor owns the bag groups
-        if vendor.id == group.bag_group_id:
-            for bagsId in data:
-                BagGroupModel.objects.filter(bag_group_id=bagsId).delete()
-
-        BagGroupModel.objects.filter(bag_group_id=group.bag_group_id).update(bags_unclaimed=group.bags_unclaimed - len(data))
+    BagGroupModel.objects.filter(bag_group_id=group.bag_group_id).update(bags_unclaimed=group.bags_unclaimed - len(data))
 
 
 # Get bag groups
@@ -955,3 +1003,4 @@ def getimage(request, image_name):
     else:
         # Return 404 if the file does not exist
         return HttpResponse({"message": "Image not found"},status=404)
+
