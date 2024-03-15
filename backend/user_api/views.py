@@ -1034,6 +1034,7 @@ class UpdateUser(APIView):
 
         ## validate email password
         password = data['password']
+        user = UserModel.objects.get(email__exact=user.email)
         if not user.check_password(password):
             return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 

@@ -43,10 +43,7 @@ class UserModel(AbstractUser, PermissionsMixin):
         ]
 
     # Overrides save method to set base_role to the default value
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.role = self.base_role
-            return super().save(*args, **kwargs)
+
 
 class LocationModel(models.Model):
     """Model for storing locations of vendors"""
