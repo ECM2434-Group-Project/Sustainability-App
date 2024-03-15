@@ -361,11 +361,17 @@ class QuestionsView(APIView):
 class LeaderboardView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
-
+    # If leaderboard has 10 users, user is there, if it has 11, user is the last one
     def get(self, request):
-        # Get the top 10 users ordered by score and filter roles
         leaderboard = UserModel.objects.filter(role=UserModel.Role.USER).order_by('-score')[:10]
         serializer = LeaderboardSerializer(leaderboard, many=True)
+
+        user = request.user
+        if user.role == UserModel.Role.USER:
+            user_serializer = UserSerializer(user)
+            # Add the user to the leaderboard if he is not already in it
+            if user not in leaderboard:
+                serializer.data.append(user_serializer.data)
         return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -1006,7 +1012,6 @@ def getimage(request, image_name):
         # Return 404 if the file does not exist
         return HttpResponse({"message": "Image not found"},status=404)
 
-
 class UpdateUser(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
@@ -1053,32 +1058,4 @@ class UpdateUser(APIView):
 
 
         return Response({"message": f"The following fields have been updated: {updateFields}"}, status=status.HTTP_200_OK)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
