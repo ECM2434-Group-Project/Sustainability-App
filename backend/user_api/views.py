@@ -1054,7 +1054,6 @@ class UpdateUser(APIView):
             # Update the user object's attribute with the new value
             setattr(user, field, new_value)
 
-        print(user)
         # performs bulk update on fields
         UserModel.objects.filter(pk=user.pk).update(**updateFields)
 

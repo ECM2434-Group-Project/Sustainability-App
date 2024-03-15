@@ -41,7 +41,7 @@ class UserModel(AbstractUser, PermissionsMixin):
         permissions = [
             # Assign default permissions
         ]
-
+    # todo: if issues arise re add custom save function
     # Overrides save method to set base_role to the default value
 
 
