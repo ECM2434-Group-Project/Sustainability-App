@@ -39,6 +39,10 @@ export function SettingsPage() {
 
                     <Link to={"/view-claim"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Claims</Link>
 
+                    <Link to={"/privacy-policy"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Privacy Policy</Link>
+
+                    <Link to={"/terms-and-conditions"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Terms and Conditions</Link>
+
                 </div>
 
                 <StandoutButton onClick={() => {
