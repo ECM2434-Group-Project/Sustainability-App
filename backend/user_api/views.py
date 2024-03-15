@@ -779,10 +779,10 @@ class AllergenView(APIView):
     def get(self, request, allergen_id):
         allergen = AllergenModel.objects.get(allergen_id=allergen_id)
         serializer = AllergenSerializer(allergen)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
         try:
 
-            print("Hello")
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except:
             return Response({"message": "Error accessing allergen"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -792,7 +792,7 @@ class DeleteUser(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def post(self, request):
-      if not request.user:
+        if not request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         data = request.data
@@ -816,18 +816,19 @@ class VerifyClaim(APIView):
 
 
     '''
-    user = request.user
-    if user.role != UserModel.Role.VENDOR:
-        return Response(status=status.HTTP_403_FORBIDDEN)
-    data = request.data
-    if 'claim_id' and 'user_id' not in data:
-        return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
-    claim_id = data['claim_id']
-    user_id = data['user_id']
-    claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
-    if not claim:
-        return Response({"message": "Claim does not exist"}, status=status.HTTP_200_OK)
-    return Response({"message": "Claim exists"}, status=status.HTTP_200_OK)
+    def post(self, request):
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        data = request.data
+        if 'claim_id' and 'user_id' not in data:
+            return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
+        claim_id = data['claim_id']
+        user_id = data['user_id']
+        claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
+        if not claim:
+            return Response({"message": "Claim does not exist"}, status=status.HTTP_200_OK)
+        return Response({"message": "Claim exists"}, status=status.HTTP_200_OK)
 
 
 
@@ -868,19 +869,20 @@ class DeleteBags(APIView):
         "bag_group_id": [11,7,3,...]
     }
     """
-    if request.user.role != UserModel.Role.VENDOR:
-        return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
+    def post(self, request):
+        if request.user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
 
-    data = request.data
-    # Data is list of ids to delete
-    vendor = request.user
-    group = BagGroupModel.objects.filter(vendor=vendor.id)
-    # Check that vendor owns the bag groups
-    if vendor.id == group.bag_group_id:
-        for bagsId in data:
-            BagGroupModel.objects.filter(bag_group_id=bagsId).delete()
+        data = request.data
+        # Data is list of ids to delete
+        vendor = request.user
+        group = BagGroupModel.objects.filter(vendor=vendor.id)
+        # Check that vendor owns the bag groups
+        if vendor.id == group.bag_group_id:
+            for bagsId in data:
+                BagGroupModel.objects.filter(bag_group_id=bagsId).delete()
 
-    BagGroupModel.objects.filter(bag_group_id=group.bag_group_id).update(bags_unclaimed=group.bags_unclaimed - len(data))
+        BagGroupModel.objects.filter(bag_group_id=group.bag_group_id).update(bags_unclaimed=group.bags_unclaimed - len(data))
 
 
 # Get bag groups
@@ -1009,3 +1011,51 @@ def getimage(request, image_name):
     else:
         # Return 404 if the file does not exist
         return HttpResponse({"message": "Image not found"},status=404)
+
+class UpdateUser(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+    '''
+    Example post request with "new" fields being denoted by "new_" + fieldName: 
+    {
+        "email" : "bob@exeter.ac.uk",
+        "password" : "bob12345",
+        "username" : "bob",
+        "new_first_name" : "new Name",
+        "new_last_name" : "New Last Name"
+}'''
+
+    def post(self, request):
+        if not request.user:
+            return Response({"message": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        user = request.user
+        ## validateUpdateUser(data)
+
+        ## validate email password
+        password = data['password']
+        if not user.check_password(password):
+            return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        keySet = set(data.keys())
+        updateFields = set([])
+        for key in keySet:
+            ## if ket = "new_..":
+            if key.startswith("new_"):
+                updateFields.add(key[4:])
+
+        if 'email' in updateFields:
+            return Response({"message": "You cannot change your email address"}, status=status.HTTP_400_BAD_REQUEST)
+
+        for field in updateFields:
+            # Get the new value for the field from the data dictionary
+            new_value = data[f'new_{field}']
+            # Update the user object's attribute with the new value
+            setattr(user, field, new_value)
+
+        # Save the updated user object to the database (assuming Django ORM)
+        user.save()
+
+
+        return Response({"message": f"The following fields have been updated: {updateFields}"}, status=status.HTTP_200_OK)
+
