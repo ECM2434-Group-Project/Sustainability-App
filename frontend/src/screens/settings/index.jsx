@@ -43,6 +43,8 @@ export function SettingsPage() {
 
                     <Link to={"/terms-and-conditions"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Terms and Conditions</Link>
 
+                    <Link to={"/delete-account"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-white bg-red-600">Delete account</Link>
+
                 </div>
 
                 <StandoutButton onClick={() => {

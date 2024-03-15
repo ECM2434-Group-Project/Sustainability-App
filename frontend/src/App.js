@@ -28,6 +28,7 @@ import AdminPage from './screens/admin';
 import CreateVendorPage from './screens/create-vendor';
 import PrivacyPolicy from './screens/privacy-policy';
 import TermsAndConditions from './screens/terms-and-conditions';
+import DeleteAccount from './screens/delete-account';
 function App() {
 
 	return (
@@ -59,6 +60,7 @@ function App() {
 				<Route path="/settings/change-password" element={<ChangePassword />} />
 				<Route path="/privacy-policy" element={<PrivacyPolicy />} />
 				<Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+				<Route path="/delete-account" element={<DeleteAccount/>} />
 			</Routes>
 		</UserProvider>
 		
