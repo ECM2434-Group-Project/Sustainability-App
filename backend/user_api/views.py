@@ -1038,14 +1038,14 @@ class UpdateUser(APIView):
             return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
         keySet = set(data.keys())
-        updateFields = set([])
+        updateFields = {}
         for key in keySet:
-            ## if ket = "new_..":
             if key.startswith("new_"):
-                updateFields.add(key[4:])
-
-        if 'email' in updateFields:
-            return Response({"message": "You cannot change your email address"}, status=status.HTTP_400_BAD_REQUEST)
+                field = key[4:]
+                # Cannot change Email because impossible to have 2 exeter emails
+                if field == 'email':
+                    return Response({"message": "You cannot change your email address"}, status=status.HTTP_400_BAD_REQUEST)
+                updateFields[field] = data[key]
 
         for field in updateFields:
             # Get the new value for the field from the data dictionary
@@ -1053,9 +1053,9 @@ class UpdateUser(APIView):
             # Update the user object's attribute with the new value
             setattr(user, field, new_value)
 
-        # Save the updated user object to the database (assuming Django ORM)
-        user.save()
+        print(user)
+        # performs bulk update on fields
+        UserModel.objects.filter(pk=user.pk).update(**updateFields)
 
-
-        return Response({"message": f"The following fields have been updated: {updateFields}"}, status=status.HTTP_200_OK)
-
+        return Response({"message": f"The following fields have been updated: {updateFields}"},
+                                status=status.HTTP_200_OK)
