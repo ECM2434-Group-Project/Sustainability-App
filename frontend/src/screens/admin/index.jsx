@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Popup } from "../../components/General/Popup";
 import { useUser } from "../../contexts/userContext";
 import { NotAdmin } from "../../components/Admin/NotAdmin";
+import { client } from '../../axios'
 
 export default function AdminPage() {
 
@@ -119,8 +120,19 @@ export default function AdminPage() {
 	const { user } = useUser()
 
 	useEffect(() => {
-		console.log(user)
-}, 	[])
+		if (user.role === "ADMIN") {
+
+			
+
+			// fetch the vendors
+			client.get("/api/vendors").then((response) => {
+				setVendors(response.data)
+			}).catch((error) => {
+				console.log(error)
+			})
+
+		}
+	}, 	[])
 
 	return user ? (
 		<>
