@@ -1282,11 +1282,14 @@ class UpdateUser(APIView):
         for field in updateFields:
             # Get the new value for the field from the data dictionary
             new_value = data[f'new_{field}']
-            # Update the user object's attribute with the new value
-            setattr(user, field, new_value)
+            if field == 'password':
+                user.set_password(new_value)
+            else:
+                # Update the user object's attribute with the new value
+                setattr(user, field, new_value)
 
         # performs bulk update on fields
-        UserModel.objects.filter(pk=user.pk).update(**updateFields)
+        user.save()
 
         return Response({"message": f"The following fields have been updated: {updateFields}"},
                                 status=status.HTTP_200_OK)
