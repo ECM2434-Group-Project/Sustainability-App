@@ -1,28 +1,29 @@
 import {React, useEffect, useState} from "react";
 import { useCallback } from "react";
 import { GoBackLink } from "../../components/General/GoBackLink";
-import { useUser } from "../../contexts/userContext";
 import { client } from "../../axios";
 
 export default function ChangeUsername() {
 
-  const user = useUser();
+    const [oldUsername, setOldUsername] = useState("");
+    const [newUsername, setNewUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     const changeUsername = useCallback(() => {
-        if (document.getElementById("username").value === "") {
+        if (newUsername === "") {
             alert("Username cannot be empty");
             return;
         }
 
-        if (document.getElementById("oldUsername").value === document.getElementById("username").value) {
+        if (oldUsername === newUsername) {
             alert("New username cannot be the same as the old username");
             return;
         }
         
         client.post("/api/user/updateuser", {
-            username: document.getElementById("oldUsername").value,
-            password: document.getElementById("password").value,
-            new_username: document.getElementById("username").value,
+            username: oldUsername,
+            password: password,
+            new_username: newUsername,
         }).then((response) => {
             if (response.status === 200) {
                 alert("Username changed successfully");
@@ -33,7 +34,7 @@ export default function ChangeUsername() {
         ).catch((error) => {
             alert("Error changing username");
         });
-        }, []);
+        }, [oldUsername, newUsername, password]);
 
   return (
     <section className="flex justify-center p-10">
@@ -51,6 +52,7 @@ export default function ChangeUsername() {
               id="oldUsername"
               type="text"
               placeholder="Old Username"
+              onChange={(e) => setOldUsername(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -65,6 +67,7 @@ export default function ChangeUsername() {
               id="username"
               type="text"
               placeholder="Username"
+              onChange={(e) => setNewUsername(e.target.value)}
             />
           </div>
           <div className="mb-6">
@@ -79,6 +82,7 @@ export default function ChangeUsername() {
               id="password"
               type="password"
               placeholder="******************"
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <div className="flex items-center justify-between">

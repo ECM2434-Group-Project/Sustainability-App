@@ -43,19 +43,24 @@ export const UserProvider = ({ children }) => {
 	}, [])
 
 	const login = useCallback(async (email, password) => {
-
-		const res = await client.post("/api/login", {
-			email: email,
-			password: password,
-		})
-
-		if(res.status >= 200 && res.status < 300) {
-			await refreshUser()
-			return true
+		try {
+			const res = await client.post("/api/login", {
+				email: email,
+				password: password,
+			})
+	
+			if(res.status >= 200 && res.status < 300) {
+				await refreshUser()
+				return true
+			} else if (res.status === 400) {
+				alert("Invalid email or password");
+				return false
+			}
+	
+		} catch (error) {
+			console.log(error);
+			return false
 		}
-
-
-
 	}, [])
 
 	const logout = useCallback(async () => {
