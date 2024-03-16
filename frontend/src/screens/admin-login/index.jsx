@@ -31,7 +31,7 @@ export default function AdminLogin() {
 			const result = await login(email, password)
 			
 			if (result === true) {
-				nav("/")
+				nav("/admin")
 			} else {
 				setError(result)
 			}
