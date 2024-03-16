@@ -1,8 +1,11 @@
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { client } from "../../axios";
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router";
 
 export default function DeleteAccount() {
+
+    const nav = useNavigate();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -22,15 +25,15 @@ export default function DeleteAccount() {
             email: email,
             password: password,
         }).then((response) => {
-            console.log(response.headers);
             if (response.status === 200) {
                 alert("Account deleted successfully");
+                nav("/login");
             } else {
-                alert("Error deleting account");
+                console.log(response);
             }
         }
         ).catch((error) => {
-            console.log(error);
+            console.log(error.message);
             alert("Error deleting account");
         });
         }
@@ -43,7 +46,7 @@ export default function DeleteAccount() {
 		</div>
       <div className="w-full">
       <h1>Are you sure you want to delete your account?</h1>
-        <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={deleteUser}>
+        <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
@@ -77,7 +80,7 @@ export default function DeleteAccount() {
             />
           </div>
           <div className="flex items-center justify-between">
-          <button className="border-[1.2px] border-black p-4 rounded text-white bg-red-600" type="submit">Delete</button>
+            <button className="border-[1.2px] border-black p-4 rounded text-white bg-red-600" type="button" onClick={deleteUser}>Delete</button>
           </div>
         </form>
       </div>

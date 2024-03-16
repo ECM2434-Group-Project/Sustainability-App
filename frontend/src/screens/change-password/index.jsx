@@ -2,8 +2,10 @@ import {React, useEffect, useState} from "react";
 import { useCallback } from "react";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { client } from "../../axios";
+import { useNavigate } from "react-router-dom";
 
 export default function ChangePassword() {
+    const nav = useNavigate();
 
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -23,6 +25,7 @@ export default function ChangePassword() {
             }).then((response) => {
                 if (response.status === 200) {
                     alert("Password changed successfully");
+                    nav("/login");
                 } else {
                     alert("Error changing password");
                 }
