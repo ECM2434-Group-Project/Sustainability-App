@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { VendorItem } from "../../components/Admin/VendorItem";
 import { Link, useNavigate } from "react-router-dom";
@@ -113,26 +113,81 @@ export default function AdminPage() {
 	])
 
 	const [editing, setEditing] = useState(false)
+	const [change, setChange] = useState(false)
+
+	const editingName = useRef()
+	const editingPassword = useRef()
 
 
 	const nav = useNavigate()
 
 	const { user } = useUser()
 
+	// when the user changes, fetch vendor information and set it
 	useEffect(() => {
-		if (user.role === "ADMIN") {
 
-			
+		// fetch the vendors
+		client.get("/api/vendors").then((response) => {
+			const data = response.data
+			console.log(data)
+			setVendors(data)
+		}).catch((error) => {
+			console.log(error)
+			setVendors([])
+		})
+	}, [user])
 
-			// fetch the vendors
-			client.get("/api/vendors").then((response) => {
-				setVendors(response.data)
-			}).catch((error) => {
-				console.log(error)
-			})
+	useEffect(() => {
 
+		// ignore the first time
+		if (!editing) {
+			return
 		}
-	}, 	[])
+		
+		// set the ref to the value
+		editingName.current.value = editing.username
+
+		// set the change to false
+		setChange(false)
+
+	}, [editing])
+
+	/**
+	 * a function for deleting a vendor
+	 * 
+	 * @param {*} vendor the vendor to delete
+	 */
+	const deleteVendor = (vendor) => {
+		console.log("delting vendor " + vendor)
+
+		// remove this vendor from the vendors
+		setVendors(vendors.filter((v) => v !== vendor))
+	}
+
+	const updateVendor = (vendor) => {
+		const username = editingName.current.value
+		const password = editingPassword.current.value
+
+		// check for no changes
+		if (username === vendor.username && password === "") {
+			return
+		}
+
+
+		console.log("updating the vendor")
+
+		// update the vendor
+		// client.put("/api/vendors/" + vendor.id, {
+		// 	username: username,
+		// 	password: password
+		// }).then((response) => {
+		// 	console.log(response)
+		// }).catch((error) => {
+		// 	console.log(error)
+		// })
+
+
+	}
 
 	return user ? (
 		<>
@@ -140,8 +195,47 @@ export default function AdminPage() {
 				user.role === "ADMIN" ? (
 					<section className="p-4 pl-36">
 						<Popup trigger={editing} setTrigger={setEditing} size="large">
-							<div className="bg-white p-4 rounded-lg">
-								content inside popup
+							<div className="bg-white p-4 rounded-lg flex flex-col">
+								<text className="text-4xl font-extrabold">Edit Vendor</text>
+
+								<text className="text-2xl font-bold mt-4">Vendor Name</text>
+								<input type="text" ref={editingName} className="p-4 rounded-lg w-full border" onChange={(e) => {
+									if (editing.username === e.target.value) {
+										setChange(false)
+									} else {
+										setChange(true)
+									}
+								}}/>
+
+								<text className="text-2xl font-bold mt-4">New Password</text>
+								<input type="password" ref={editingPassword} className="p-4 rounded-lg w-full border" onChange={(e) => {
+									setChange(true)
+								}}/>
+								
+								{
+									change ? (
+										<button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-5" onClick={() => {
+											
+											// update and close the popup
+											updateVendor(editing)
+											setEditing(false)
+										}}>
+											Save Changes
+										</button>
+									) : (
+										<></>
+									)
+								}
+								
+
+								<button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-5" onClick={() => {
+
+									// delete the vendor and close the popup
+									deleteVendor(editing)
+									setEditing(false)
+								}}>
+									Delete Vendor
+								</button>
 							</div>
 						</Popup>
 
@@ -154,33 +248,33 @@ export default function AdminPage() {
 									Create Vendor
 								</button>
 							</div>
-							
+
 
 							<UserAvatar />
 						</div>
 
 						<div className="sticky top-10">
-							
+
 						</div>
 
 						<div className="grid grid-cols-4 gap-20 pt-8 pr-48">
 							{
 								vendors.map((vendor, index) => {
 									return (
-										<VendorItem key={index} vendor={vendor} setEditing={setEditing}/>
+										<VendorItem key={index} vendor={vendor} setEditing={setEditing} />
 									)
 								})
 							}
 						</div>
 
-						
+
 					</section>
 				) : (
 					<NotAdmin />
 				)
 			}
 		</>
-		
+
 	) : (
 		<>
 			not logged in
