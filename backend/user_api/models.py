@@ -120,6 +120,8 @@ class AdminModel(UserModel):
 class AllergenModel(models.Model):
     '''Model for the Allergens'''
     allergen_id = models.AutoField(primary_key=True)
+    vegan = models.BooleanField(default=False)
+    vegetarian = models.BooleanField(default=False)
     milk = models.BooleanField(default=False)
     eggs = models.BooleanField(default=False)
     fish = models.BooleanField(default=False)
@@ -133,13 +135,14 @@ class AllergenModel(models.Model):
 
     def __str__(self):
         """Return string representation of the Allergens"""
-        return f'allergen_id: {self.allergen_id}, milk: {self.milk}, eggs: {self.eggs}, fish: {self.fish}, crustacean: {self.crustacean}, tree_nuts: {self.tree_nuts}, peanuts: {self.peanuts}, wheat: {self.wheat}, soybeans: {self.soybeans}, sesame: {self.sesame}'
+        return f'allergen_id: {self.allergen_id}, vegan: {self.vegan}, vegetarian: {self.vegetarian} milk: {self.milk}, eggs: {self.eggs}, fish: {self.fish}, crustacean: {self.crustacean}, tree_nuts: {self.tree_nuts}, peanuts: {self.peanuts}, wheat: {self.wheat}, soybeans: {self.soybeans}, sesame: {self.sesame}'
 class BagGroupModel(models.Model):
     '''Model for the BagGroups'''
     bag_group_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=128)
     vendor = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
     allergen = models.ForeignKey(AllergenModel, on_delete=models.CASCADE)
-    bags_unclaimed = models.IntegerField() # no default, this must be set
+    bags_unclaimed = models.IntegerField(default=0) # no default, this must be set
 
 class BagModel(models.Model):
     """Model for the Bags"""
