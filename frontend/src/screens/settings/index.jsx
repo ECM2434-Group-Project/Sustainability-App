@@ -31,9 +31,9 @@ export function SettingsPage() {
 
                 <div className="flex flex-col gap-4 pb-32">
 
-                    <Link to={"/settings/change-password"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change password</Link>
+                    <Link to={"/settings/change-password"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change Password</Link>
 
-                    <Link to={"/settings/change-username"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change name</Link>
+                    <Link to={"/settings/change-username"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change Username</Link>
 
                     <Link to={"/leaderboard"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Leaderboard</Link>
 

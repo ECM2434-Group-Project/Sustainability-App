@@ -4,12 +4,16 @@ import { client } from "../../../axios";
 import { useNavigate } from "react-router-dom";
 import { GoBackLink } from "../../../components/General/GoBackLink";
 import {QRCodeSVG} from 'qrcode.react';
+import {useUser} from "../../../contexts/userContext";
+
 
 export function ClaimDetailPage() {
 
 	const { claim } = useParams();
 
     const nav = useNavigate();
+
+    const { user } = useUser();
 
     const [claimData, setClaimData] = useState({});
 
@@ -48,7 +52,10 @@ export function ClaimDetailPage() {
                 <p className="text-gray-600">{new Date(claimData.time).toLocaleTimeString()} on {new Date(claimData.time).toLocaleDateString()}</p>
 
                 <div className="p-8">
-                    <QRCodeSVG value={`claim-${claimData.claim_id}`}/>,
+                    <QRCodeSVG value={JSON.stringify({
+                        claim_id: claimData.claim_id,
+                        user_id: user.id,
+                    })}/>,
                 </div>
 
             </div>
