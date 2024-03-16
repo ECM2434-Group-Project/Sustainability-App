@@ -30,7 +30,11 @@ urlpatterns = [
 
 	path('uploadvendorimage/', views.UploadImageView.as_view(), name='upload-image'),
 	path('deletevendorimage/<str:image_name>', views.DeleteImageView.as_view(), name='delete-image'),
-	path('vendors/issuebags', views.IssueBagsView.as_view(), name='vendors'),
+	path('vendors/bags/add', views.AddBags.as_view(), name='addbags'),
+	path('vendors/bags/remove', views.RemoveBags.as_view(), name='removebags'),
+	path('vendors/groups/add', views.AddGroup.as_view(), name='addgroup'),
+	path('vendors/groups/remove', views.RemoveGroup.as_view(), name='removegroup'),
+	path('vendors/groups' , views.ViewGroups.as_view(), name='baggroup'),
 	path('vendors/verifyclaim', views.VerifyClaim.as_view(), name='verifyclaim'),
 	path('vendors/claimclaim', views.ClaimClaim.as_view(), name='claimclaim'),
 	path('vendors/groups/<int:group_id>', views.GetBagGroups.as_view(), name='baggroup'),

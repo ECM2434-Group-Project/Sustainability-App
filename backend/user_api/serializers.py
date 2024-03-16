@@ -84,7 +84,7 @@ class BagGroupSerializer(serializers.ModelSerializer):
 class AllergenSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.AllergenModel
-        fields = ('allergen_id', 'milk', 'eggs', 'fish', 'crustacean', 'tree_nuts', 'peanuts', 'wheat', 'soybeans', 'sesame')
+        fields = ('allergen_id', 'vegan', 'vegetarian', 'milk', 'eggs', 'fish', 'crustacean', 'tree_nuts', 'peanuts', 'wheat', 'soybeans', 'sesame')
 
 
 

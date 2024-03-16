@@ -197,14 +197,211 @@ class VendorView(APIView):
         data["bag_groups"] = bagGroupSerializer.data
         return Response(data, status=status.HTTP_200_OK)
 
+class AddBags(APIView):
+    '''
+    Format
+    {
+    "group_id" : [Int],
+    "count" : [Int],
+    "collection_time" :
+    '''
 
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        if not request.user:
+            return Response({"message": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You must be a Vendor"}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        if 'group_id' not in data or 'count' not in data or 'collection_time' not in data:
+            return Response({"message": "Data not valid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        bag_group = BagGroupModel.objects.filter(vendor=user, bag_group_id=data['group_id']).first()
+
+        if not bag_group:
+            return Response({"message": "Group not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        bag_group.bags_unclaimed += data['count']
+        vendor = VendorModel.objects.filter(id=user.id).first()
+        vendor.bags_left += data['count']
+
+        for i in range(data['count']):
+            bag = BagModel(collection_time=data['collection_time'], bag_group=bag_group)
+            bag.save()
+
+        bag_group.save()
+        vendor.save()
+
+        return Response({"message": f"{data['count']} bags added to group {data['group_id']}."}, status=status.HTTP_201_CREATED)
+
+
+class RemoveBags(APIView):
+    '''
+    {
+        "group_id": [Int],
+        "count": [Int]
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+
+    def post(self, request):
+        if not request.user:
+            return Response({"message": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You must be a Vendor"}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        if 'group_id' not in data or 'count' not in data:
+            return Response({"message": "Data not valid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        bag_group = BagGroupModel.objects.filter(vendor=user, bag_group_id=data['group_id']).first()
+        group_unclaimed = bag_group.bags_unclaimed
+        diff = 0
+        if group_unclaimed < data['count']:
+            ## delete all unclaimed, and the rest from claimed bags
+            diff = data['count'] - group_unclaimed
+            bag_group.bags_unclaimed = 0
+
+            for i in range(group_unclaimed):
+                bag = BagModel.objects.filter(bag_group=bag_group, claimed=False).first()
+                bag.delete()
+            for i in range(diff):
+                bag = BagModel.objects.filter(bag_group=bag_group, claimed=True).first()
+                claim = ClaimModel.objects.filter(bag=bag).first()
+
+                if bag:
+                    bag.delete()
+                if claim:
+                    claim.delete()
+
+        else:
+            ## delete count bags
+            bag_group.bags_unclaimed -= data['count']
+            for i in range(data['count']):
+                bag = BagModel.objects.filter(bag_group=bag_group, claimed=False).first()
+                bag.delete()
+
+        bag_group.save()
+
+        vendor = VendorModel.objects.filter(id=user.id).first()
+        if vendor.bags_left < data['count']:
+            vendor.bags_left = 0
+        else:
+            vendor.bags_left -= data['count']
+
+        vendor.save()
+
+
+
+
+        return Response({
+                            "message": f"{data['count']} bags removed from group {data['group_id']}"},
+                        status=status.HTTP_200_OK)
+
+
+class AddGroup(APIView):
+    '''
+    Format:
+    {
+    "name" : [str] (max 128),
+    "allergens" : { "milk" : true, ...}
+    }
+
+    Allergens must be present in the json, regardless if you are using them or not.
+    This is to ensure that the allergens are consistent across all groups, and that allergens have been considered.
+    '''
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        if not request.user:
+            return Response({"message" : "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response( {"message" : "You must be a Vendor"}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        vendor_id = user.id
+
+        allergendict = parse_allergens(data["allergens"])
+        allergenSerializer = AllergenSerializer(data=allergendict)
+        if allergenSerializer.is_valid(raise_exception=True):
+            allergen = allergenSerializer.create(allergenSerializer.validated_data)
+            allergen.save()
+        groupdata = {
+            "name" : data["name"],
+            "vendor" : vendor_id,
+            "allergen" : allergen.allergen_id
+        }
+        groupSerializer = BagGroupSerializer(data=groupdata)
+        if groupSerializer.is_valid():
+            bagGroup = groupSerializer.create(groupSerializer.validated_data)
+            bagGroup.save()
+
+        else:
+            return Response( {"message" : "Group data not valid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response( {"message" : f"Group created: {bagGroup.bag_group_id}"}, status=status.HTTP_201_CREATED)
+
+class RemoveGroup(APIView):
+    '''
+    Format:
+    {
+    "group_id" : [Int]
+    '''
+
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        ## this will delete a group, and all bags under it. Not reccomended to do without checking claims first to ensure there are no people with active claims.
+        if not request.user:
+            return Response({"message": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You must be a Vendor"}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        vendor_id = user.id
+
+        if 'group_id' not in data:
+            return Response( {"message" : "Data not valid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        bagGroup = BagGroupModel.objects.filter(vendor=vendor_id, bag_group_id=data['group_id'])
+        bagGroup.delete()
+        return Response( {"message" : f"Group {data['group_id']} deleted."}, status=status.HTTP_200_OK)
+
+
+class ViewGroups(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+    def get(self, request):
+        if not request.user:
+            return Response({"message": "You are not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
+
+        groups = BagGroupModel.objects.filter(vendor=user)
+        serializer = BagGroupSerializer(groups, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 class IssueBagsView(APIView):
     '''
     This endpoint allows vendors to issue bags. The issued bags will be automatically associated with the vendor who issued them.
     Format:
+
+    {
+    "count" :
+
     {
         "num_bags": [Int],
         "collection_time": [String],
+        <allergens>
     }
 
     Example JSON for post:
@@ -278,7 +475,7 @@ class IssueBagsView(APIView):
 
         num_bags = data['num_bags']
         collection_time = data['collection_time']
-        allergendict = self.parse_allergens(data)
+        allergendict = parse_allergens(data)
 
         # create allergen model
         allergenSerializer = AllergenSerializer(data=allergendict)
@@ -314,12 +511,7 @@ class IssueBagsView(APIView):
         except VendorModel.DoesNotExist:
             raise None
 
-    def parse_allergens(self, data):
-        allergendict = {}
-        for key in data:
-            if key in ['milk', 'eggs', 'fish', 'crustacean', 'tree_nuts', 'peanuts', 'wheat', 'soybeans', 'sesame']:
-                allergendict[key] = data[key]
-        return allergendict
+
 
 
 class ClaimsView(APIView):
@@ -717,7 +909,7 @@ class CreateVendor(APIView):
             serializer = VendorSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
                 vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'],
-                                                         password=data['password'], location=location)
+                                                         password=data['password'], location=location, role="VENDOR")
                 vendor.save()
                 # create location for vendor
 
@@ -801,7 +993,7 @@ class DeleteUser(APIView):
         email = data['email']
         password = data['password']
         # verify login details
-        user = UserModel.objects.get(email=email)
+        user = UserModel.objects.get(email__exact=email)
         if user.check_password(password):
             user.delete()
             return Response({"message": "User deleted"}, status=status.HTTP_200_OK)
@@ -1096,3 +1288,15 @@ class UpdateUser(APIView):
 
         return Response({"message": f"The following fields have been updated: {updateFields}"},
                                 status=status.HTTP_200_OK)
+
+
+
+def parse_allergens(data):
+    allergendict = {}
+    for key in data:
+        if key in ['vegan', 'vegetarian','milk', 'eggs', 'fish', 'crustacean', 'tree_nuts', 'peanuts', 'wheat', 'soybeans', 'sesame']:
+            allergendict[key] = data[key]
+    return allergendict
+
+
+
