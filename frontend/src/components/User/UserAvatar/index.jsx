@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 import { useUser } from "../../../contexts/userContext";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
-export function UserAvatar({ large=false }) {
+export function UserAvatar({ path="/", large=false }) {
 
     const { user } = useUser()
 
     return user ? (
         <Link
+            // to={{"pathname":"/settings?location=thing","state":"/"}}
             to={"/settings"}
             style={!large ? { width: "3rem", height: "3rem" } : { width: "8rem", height: "8rem" } }
             className="flex justify-center items-center bg-gray-200 rounded-full border-solid border-[2px] border-exeterDeepGreen"
