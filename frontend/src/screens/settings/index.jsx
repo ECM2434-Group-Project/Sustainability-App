@@ -3,19 +3,22 @@ import { UserAvatar } from "../../components/User/UserAvatar";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { useUser } from "../../contexts/userContext";
+import { useEffect, useState } from "react";
+import React from "react"
 
 
-export function SettingsPage() {
+export function SettingsPage(params, props) {
 
     const nav = useNavigate();
 
-    const { user, logout } = useUser()
     
+
+    const { user, logout } = useUser();
 
     return (
         <section className="p-4 flex flex-col gap-8">
 
-            <GoBackLink href={"/outlet"} />
+            <GoBackLink />
 
             <div className="flex flex-col gap-4">
                 {/* <UserAvatar large={true} /> */}
