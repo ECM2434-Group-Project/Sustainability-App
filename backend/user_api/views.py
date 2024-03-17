@@ -1249,7 +1249,7 @@ def getimage(request, image_name):
         content_type = 'image/jpeg' if image_name.endswith('.jpg') else 'image/png'
 
         # Return the image data with the appropriate content type
-        return Response(image_data, content_type=content_type)
+        return HttpResponse(image_data, content_type=content_type)
     else:
         # Return 404 if the file does not exist
         return Response({"message": "Image not found"},status=404)
