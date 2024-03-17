@@ -992,6 +992,17 @@ class DeleteUser(APIView):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         data = request.data
+        if request.user.role == UserModel.Role.ADMIN:
+            username = data['username']
+            user = UserModel.objects.get(username=username)
+            if user.role == UserModel.Role.VENDOR:
+                user.delete()
+                # Check if user is a vendor if we don't want to be able to delete normal users
+                return Response({"message": "User deleted"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "Admin can only delete vendors"}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = request.data
         email = data['email']
         password = data['password']
         # verify login details
