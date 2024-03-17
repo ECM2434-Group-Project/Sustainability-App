@@ -13,7 +13,7 @@ export default function CreateVendorPage() {
 	const [name, setName] = useState("")
 
 
-	const [error, setError] = useState()
+	const [error, setError] = useState([])
 
 	const nav = useNavigate()
 
@@ -21,6 +21,7 @@ export default function CreateVendorPage() {
 		console.log(e)
 
 		e.preventDefault()
+		setError([])
 
 		let data = { "email":email, "username":name, "password":password, "latitude":latitude, "longitude":longitude }
 
@@ -31,7 +32,7 @@ export default function CreateVendorPage() {
 				nav("/admin")
 			}
 		}).catch((err) => {
-			console.log(err)
+			console.log(err.response.data)
 			setError(err.response.data)
 		})
 
@@ -46,7 +47,15 @@ export default function CreateVendorPage() {
 			</div>
 
 			<div className="flex flex-col w-max p-4 self-center h-full justify-center">
+				
 				<h1 className="text-4xl font-bold w-max">Create Vendor</h1>
+
+				{
+					Object.keys(error).map((key) => {
+						console.log(error[key])
+						return <small className="text-red-600">{key} | {error[key]}</small>
+					})
+				}
 
 				<form onSubmit={handleSubmit} className="flex flex-col gap-2">
 					<TextInput
@@ -55,7 +64,10 @@ export default function CreateVendorPage() {
 						type="email"
 						placeholder="you@exeter.ac.uk"
 						value={email}
-						onChange={(e) => setEmail(e.target.value)}
+						onChange={(e) => {
+							setEmail(e.target.value)
+							setError([])
+						}}
 						required
 					/>
 
@@ -64,7 +76,10 @@ export default function CreateVendorPage() {
 						className="rounded-md p-4 py-2 text-gray-950 shadow-md"
 						type="password"
 						value={password}
-						onChange={(e) => setPassword(e.target.value)}
+						onChange={(e) => {
+							setPassword(e.target.value)
+							setError([])
+						}}
 						required
 					/>
 
@@ -75,7 +90,10 @@ export default function CreateVendorPage() {
 							type="text"
 							placeholder="-3.219419"
 							value={latitude}
-							onChange={(e) => setLatitude(e.target.value)}
+							onChange={(e) => {
+								setLatitude(e.target.value)
+								setError([])
+							}}
 							required
 						/>
 						<TextInput
@@ -84,7 +102,10 @@ export default function CreateVendorPage() {
 							type="text"
 							placeholder="52.23424"
 							value={longitude}
-							onChange={(e) => setLongitude(e.target.value)}
+							onChange={(e) => {
+								setLongitude(e.target.value)
+								setError([])
+							}}
 							required
 						/>
 					</div>
@@ -95,7 +116,10 @@ export default function CreateVendorPage() {
 						type="text"
 						placeholder="Wiktors Bar"
 						value={name}
-						onChange={(e) => setName(e.target.value.replace(/\s/g, ''))}
+						onChange={(e) => {
+							setName(e.target.value.replace(/\s/g, ''))
+							setError([])
+						}}
 						required
 					/>
 
