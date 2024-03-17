@@ -1241,7 +1241,7 @@ def getimage(request, image_name):
     absolute_image_path = os.path.join(settings.MEDIA_ROOT, image_name)
 
     # Check if the file exists
-    if os.path.exists(absolute_image_path):
+    if os.path.isfile(absolute_image_path):
         # Open the file in binary mode
         with open(absolute_image_path, 'rb') as f:
             # Read the file data
@@ -1254,7 +1254,7 @@ def getimage(request, image_name):
         return HttpResponse(image_data, content_type=content_type)
     else:
         # Return 404 if the file does not exist
-        return Response({"message": "Image not found"},status=404)
+        return HttpResponse({"Image doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
 
 class UpdateUser(APIView):
     permission_classes = (permissions.IsAuthenticated,)
