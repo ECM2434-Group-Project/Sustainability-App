@@ -516,9 +516,9 @@ class IssueBagsView(APIView):
 
 
 
-class ClaimsView(APIView):
+class BagsView(APIView):
     '''
-    Allows users to see any bags they haven't claimed, and the last 24hrs of bags.
+    Allows users to see any bags they have claimed, and the last 24hrs of bags.
     Format:
     {"bags":
     [
