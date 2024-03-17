@@ -1124,7 +1124,7 @@ class UploadImageView(APIView):
     def post(self, request):
         #=request.vendor.vendor_id) add later
         # Retrieve vendor based on ID
-        if (request.user.role != UserModel.Role.VENDOR) or UserModel.Role.ADMIN:
+        if (request.user.role != UserModel.Role.VENDOR) or (request.user.role != UserModel.Role.ADMIN):
             return Response({"message": "You are not a vendor or admin"},status=status.HTTP_403_FORBIDDEN)
         # checked vendor id sent is the same as vendor logged in
         elif request.user.role == UserModel.Role.VENDOR:
@@ -1173,17 +1173,19 @@ class UploadImageView(APIView):
 
 class DeleteImageView(APIView):
     """
+
     Post
-    {
-    vendor_id
-    name
+    {'vendorid': [Int]
+    'name': [String]
+    }
+    name of the image
     """
     def post(self, request, image_name):
 
         # Split the filename string using '_' as a delimiter and get the first part
         vendor_username = image_name.split('_')[0]
 
-        if (request.user.role != UserModel.Role.VENDOR) or UserModel.Role.ADMIN:
+        if (request.user.role != UserModel.Role.VENDOR) or (request.user.role != UserModel.Role.ADMIN):
             return Response({"message": "You are not a vendor or admin"},status=status.HTTP_403_FORBIDDEN)
         # Check so vendors cannot delete other vendors images
         elif request.user.role == UserModel.Role.VENDOR:
