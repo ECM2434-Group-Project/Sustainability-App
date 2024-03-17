@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState, useNavigate } from "react";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { VendorItem } from "../../components/Admin/VendorItem";
-import { Link, useNavigate } from "react-router-dom";
 import { Popup } from "../../components/General/Popup";
 import { useUser } from "../../contexts/userContext";
 import { NotAdmin } from "../../components/Admin/NotAdmin";

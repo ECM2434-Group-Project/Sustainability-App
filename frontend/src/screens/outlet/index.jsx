@@ -3,7 +3,6 @@ import { GoBackLink } from "../../components/General/GoBackLink";
 import { BagsRemainingIcon } from "../../components/General/BagsRemainingIcon";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { TbPaperBag } from "react-icons/tb";
-import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { client } from "../../axios";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +41,7 @@ export function OutletPage() {
 				<div className="flex flex-col gap-4">
 					<div className="flex gap-4">
 						<img
-							className="w-20 w-20 rounded-md object-cover"
+							className="w-20 rounded-md object-cover"
 							src={
 								outletData.icon
 							}

@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
 import { useUser } from "../../../contexts/userContext";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 
 export function UserAvatar({ path="/", large=false }) {
 

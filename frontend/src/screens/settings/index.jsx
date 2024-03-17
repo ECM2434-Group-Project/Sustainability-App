@@ -1,9 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import { UserAvatar } from "../../components/User/UserAvatar";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { useUser } from "../../contexts/userContext";
-import { useEffect, useState } from "react";
 import React from "react"
 
 
