@@ -6,6 +6,7 @@ import { Popup } from "../../components/General/Popup";
 import { useUser } from "../../contexts/userContext";
 import { NotAdmin } from "../../components/Admin/NotAdmin";
 import { client } from '../../axios'
+import { NotLoggedIn } from "../../components/General/NotLoggedIn";
 
 export default function AdminPage() {
 
@@ -113,11 +114,6 @@ export default function AdminPage() {
 	])
 
 	const [editing, setEditing] = useState(false)
-	const [change, setChange] = useState(false)
-
-	const editingName = useRef()
-	const editingPassword = useRef()
-
 
 	const nav = useNavigate()
 
@@ -137,21 +133,6 @@ export default function AdminPage() {
 		})
 	}, [user])
 
-	useEffect(() => {
-
-		// ignore the first time
-		if (!editing) {
-			return
-		}
-		
-		// set the ref to the value
-		editingName.current.value = editing.username
-
-		// set the change to false
-		setChange(false)
-
-	}, [editing])
-
 	/**
 	 * a function for deleting a vendor
 	 * 
@@ -164,31 +145,6 @@ export default function AdminPage() {
 		setVendors(vendors.filter((v) => v !== vendor))
 	}
 
-	const updateVendor = (vendor) => {
-		const username = editingName.current.value
-		const password = editingPassword.current.value
-
-		// check for no changes
-		if (username === vendor.username && password === "") {
-			return
-		}
-
-
-		console.log("updating the vendor")
-
-		// update the vendor
-		// client.put("/api/vendors/" + vendor.id, {
-		// 	username: username,
-		// 	password: password
-		// }).then((response) => {
-		// 	console.log(response)
-		// }).catch((error) => {
-		// 	console.log(error)
-		// })
-
-
-	}
-
 	return user ? (
 		<>
 			{
@@ -196,38 +152,8 @@ export default function AdminPage() {
 					<section className="p-4 pl-36">
 						<Popup trigger={editing} setTrigger={setEditing} size="large">
 							<div className="bg-white p-4 rounded-lg flex flex-col">
-								<text className="text-4xl font-extrabold">Edit Vendor</text>
-
-								<text className="text-2xl font-bold mt-4">Vendor Name</text>
-								<input type="text" ref={editingName} className="p-4 rounded-lg w-full border" onChange={(e) => {
-									if (editing.username === e.target.value) {
-										setChange(false)
-									} else {
-										setChange(true)
-									}
-								}}/>
-
-								<text className="text-2xl font-bold mt-4">New Password</text>
-								<input type="password" ref={editingPassword} className="p-4 rounded-lg w-full border" onChange={(e) => {
-									setChange(true)
-								}}/>
-								
-								{
-									change ? (
-										<button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-5" onClick={() => {
-											
-											// update and close the popup
-											updateVendor(editing)
-											setEditing(false)
-										}}>
-											Save Changes
-										</button>
-									) : (
-										<></>
-									)
-								}
-								
-
+								<h1 className="text-4xl font-bold">{editing.username}</h1>
+								{/* add an image here to fill the space */}
 								<button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-5" onClick={() => {
 
 									// delete the vendor and close the popup
@@ -276,8 +202,6 @@ export default function AdminPage() {
 		</>
 
 	) : (
-		<>
-			not logged in
-		</>
+		<NotLoggedIn />
 	)
 }
