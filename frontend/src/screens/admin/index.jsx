@@ -10,108 +10,7 @@ import { NotLoggedIn } from "../../components/General/NotLoggedIn";
 
 export default function AdminPage() {
 
-	const [vendors, setVendors] = useState([
-		{
-			name: "vendor1",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor2",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor3",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor4",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor5",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor6",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor7",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor8",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor9",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor10",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor11",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor12",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor13",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor14",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor15",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor16",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor17",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor18",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor19",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor20",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor21",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor22",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor23",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor24",
-			image: "https://via.placeholder.com/150"
-		},
-		{
-			name: "vendor25",
-			image: "https://via.placeholder.com/150"
-		},
-	])
+	const [vendors, setVendors] = useState([])
 
 	const [editing, setEditing] = useState(false)
 
@@ -152,8 +51,9 @@ export default function AdminPage() {
 					<section className="p-4 pl-36">
 						<Popup trigger={editing} setTrigger={setEditing} size="large">
 							<div className="bg-white p-4 rounded-lg flex flex-col">
+
 								<h1 className="text-4xl font-bold">{editing.username}</h1>
-								{/* add an image here to fill the space */}
+								<img src={`http://127.0.0.1:8000/api/getvendorimage/${editing.username}_banner.jpg`} alt={editing.username} className="rounded-3xl" />
 								<button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-5" onClick={() => {
 
 									// delete the vendor and close the popup
