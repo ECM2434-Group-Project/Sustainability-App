@@ -115,10 +115,14 @@ class ClaimSerializer(serializers.ModelSerializer):
         fields = ('claim_id', 'vendor_name', 'bag_group_name', 'bag', 'user', 'time')
 
     def get_vendor_name(self, obj):
-        return obj.bag.vendor.name if obj.bag.vendor else None
+        bag_group = BagGroupModel.objects.get(bag_group_id=obj.bag.bag_group)
+        vendor = VendorModel.objects.get(vendor_id=bag_group.vendor)
+        return vendor.first_name
+
 
     def get_bag_group_name(self, obj):
-        return obj.bag.bag_group.name if obj.bag.bag_group else None
+        bag_group = BagGroupModel.objects.get(bag_group_id=obj.bag.bag_group)
+        return bag_group.name
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
