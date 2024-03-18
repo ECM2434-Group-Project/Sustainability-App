@@ -27,7 +27,7 @@ export default function CreateVendorPage() {
 		e.preventDefault()
 		setError([])
 
-		let data = { "email":email, "username":name, "password":password, "latitude":latitude, "longitude":longitude }
+		let data = { "email":email, "first_name":name, "password":password, "latitude":latitude, "longitude":longitude }
 
 
 		client.post("/api/createvendor", data).then((res) => {
