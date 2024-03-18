@@ -1195,9 +1195,18 @@ class UploadImageView(APIView):
 
         # Decode and save the image
         image_data = request.data["image"]
+        # Check if the image is in PNG format
+        if image_data.startswith("data:image/png;base64,"):
+            image_data = image_data.replace("data:image/png;base64,", "")
+
+        # Check if the image is in JPEG format
+        elif image_data.startswith("data:image/jpeg;base64,"):
+            image_data = image_data.replace("data:image/jpeg;base64,", "")
+        else:
+            return Response({'error': 'File type not supported'}, status=status.HTTP_400_BAD_REQUEST)
+
         image_filename = f"{vendor.username}_{request.data['type']}.jpg"
         image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
-
         # check if path exists
         if os.path.exists(image_path):
             return Response({'error': 'File already exists please delete before you update your image'}, status=status.HTTP_400_BAD_REQUEST)
