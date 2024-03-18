@@ -1035,6 +1035,8 @@ class VerifyClaim(APIView):
         claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
         if not claim:
             return Response({"message": "Claim does not exist"}, status=status.HTTP_200_OK)
+        if claim.success:
+            return Response({"message": "Claim has already been claimed."}, status=status.HTTP_200_OK)
         return Response({"message": "Claim exists"}, status=status.HTTP_200_OK)
 
 
@@ -1063,6 +1065,8 @@ class ClaimClaim(APIView):
         claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
         if not claim:
             return Response({"message": "Claim does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        if claim.success:
+            return Response({"message": "Claim already claimed"}, status=status.HTTP_200_OK)
         claim.success = True
         claim.save()
         return Response({"message": "Claim successful"}, status=status.HTTP_200_OK)
