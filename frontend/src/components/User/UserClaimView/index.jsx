@@ -14,7 +14,10 @@ export function UserClaimView() {
     useEffect(() => {
         // Get the user's claims
         client.get("/api/claims")
-        .then(res => setClaims(res.data))
+        .then(res => {
+            setClaims(res.data);
+            console.log(res.data)
+        })
         .catch(err => setError(true))
 
     },[])

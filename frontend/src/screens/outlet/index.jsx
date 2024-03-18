@@ -12,17 +12,38 @@ export function OutletPage() {
 	const { outlet } = useParams();
 
 	const [outletData, setOutletData] = useState({});
+	const [allergens, setAllergens] = useState([]);
+
 
   const nav = useNavigate();
 
 	// FETCH THIS OUTLET'S INFO
 	useEffect(() => {
 		client.get("/api/vendors/" + outlet).then((response) => {
+			console.log(response.data);
 			setOutletData(response.data);
 		});
 	}, []);
 
+	useEffect(() => {
+		async function getAllergens() {
+			if (outletData.bag_groups === undefined) {
+				return;
+			}
+			for (let i = 0; i < outletData.bag_groups.length; i++) {
+				await client.get("/api/allergens/" + outletData.bag_groups[i].allergen).then((response) => {
+					setAllergens(prevAllergens => ([...prevAllergens, response.data]));
+				})
+			}
+		}
+		getAllergens();
+	}, [outletData]);
+
 	if (outletData.id === undefined) {
+		return <div>Loading...</div>;
+	}
+
+	if (allergens.length === 0) {
 		return <div>Loading...</div>;
 	}
 
@@ -55,30 +76,40 @@ export function OutletPage() {
 							<p className="text-gray-400 text-sm">
 								<span>2</span> mins walk
 							</p>
+							<p className="text-gray-400 text-m">
+								<span>{outletData.bags_left}</span> bags remaining
+							</p>
 						</div>
 					</div>
 
-					<div className="p-6 border-solid border-[1px] border-gray-200 flex justify-between gap-4 rounded-lg shadow-sm items-center">
-						<BagsRemainingIcon quantity={outletData.bags_left} />
-						<p>{outletData.bags_left} bags remaining</p>
-					</div>
+					{outletData.bag_groups.length > 0 ? (
+						outletData.bag_groups.map((bagGroup, index) => (
+							<div key={index} className="p-6 border-solid border-[1px] border-gray-200 flex justify-between gap-4 rounded-lg shadow-sm items-center">
+								<BagsRemainingIcon quantity={bagGroup.bags_unclaimed} />
+							{bagGroup.bags_unclaimed > 0 ? (
+								<StandoutButton onClick={() => {
+									navigator.geolocation.getCurrentPosition((position) => {
+									nav("/quiz", {state: {vendorID: outletData.id, latitude: position.coords.latitude, longitude: position.coords.longitude, groupID:bagGroup.bag_group_id}})
+									})
+								}}>
+									<TbPaperBag />
+									<span>Claim a bag</span>
+								</StandoutButton>
+								) : (
+		<></>
+								)}
+											<h3 onClick={() => {alert("This bag may contain " + Object.keys(allergens[index]).filter((key) => {
+												return allergens[index][key] === true;
+											}).join(", ") + " items");}} style={{cursor: "pointer"
+											}} className="text-l font-semibold">{bagGroup.name}</h3>
+						</div>
+						))
+						) : (
+						<div className="bg-slate-200 p-4 rounded-lg shadow-sm">
+							<p>Sorry, we're all out of bags!</p>
+						</div>
+					)}
 				</div>
-
-				{outletData.bags_left > 0 ? (
-					<StandoutButton onClick={() => {
-            navigator.geolocation.getCurrentPosition((position) => {
-			  console.log(position.coords);
-              nav("/quiz", {state: {vendorID: outletData.id, latitude: position.coords.latitude, longitude: position.coords.longitude}})
-            })
-          }}>
-            <TbPaperBag />
-            <span>Claim a bag</span>
-        </StandoutButton>
-				) : (
-					<div className="bg-slate-200 p-4 rounded-lg shadow-sm">
-						<p>Sorry, we're all out of bags!</p>
-					</div>
-				)}
 			</div>
 		</section>
 	);

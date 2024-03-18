@@ -539,10 +539,9 @@ class UsersBagView(APIView):
     def get(self, request):
         user = request.user
         bag_ids = ClaimModel.objects.filter(user=user).values_list('bag_id', flat=True)
-        bags = BagModel.objects.filter(id__in=bag_ids)
+        bags = BagModel.objects.filter(bag_id__in=bag_ids)
         serializer = BagSerializer(bags, many=True)
-        return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
-
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 

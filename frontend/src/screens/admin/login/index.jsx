@@ -81,14 +81,6 @@ export default function AdminLogin() {
 						Login
 					</button>
 				</form>
-
-				<div className="text-center">
-					<small>
-						<Link to="/register">
-							No Account? <span className="underline">create one</span>
-						</Link>
-					</small>
-				</div>
 			</div>
 			
 		</div>
