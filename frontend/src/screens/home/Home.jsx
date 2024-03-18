@@ -111,6 +111,13 @@ export default function Home() {
                         <br />
 
                         <div className="text-center">
+                            <div className="flex justify-center">
+                                <img
+                                    src="/logo.jpeg"
+                                    alt="RePlate"
+                                    className="w-128 h-64 object-cover rounded-full"
+                                />
+                            </div>
                             <h1
                                 className="text-4xl font-semibold text-gray-700"
                             >Welcome!</h1>

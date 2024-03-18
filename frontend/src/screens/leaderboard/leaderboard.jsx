@@ -9,12 +9,6 @@ export default function LeaderboardPage() {
 
     const [leaderboard, setLeaderboard] = React.useState([]);
     const [isTop5, setIsTop5] = React.useState(false);
-    useEffect(() => {
-        client.get("/api/leaderboard").then((response) => {
-            setLeaderboard(response.data);
-        })
-    }, []);
-
     const userContext = useUser();
 
     useEffect(() => {
