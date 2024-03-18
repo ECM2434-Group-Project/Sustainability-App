@@ -487,6 +487,7 @@ class CreateAdmin(APIView):
         password = "bob12345"
         email = "admin@admin.com"
         user = AdminModel.objects.create_user(username, email, password)
+        user.role = "ADMIN"
         user.save()
         serializer = AdminSerializer(user)
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
