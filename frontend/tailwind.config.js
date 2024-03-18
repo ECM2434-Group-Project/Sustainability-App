@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'sans': [ 'Outfit', "sans-serif" ] 
+        'sans': ['Outfit', "sans-serif"]
       },
       colors: {
         exeterDarkGreen: "#003c3c",
@@ -17,9 +17,9 @@ module.exports = {
         exeterBrightRed: "#e60000",
         exeterLightRed: "#f9423a",
         exeterBlue: "#0097b2",
-        exeterDimRed: "#9f1717"
+        exeterDimRed: "#9f1717",
       }
     },
-    plugins: []
+    plugins: [],
   }
 }

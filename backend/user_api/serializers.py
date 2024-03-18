@@ -113,7 +113,7 @@ class ClaimSerializer(serializers.ModelSerializer):
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ('id', 'username', 'score')
+        fields = ('username', 'score')
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:

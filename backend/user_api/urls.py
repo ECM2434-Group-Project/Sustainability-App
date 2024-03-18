@@ -17,8 +17,9 @@ urlpatterns = [
 
 	## User Stuff
 
-	path('allergens/<int:allergen_id>', views.AllergenView.as_view(), name='allergen'),
+	path('allergens/<int:group_id>', views.AllergenView.as_view(), name='allergen'),
 	path('claims', views.ClaimsView.as_view(), name='claims'),
+	path('bags', views.UsersBagView.as_view(), name='bags'),
 	path('makeclaim', views.CreateClaim.as_view(), name='makeclaim'),
 	path('vendors', views.VendorsView.as_view(), name='vendors'),  # see all vendors, low fidelity view
 	path('vendors/<int:vendor_id>', views.VendorView.as_view(), name='specific-vendor-view'),  # see a specific vendor

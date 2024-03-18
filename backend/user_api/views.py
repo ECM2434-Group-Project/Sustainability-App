@@ -170,7 +170,7 @@ class VendorsView(APIView):
         data = []
         for vendor in vendors:
             location = vendor.location
-            data.append({"id": vendor.id, "username": vendor.username, "latitude": location.latitude,
+            data.append({"id": vendor.id,"first_name":vendor.first_name, "username": vendor.username, "latitude": location.latitude,
                          "longitude": location.longitude, "bags_left": vendor.bags_left})
 
         return Response(data, status=status.HTTP_200_OK)
@@ -516,9 +516,9 @@ class IssueBagsView(APIView):
 
 
 
-class ClaimsView(APIView):
+class UsersBagView(APIView):
     '''
-    Allows users to see any bags they haven't claimed, and the last 24hrs of bags.
+    Allows users to see any bags they have claimed, and the last 24hrs of bags.
     Format:
     {"bags":
     [
@@ -558,16 +558,34 @@ class LeaderboardView(APIView):
     # If leaderboard has 10 users, user is there, if it has 11, user is the last one
     def get(self, request):
         # Get the top 10 users ordered by score and filter roles
-        leaderboard = UserModel.objects.filter(role=UserModel.Role.USER).order_by('-score')[:10]
-        serializer = LeaderboardSerializer(leaderboard, many=True)
-
         user = request.user
+        user_rank = -1
+
         if user.role == UserModel.Role.USER:
-            user_serializer = UserSerializer(user)
-            # Add the user to the leaderboard if he is not already in it
-            if user not in leaderboard:
-                serializer.data.append(user_serializer.data)
-        return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
+            # Get the top 10 users ordered by score and filter roles
+            leaderboard_queryset = UserModel.objects.filter(role=UserModel.Role.USER).order_by('-score')
+            leaderboard = leaderboard_queryset[:10]
+
+
+            serializer = LeaderboardSerializer(leaderboard, many=True)
+
+            # Check if the user is in the top 10
+            if user in leaderboard:
+                user_rank = list(leaderboard).index(user) + 1  # Index is 0-based, rank is 1-based
+            else:
+                # Calculate the user's rank in the full leaderboard
+                user_rank = leaderboard_queryset.filter(score__gt=user.score).count() + 1
+
+
+            returndata = serializer.data
+
+            if user_rank > 10:
+                ## add user to the bottom of the leaderboard
+                userdata = {"username" : user.username, "score" : user.score}
+                returndata.append(userdata)
+            # Include the user in the leaderboard data if not already present
+
+        return Response({'leaderboard': returndata, 'user_rank': user_rank}, status=status.HTTP_200_OK)
 
 class WebsiteUserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -773,7 +791,7 @@ class ClaimsView(APIView):
         if not request.user:
             return Response({"message": "You are not logged in"}, status=status.HTTP_403_FORBIDDEN)
         if request.user.role != UserModel.Role.USER:
-            return Response({"message": "Vendors cannot have claims. Only users can have claims."},
+            return Response({"message": "Vendors or Admin cannot have claims. Only users can have claims."},
                             status=status.HTTP_403_FORBIDDEN)
 
         claims = ClaimModel.objects.filter(user_id=request.user)
@@ -869,6 +887,7 @@ class CreateAdmin(APIView):
         password = "bob12345"
         email = "admin@admin.com"
         user = AdminModel.objects.create_user(username, email, password)
+        user.role = "ADMIN"
         user.save()
         serializer = AdminSerializer(user)
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -967,12 +986,20 @@ class GeoFenceTest(APIView):
 
 # @allowed_users(allowed_roles=['admin'])
 class AllergenView(APIView):
+    """
+    "/api/allergen/<int:group_id>"
+    Returns an allergen from the group id
+    """
     permissions_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
-    def get(self, request, allergen_id):
-        allergen = AllergenModel.objects.get(allergen_id=allergen_id)
-        serializer = AllergenSerializer(allergen)
+    def get(self, request, group_id):
+        try:
+            allergen_id = BagGroupModel.objects.get(bag_group_id=group_id).allergen.allergen_id
+            allergen = AllergenModel.objects.get(allergen_id=allergen_id)
+            serializer = AllergenSerializer(allergen)
+        except:
+            return Response({"message": f"Group {group_id} Does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
 
@@ -1034,6 +1061,8 @@ class VerifyClaim(APIView):
         claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
         if not claim:
             return Response({"message": "Claim does not exist"}, status=status.HTTP_200_OK)
+        if claim.success:
+            return Response({"message": "Claim has already been claimed."}, status=status.HTTP_200_OK)
         return Response({"message": "Claim exists"}, status=status.HTTP_200_OK)
 
 
@@ -1062,6 +1091,8 @@ class ClaimClaim(APIView):
         claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
         if not claim:
             return Response({"message": "Claim does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        if claim.success:
+            return Response({"message": "Claim already claimed"}, status=status.HTTP_200_OK)
         claim.success = True
         claim.save()
         return Response({"message": "Claim successful"}, status=status.HTTP_200_OK)
@@ -1123,7 +1154,7 @@ class UploadImageView(APIView):
     def post(self, request):
         #=request.vendor.vendor_id) add later
         # Retrieve vendor based on ID
-        if (request.user.role != UserModel.Role.VENDOR) or UserModel.Role.ADMIN:
+        if (request.user.role != UserModel.Role.VENDOR) or (request.user.role != UserModel.Role.ADMIN):
             return Response({"message": "You are not a vendor or admin"},status=status.HTTP_403_FORBIDDEN)
         # checked vendor id sent is the same as vendor logged in
         elif request.user.role == UserModel.Role.VENDOR:
@@ -1172,17 +1203,19 @@ class UploadImageView(APIView):
 
 class DeleteImageView(APIView):
     """
+
     Post
-    {
-    vendor_id
-    name
+    {'vendorid': [Int]
+    'name': [String]
+    }
+    name of the image
     """
     def post(self, request, image_name):
 
         # Split the filename string using '_' as a delimiter and get the first part
         vendor_username = image_name.split('_')[0]
 
-        if (request.user.role != UserModel.Role.VENDOR) or UserModel.Role.ADMIN:
+        if (request.user.role != UserModel.Role.VENDOR) or (request.user.role != UserModel.Role.ADMIN):
             return Response({"message": "You are not a vendor or admin"},status=status.HTTP_403_FORBIDDEN)
         # Check so vendors cannot delete other vendors images
         elif request.user.role == UserModel.Role.VENDOR:
@@ -1237,8 +1270,12 @@ def getimage(request, image_name):
     # Construct the absolute path to the image
     absolute_image_path = os.path.join(settings.MEDIA_ROOT, image_name)
 
+    # Check if the absolute path starts with MEDIA_ROOT to prevent directory traversal
+    if not absolute_image_path.startswith(settings.MEDIA_ROOT):
+        return HttpResponse({"Error": "Invalid image path"}, status=status.HTTP_400_BAD_BAD_REQUEST)
+
     # Check if the file exists
-    if os.path.exists(absolute_image_path):
+    if os.path.isfile(absolute_image_path):
         # Open the file in binary mode
         with open(absolute_image_path, 'rb') as f:
             # Read the file data
@@ -1251,7 +1288,7 @@ def getimage(request, image_name):
         return HttpResponse(image_data, content_type=content_type)
     else:
         # Return 404 if the file does not exist
-        return Response({"message": "Image not found"},status=404)
+        return HttpResponse({"Image doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
 
 class UpdateUser(APIView):
     permission_classes = (permissions.IsAuthenticated,)

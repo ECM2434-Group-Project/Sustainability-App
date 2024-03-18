@@ -169,10 +169,11 @@ class ClaimModel(models.Model):
     bag = models.ForeignKey(BagModel, on_delete=models.CASCADE)
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     time = models.DateTimeField()
+    success = models.BooleanField(default=False)
 
     def __str__(self):
         """Return string representation of the bags"""
-        return f'id: {self.claim_id}, bag_id: {self.bag}, user_id: {self.user}, time: {self.time}'
+        return f'id: {self.claim_id}, bag_id: {self.bag}, user_id: {self.user}, time: {self.time}, success: {self.success}'
 
 
 class QuestionModel(models.Model):

@@ -5,7 +5,6 @@ export function VendorItem({ vendor, setEditing }) {
 			setEditing(vendor)
 		}}>
 			<img src={`http://127.0.0.1:8000/api/getvendorimage/${vendor.username}_icon.jpg`} alt={vendor.username} className="rounded-3xl" />
-
 		</div>
 	)
 }
