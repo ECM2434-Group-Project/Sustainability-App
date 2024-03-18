@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react"
+import { useState } from "react"
 import { TextInput } from "../../components/General/TextInput"
 import { GoBackLink } from "../../components/General/GoBackLink"
 import { UserAvatar } from "../../components/User/UserAvatar"
@@ -13,6 +13,7 @@ export default function CreateVendorPage() {
 	const [password, setPassword] = useState("")
 	const [latitude, setLatitude] = useState("")
 	const [longitude, setLongitude] = useState("")
+	const [username, setUsername] = useState("")
 	const [name, setName] = useState("")
 
 
@@ -27,8 +28,8 @@ export default function CreateVendorPage() {
 		e.preventDefault()
 		setError([])
 
-		let data = { "email":email, "username":name, "password":password, "latitude":latitude, "longitude":longitude }
-
+		let data = { "email":email, "username":username, "password":password, "latitude":latitude, "longitude":longitude, "first_name": name }
+		console.log(data)
 
 		client.post("/api/createvendor", data).then((res) => {
 			console.log(res)
@@ -118,13 +119,26 @@ export default function CreateVendorPage() {
 								</div>
 
 								<TextInput
+									label={"Vendor Username"}
+									className="rounded-md p-4 py-2 text-gray-950 shadow-md"
+									type="text"
+									placeholder="YourUsername1241"
+									value={username}
+									onChange={(e) => {
+										setUsername(e.target.value.replace(/\s/g, ''))
+										setError([])
+									}}
+									required
+								/>
+
+								<TextInput
 									label={"Vendor Name"}
 									className="rounded-md p-4 py-2 text-gray-950 shadow-md"
 									type="text"
 									placeholder="Wiktors Bar"
 									value={name}
 									onChange={(e) => {
-										setName(e.target.value.replace(/\s/g, ''))
+										setName(e.target.value)
 										setError([])
 									}}
 									required

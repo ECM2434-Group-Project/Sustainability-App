@@ -910,7 +910,7 @@ class CreateVendor(APIView):
             serializer = VendorSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
                 vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'],
-                                                         password=data['password'], location=location, role="VENDOR")
+                                                         password=data['password'], location=location, role="VENDOR", first_name=data['first_name'])
                 vendor.save()
                 # create location for vendor
 
