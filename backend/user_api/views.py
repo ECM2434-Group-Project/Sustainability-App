@@ -554,8 +554,8 @@ class QuestionsView(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def get(self, request):
-        #if request.user.role != UserModel.Role.ADMIN:
-        #    return Response(status=status.HTTP_401_UNAUTHORIZED)
+        if request.user.role != UserModel.Role.ADMIN:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         questions = QuestionModel.objects.all()
 
         returndata = {"questions": []}
@@ -593,8 +593,8 @@ class QuestionsView(APIView):
         "answer_id" : [Int]
         }
         """
-        #if request.user.role != UserModel.Role.ADMIN:
-        #    return Response(status=status.HTTP_401_UNAUTHORIZED)
+        if request.user.role != UserModel.Role.ADMIN:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         if ('question_id' not in request.data) and ('answer_id' not in request.data):
             return Response({"message" : "Invalid Selector"}, status=status.HTTP_400_BAD_REQUEST)
