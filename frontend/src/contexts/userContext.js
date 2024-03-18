@@ -88,14 +88,26 @@ export const UserProvider = ({ children }) => {
 		return new Promise((res, rej) => {
 			client.get("/api/user")
 			.then(r => {
-				console.log(r.data.user)
-				setUser(r.data.user)
-				res(true)
+				// If the user is a vendor, get their vendor details
+				if(r.data.user?.role === "VENDOR") {
+					client.get("/api/vendors/" + r.data.user.id)
+					.then(v => {
+						setUser(v.data)
+						res(true)
+					})
+					.catch(err => {
+						console.error("Error getting user data", err)
+						rej(err)
+					})
+				} else {
+					// If user is not a vendor, return straight away
+					setUser(r.data.user)
+					res(true)
+				}				
 			})
 			.catch(err => {
 				console.error("Error getting user data", err)
 				rej(err)
-
 			})
 		})
 	}, [])
