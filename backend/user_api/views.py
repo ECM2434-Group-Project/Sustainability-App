@@ -516,9 +516,9 @@ class IssueBagsView(APIView):
 
 
 
-class ClaimsView(APIView):
+class UsersBagView(APIView):
     '''
-    Allows users to see any bags they haven't claimed, and the last 24hrs of bags.
+    Allows users to see any bags they have claimed, and the last 24hrs of bags.
     Format:
     {"bags":
     [
@@ -774,7 +774,7 @@ class ClaimsView(APIView):
         if not request.user:
             return Response({"message": "You are not logged in"}, status=status.HTTP_403_FORBIDDEN)
         if request.user.role != UserModel.Role.USER:
-            return Response({"message": "Vendors cannot have claims. Only users can have claims."},
+            return Response({"message": "Vendors or Admin cannot have claims. Only users can have claims."},
                             status=status.HTTP_403_FORBIDDEN)
 
         claims = ClaimModel.objects.filter(user_id=request.user)
