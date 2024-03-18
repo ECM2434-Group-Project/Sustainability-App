@@ -558,16 +558,34 @@ class LeaderboardView(APIView):
     # If leaderboard has 10 users, user is there, if it has 11, user is the last one
     def get(self, request):
         # Get the top 10 users ordered by score and filter roles
-        leaderboard = UserModel.objects.filter(role=UserModel.Role.USER).order_by('-score')[:10]
-        serializer = LeaderboardSerializer(leaderboard, many=True)
-
         user = request.user
+        user_rank = -1
+
         if user.role == UserModel.Role.USER:
-            user_serializer = UserSerializer(user)
-            # Add the user to the leaderboard if he is not already in it
-            if user not in leaderboard:
-                serializer.data.append(user_serializer.data)
-        return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
+            # Get the top 10 users ordered by score and filter roles
+            leaderboard_queryset = UserModel.objects.filter(role=UserModel.Role.USER).order_by('-score')
+            leaderboard = leaderboard_queryset[:10]
+
+
+            serializer = LeaderboardSerializer(leaderboard, many=True)
+
+            # Check if the user is in the top 10
+            if user in leaderboard:
+                user_rank = list(leaderboard).index(user) + 1  # Index is 0-based, rank is 1-based
+            else:
+                # Calculate the user's rank in the full leaderboard
+                user_rank = leaderboard_queryset.filter(score__gt=user.score).count() + 1
+
+
+            returndata = serializer.data
+
+            if user_rank > 10:
+                ## add user to the bottom of the leaderboard
+                userdata = {"username" : user.username, "score" : user.score}
+                returndata.append(userdata)
+            # Include the user in the leaderboard data if not already present
+
+        return Response({'leaderboard': returndata, 'user_rank': user_rank}, status=status.HTTP_200_OK)
 
 class WebsiteUserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)

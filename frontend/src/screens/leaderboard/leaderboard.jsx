@@ -8,24 +8,28 @@ import { useUser } from "../../contexts/userContext";
 export default function LeaderboardPage() {
 
     const [leaderboard, setLeaderboard] = React.useState([]);
+    const [userRank, setUserRank] = React.useState(0);
     const [isTop5, setIsTop5] = React.useState(false);
-    const userContext = useUser();
+    const { user } = useUser();
 
     useEffect(() => {
         // Get the leaderboard
         client.get("/api/leaderboard").then(res => {
             setLeaderboard(res.data.leaderboard)
-            console.log(userContext.user);
-            if (!userContext.user) {
+            setUserRank(res.data.user_rank)
+            if (!user) {
                 return;
             }
-            if (res.data.leaderboard.filter(user => user.username === userContext?.user.username).length > 0) {
+
+            if (res.data.leaderboard.filter(row => row.username === user.username).length > 0) {
                 setIsTop5(true)
             }
+        }).catch(err => {
+            console.error(err)
         })
     }, [])
 
-    return userContext ? (
+    return user ? (
         <section className="p-6 flex flex-col gap-6">
 
 			<GoBackLink href={"/settings"} />
@@ -36,7 +40,7 @@ export default function LeaderboardPage() {
                 <table className="w-full row-sp text-gray-800">
                     <tbody>
                         {
-                            leaderboard.map((user, i) => (
+                            leaderboard.map((row, i) => (
                                i < 5 ? (
                                 <tr key={i} className="flex items-center py-2">
                                 <td className="p-1 w-10">{i + 1}</td>
@@ -46,13 +50,13 @@ export default function LeaderboardPage() {
                                     >
                                         <span
                                             className="w-min h-min text-white font-semibold text-sm text-nowrap"
-                                        >{user.username[0]}</span>
+                                        >{row.username[0]}</span>
                                     </div>
                                 </td>
-                                <td className="p-1 text-left" width={"100%"}>{user.username}</td>
+                                <td className="p-1 text-left" width={"100%"}>{row.username}</td>
                                 <td className="p-1">
                                     <p className="text-md text-nowrap">
-                                        {user.score} <small className="text-gray-600">XP</small>
+                                        {row.score} <small className="text-gray-600">XP</small>
                                     </p>
                                 </td>
                             </tr>
@@ -63,7 +67,7 @@ export default function LeaderboardPage() {
                                 </tr>
 
                                 <tr className="flex items-center py-2">
-                                    <td className="p-1 w-10">{42}</td>
+                                    <td className="p-1 w-10">{userRank}</td>
                                         <td className="p-1 w-12 flex justify-center">
                                             <div
                                                 className="w-10 h-10 flex justify-center items-center bg-exeterBrightRed rounded-full"

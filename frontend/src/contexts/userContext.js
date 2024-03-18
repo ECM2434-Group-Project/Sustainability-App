@@ -106,11 +106,6 @@ export const UserProvider = ({ children }) => {
 		.then(() => console.log("Got user"))
 		.catch(() => setUser(null))
 	}, [])
-
-	useEffect(() => {
-		console.log(user)
-	}, [user])
-
 	
 
 	return (
