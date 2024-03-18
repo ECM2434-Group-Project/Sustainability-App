@@ -48,15 +48,18 @@ export default function Quiz() {
         if (answers.length !== 3) {
             return;
         }
+
+        const quiz = [];
+        for (let i = 0; i < questions.length; i++) {
+            quiz.push({question_id: questions[i].question_id, answer_id: answers[i]});
+        }
+
         const req = {
             latitude: location.state.latitude,
             longitude: location.state.longitude,
             vendor_id: location.state.vendorID,
-            quiz: [
-                {question_id: questions[0].question_id, answer_id: answers[0]},
-                {question_id: questions[1].question_id, answer_id: answers[1]},
-                {question_id: questions[2].question_id, answer_id: answers[2]}
-            ]
+            bag_group: location.state.groupID,
+            quiz: quiz
         }
         console.log(JSON.stringify(req));
         client.post("/api/quiz", req).then((response) => {

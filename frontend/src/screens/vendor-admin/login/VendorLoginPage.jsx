@@ -20,18 +20,21 @@ export function VendorLoginPage() {
 
 		// async function for logging in
 		async (e) => {
-			e.preventDefault();
-			setError(false);
-
-			// now login
-			const result = await login(email, password)
-			
-			if (result === true) {
-				nav("/vendor-admin")
-			} else {
-				setError(result)
+			try {
+				e.preventDefault();
+				setError(false);
+	
+				// now login
+				const result = await login(email, password)
+				
+				if (result === true) {
+					nav("/vendor-admin")
+				} else {
+					setError(result)
+				}	
+			} catch (error) {
+				console.error("ERROR")
 			}
-
 		},
 		[error, email, password]
 	);
@@ -45,7 +48,7 @@ export function VendorLoginPage() {
 
 					<TextInput
 						label={"Your Exeter Email"}
-						className="rounded-md p-4 py-2 bg-white text-gray-950"
+						className="rounded-md p-4 py-2 border-[0.8px] border-solid border-gray-400 bg-white text-gray-950"
 						type="email"
 						placeholder="you@exeter.ac.uk"
 						value={email}
@@ -54,6 +57,7 @@ export function VendorLoginPage() {
 					/>
 					<TextInput
 						label={"Password"}
+						className="rounded-md p-4 py-2 border-[0.8px] border-solid border-gray-400 bg-white text-gray-950"
 						type="password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}

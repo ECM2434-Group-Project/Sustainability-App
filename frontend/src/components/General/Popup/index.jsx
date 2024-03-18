@@ -1,20 +1,18 @@
-'use client'
-
 import { IoCloseSharp } from "react-icons/io5"
 
-import styles from "./Popup.module.css"
 
-
-export function Popup({ trigger, setTrigger, size="medium", children }) {
+export function Popup({ trigger, setTrigger, children }) {
     return trigger ? (
-        <section className={size === "small" ? styles.containerSmall : size === "medium" ? styles.container : size === "large" ? styles.containerLarge : styles.container }>
-            <div className={styles.popup}>
-                <button
-                    className={styles.close}
-                    onClick={() => setTrigger(false)}
-                >
-                    <IoCloseSharp />
-                </button>
+        <section className="absolute top-0 left-0 w-screen h-screen bg-opacity-5 bg-black flex flex-col items-center">
+            <div className="bg-white p-4 py-8 w-screen h-screen">
+                <div className="flex justify-end">
+                    <button
+                        className="p-3 bg-white shadow rounded-full"
+                        onClick={() => setTrigger(false)}
+                    >
+                        <IoCloseSharp />
+                    </button>
+                </div>
                 {children}
             </div>
         </section>
