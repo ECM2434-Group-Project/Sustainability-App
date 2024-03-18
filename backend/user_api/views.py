@@ -549,9 +549,25 @@ class QuestionsView(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def get(self, request):
+        if request.user.role != UserModel.Role.ADMIN:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         questions = QuestionModel.objects.all()
         serializer = QuestionsSerializer(questions, many=True)
-        return Response({'questions': serializer.data}, status=status.HTTP_200_OK)
+
+        returndata = {"questions": []}
+
+        for question in questions:
+            qdata = {}
+            questionserializer = QuestionsSerializer(question)
+            answers = AnswerModel.objects.filter(question_id=question.pk)
+            qdata["question"] = questionserializer.data
+            answersserializer = AnswerSerializer(answers, many=True)
+            qdata["answers"] = answersserializer.data
+            returndata["questions"].append(qdata)
+
+
+
+        return Response(returndata, status=status.HTTP_200_OK)
 
 
 class LeaderboardView(APIView):
