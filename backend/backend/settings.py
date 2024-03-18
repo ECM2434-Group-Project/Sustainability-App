@@ -159,5 +159,5 @@ EMAIL_HOST = 'smtp.gmail.com'  # SMTP server address
 EMAIL_PORT = 587  # Port for SMTP server (587 for TLS)(465 for SSL)
 EMAIL_USE_TLS = True  # Use TLS encryption for SMTP connection
 EMAIL_HOST_USER = 'ecogoexeter@gmail.com'  # SMTP username
-EMAIL_HOST_PASSWORD = 'qzkq njsy spkv ghfk '  # SMTP password ( Uses app password gmail)
+EMAIL_HOST_PASSWORD = 'euhh lqym rman csmh '  # SMTP password ( Uses app password gmail)
 DEFAULT_FROM_EMAIL = 'ecogoexeter@gmail.com'  # Default sender email address
