@@ -21,13 +21,17 @@ import { VendorScanPage } from './screens/vendor-admin/scan/VendorScanPage';
 import { VendorSettingsPage } from './screens/vendor-admin/settings/VendorSettingsPage';
 import { VendorAccountDetails } from './screens/vendor-admin/settings/details/VendorAccountDetails';
 import { VendorChangePassword } from './screens/vendor-admin/settings/change-password/VendorChangePassword';
-
-
-
 import ChangeUsername from './screens/change-username';
 import ChangePassword from './screens/change-password';
+import AdminLogin from './screens/admin-login';
+import AdminPage from './screens/admin';
+import CreateVendorPage from './screens/create-vendor';
+import PrivacyPolicy from './screens/privacy-policy';
+import TermsAndConditions from './screens/terms-and-conditions';
+import DeleteAccount from './screens/delete-account';
 function App() {
 
+	// Create a home page that has two buttons, one for login and one for register which navigate to the respective pages
 	return (
 		<UserProvider>
 			<Routes>
@@ -44,6 +48,9 @@ function App() {
 				<Route path="/incorrect-location" element={<IncorrectLocation />} />
 				<Route path="/claim/:claim" element={<ClaimDetailPage />} />
 				<Route path="/leaderboard" element={<LeaderboardPage />} />
+				<Route path="/admin-login" element={<AdminLogin />} />
+				<Route path="/admin" element={<AdminPage />} />
+				<Route path="/admin/create-vendor" element={<CreateVendorPage />} />
 				<Route path="/vendor-admin" element={<VendorAdminScreen />} />
 				<Route path="/vendor-admin/login" element={<VendorLoginPage />} />
 				<Route path="/vendor-admin/scan" element={<VendorScanPage />} />
@@ -52,6 +59,9 @@ function App() {
 				<Route path="/vendor-admin/settings/change-password" element={<VendorChangePassword />} />
 				<Route path="/settings/change-username" element={<ChangeUsername />} />
 				<Route path="/settings/change-password" element={<ChangePassword />} />
+				<Route path="/privacy-policy" element={<PrivacyPolicy />} />
+				<Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+				<Route path="/delete-account" element={<DeleteAccount/>} />
 			</Routes>
 		</UserProvider>
 		

@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+import re
 from . import models
 
 
@@ -67,6 +68,12 @@ def validate_email(data):
         raise ValidationError('an email is needed')
     return True
 
+def validate_email_register(data):
+    email = data['email'].strip()
+    pattern = r'\b[A-Za-z0-9._%+-]+@exeter\.ac\.uk\b'
+    if not bool(re.match(pattern, email)):
+        raise ValidationError('You need to have an exeter email')
+    return validate_email(data)
 def validate_username(data):
     username = data['username'].strip()
     if not username:

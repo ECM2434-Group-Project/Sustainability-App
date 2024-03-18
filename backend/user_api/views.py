@@ -1,11 +1,15 @@
+import os
+
 from django.contrib.auth import login, logout
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
 
 from .decorators import allowed_users
-from .models import UserModel, VendorModel, AdminModel, LocationModel
+from .models import UserModel, VendorModel, AdminModel, LocationModel, BagGroupModel, AllergenModel, QuizRecordModel, \
+    EmailVerification, ImageModel
 from .serializers import *
 from rest_framework import permissions, status
 from .validations import *
@@ -14,6 +18,17 @@ from .backends import VendorModelBackend, AdminModelBackend
 import datetime
 from random import shuffle
 from . import geofencing
+
+# Email verification
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+
+# images
+import base64
+import io
+import PIL.Image
+from django.conf import settings
 
 
 # SessionAuthentication -> Check if they're in valid session
@@ -31,10 +46,16 @@ class UserRegister(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def post(self, request):
+        data = request.data
+        # if email exists and is exeter email, throws exception if it doesn't
+        email = data['email']
+        assert validate_email_register(data)
         clean_data = user_creation_validation(request.data)
         serializer = UserRegisterSerializer(data=clean_data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.create(clean_data)
+            user.role = UserModel.Role.USER
+            user.save()
 
             if user:
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -73,7 +94,7 @@ class UserLogin(APIView):
         try:
             serializer = UserLoginSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
-                username = UserModel.objects.get(email=email).username
+                username = UserModel.objects.get(email__exact=email).username
                 user = serializer.get_user(username, password)
                 login(request, user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -129,7 +150,6 @@ class UserView(APIView):
     def get(self, request):
         # if the request has a user
         if request.user is None:
-
             return Response({"message": "You are not logged in"}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UserSerializer(request.user)
@@ -150,12 +170,8 @@ class VendorsView(APIView):
         data = []
         for vendor in vendors:
             location = vendor.location
-            data.append({"id" : vendor.id, "username" :  vendor.username, "latitude" : location.latitude,
-                         "longitude" : location.longitude, "bags_left": vendor.bags_left})
-
-
-
-
+            data.append({"id": vendor.id, "username": vendor.username, "latitude": location.latitude,
+                         "longitude": location.longitude, "bags_left": vendor.bags_left})
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -174,17 +190,252 @@ class VendorView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = VendorSerializer(vendor)
+
+        data = serializer.data
+
+        bag_groups = BagGroupModel.objects.filter(vendor=vendor_id)
+        bagGroupSerializer = BagGroupSerializer(bag_groups, many=True)
+
+        data["bag_groups"] = bagGroupSerializer.data
+        return Response(data, status=status.HTTP_200_OK)
+
+class AddBags(APIView):
+    '''
+    Format
+    {
+    "group_id" : [Int],
+    "count" : [Int],
+    "collection_time" :
+    '''
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        if not request.user:
+            return Response({"message": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You must be a Vendor"}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        if 'group_id' not in data or 'count' not in data or 'collection_time' not in data:
+            return Response({"message": "Data not valid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        bag_group = BagGroupModel.objects.filter(vendor=user, bag_group_id=data['group_id']).first()
+
+        if not bag_group:
+            return Response({"message": "Group not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        bag_group.bags_unclaimed += data['count']
+        vendor = VendorModel.objects.filter(id=user.id).first()
+        vendor.bags_left += data['count']
+
+        for i in range(data['count']):
+            bag = BagModel(collection_time=data['collection_time'], bag_group=bag_group)
+            bag.save()
+
+        bag_group.save()
+        vendor.save()
+
+        return Response({"message": f"{data['count']} bags added to group {data['group_id']}."}, status=status.HTTP_201_CREATED)
+
+
+class RemoveBags(APIView):
+    '''
+    {
+        "group_id": [Int],
+        "count": [Int]
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+
+    def post(self, request):
+        if not request.user:
+            return Response({"message": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You must be a Vendor"}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        if 'group_id' not in data or 'count' not in data:
+            return Response({"message": "Data not valid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        bag_group = BagGroupModel.objects.filter(vendor=user, bag_group_id=data['group_id']).first()
+        group_unclaimed = bag_group.bags_unclaimed
+        diff = 0
+        if group_unclaimed < data['count']:
+            ## delete all unclaimed, and the rest from claimed bags
+            diff = data['count'] - group_unclaimed
+            bag_group.bags_unclaimed = 0
+
+            for i in range(group_unclaimed):
+                bag = BagModel.objects.filter(bag_group=bag_group, claimed=False).first()
+                bag.delete()
+            for i in range(diff):
+                bag = BagModel.objects.filter(bag_group=bag_group, claimed=True).first()
+                claim = ClaimModel.objects.filter(bag=bag).first()
+
+                if bag:
+                    bag.delete()
+                if claim:
+                    claim.delete()
+
+        else:
+            ## delete count bags
+            bag_group.bags_unclaimed -= data['count']
+            for i in range(data['count']):
+                bag = BagModel.objects.filter(bag_group=bag_group, claimed=False).first()
+                bag.delete()
+
+        bag_group.save()
+
+        vendor = VendorModel.objects.filter(id=user.id).first()
+        if vendor.bags_left < data['count']:
+            vendor.bags_left = 0
+        else:
+            vendor.bags_left -= data['count']
+
+        vendor.save()
+
+
+
+
+        return Response({
+                            "message": f"{data['count']} bags removed from group {data['group_id']}"},
+                        status=status.HTTP_200_OK)
+
+
+class AddGroup(APIView):
+    '''
+    Format:
+    {
+    "name" : [str] (max 128),
+    "allergens" : { "milk" : true, ...}
+    }
+
+    Allergens must be present in the json, regardless if you are using them or not.
+    This is to ensure that the allergens are consistent across all groups, and that allergens have been considered.
+    '''
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        if not request.user:
+            return Response({"message" : "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response( {"message" : "You must be a Vendor"}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        vendor_id = user.id
+
+        allergendict = parse_allergens(data["allergens"])
+        allergenSerializer = AllergenSerializer(data=allergendict)
+        if allergenSerializer.is_valid(raise_exception=True):
+            allergen = allergenSerializer.create(allergenSerializer.validated_data)
+            allergen.save()
+        groupdata = {
+            "name" : data["name"],
+            "vendor" : vendor_id,
+            "allergen" : allergen.allergen_id
+        }
+        groupSerializer = BagGroupSerializer(data=groupdata)
+        if groupSerializer.is_valid():
+            bagGroup = groupSerializer.create(groupSerializer.validated_data)
+            bagGroup.save()
+
+        else:
+            return Response( {"message" : "Group data not valid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response( {"message" : f"Group created: {bagGroup.bag_group_id}"}, status=status.HTTP_201_CREATED)
+
+class RemoveGroup(APIView):
+    '''
+    Format:
+    {
+    "group_id" : [Int]
+    '''
+
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        ## this will delete a group, and all bags under it. Not reccomended to do without checking claims first to ensure there are no people with active claims.
+        if not request.user:
+            return Response({"message": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You must be a Vendor"}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        vendor_id = user.id
+
+        if 'group_id' not in data:
+            return Response( {"message" : "Data not valid."}, status=status.HTTP_400_BAD_REQUEST)
+
+        bagGroup = BagGroupModel.objects.filter(vendor=vendor_id, bag_group_id=data['group_id'])
+        bagGroup.delete()
+        return Response( {"message" : f"Group {data['group_id']} deleted."}, status=status.HTTP_200_OK)
+
+
+class ViewGroups(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+    def get(self, request):
+        if not request.user:
+            return Response({"message": "You are not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
+
+        groups = BagGroupModel.objects.filter(vendor=user)
+        serializer = BagGroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class IssueBagsView(APIView):
     '''
     This endpoint allows vendors to issue bags. The issued bags will be automatically associated with the vendor who issued them.
     Format:
+
+    {
+    "count" :
+
     {
         "num_bags": [Int],
         "collection_time": [String],
+        <allergens>
     }
+
+    Example JSON for post:
+    {
+    "bags": [
+        {
+            "bag_group": 1,
+            "allergens": {
+                "allergen_id": 1,
+                "milk": true,
+                "eggs": false,
+                "fish": false,
+                "crustacean": false,
+                "tree_nuts": false,
+                "peanuts": false,
+                "wheat": false,
+                "soybeans": false,
+                "sesame": false
+            },
+            "bags": [
+                {
+                    "bag_id": 1,
+                    "collection_time": "2024-02-27T16:32:00Z",
+                    "bag_group": 1,
+                    "claimed": false
+                },
+                {
+                    "bag_id": 2,
+                    "collection_time": "2024-02-27T16:32:00Z",
+                    "bag_group": 1,
+                    "claimed": false
+                }...
     '''
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
@@ -193,10 +444,22 @@ class IssueBagsView(APIView):
         user = request.user
         if user.role != UserModel.Role.VENDOR:
             return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
+        # get bag groups issued to vendor
+        bag_groups = BagGroupModel.objects.filter(vendor=user)
 
-        bags = BagModel.objects.filter(vendor=user)
-        serializer = BagsSerializer(bags, many=True)
-        return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
+        data = []
+
+        # get groups
+        for group in bag_groups:
+            bags = BagModel.objects.filter(bag_group=group)
+            bagserializer = BagSerializer(bags, many=True)
+            allergen = AllergenModel.objects.get(allergen_id=group.allergen.allergen_id)
+            allergenserializer = AllergenSerializer(allergen)
+
+            data.append(
+                {"bag_group": group.bag_group_id, "allergens": allergenserializer.data, "bags": bagserializer.data})
+
+        return Response({'bags': data}, status=status.HTTP_200_OK)
 
     def post(self, request):
         # Oscar Green
@@ -208,12 +471,29 @@ class IssueBagsView(APIView):
         vendor = request.user
         # get the data
         data = request.data
+
+        # Verification here
+        # ==================
+
         num_bags = data['num_bags']
         collection_time = data['collection_time']
+        allergendict = parse_allergens(data)
 
-        # create the bags
+        # create allergen model
+        allergenSerializer = AllergenSerializer(data=allergendict)
+        if allergenSerializer.is_valid(raise_exception=True):
+            allergen = allergenSerializer.create(allergenSerializer.validated_data)
+            allergen.save()
+
+        # create bag group
+        bagGroupSerializer = BagGroupSerializer(
+            data={'vendor': vendor.id, 'allergen': allergen.allergen_id, 'bags_unclaimed': num_bags})
+        if bagGroupSerializer.is_valid(raise_exception=True):
+            bagGroup = bagGroupSerializer.create(bagGroupSerializer.validated_data)
+            bagGroup.save()
+
         for i in range(int(num_bags)):
-            serializer = BagsSerializer(data={'vendor': vendor, 'collection_time': collection_time})
+            serializer = BagSerializer(data={'collection_time': collection_time, 'bag_group': bagGroup.bag_group_id})
             if serializer.is_valid(raise_exception=True):
                 bag = serializer.create(serializer.validated_data)
                 bag.save()
@@ -232,6 +512,8 @@ class IssueBagsView(APIView):
             return VendorModel.objects.get(id=vendor_id)
         except VendorModel.DoesNotExist:
             raise None
+
+
 
 
 class ClaimsView(APIView):
@@ -256,7 +538,7 @@ class ClaimsView(APIView):
         user = request.user
 
         bags = BagModel.objects.filter(user=user)
-        serializer = BagsSerializer(bags, many=True)
+        serializer = BagSerializer(bags, many=True)
         return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -273,13 +555,19 @@ class QuestionsView(APIView):
 class LeaderboardView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
-
+    # If leaderboard has 10 users, user is there, if it has 11, user is the last one
     def get(self, request):
-        leaderboard = UserModel.objects.all().order_by('-score')
-        # First idea we can make it nicer later
+        # Get the top 10 users ordered by score and filter roles
+        leaderboard = UserModel.objects.filter(role=UserModel.Role.USER).order_by('-score')[:10]
         serializer = LeaderboardSerializer(leaderboard, many=True)
-        return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
 
+        user = request.user
+        if user.role == UserModel.Role.USER:
+            user_serializer = UserSerializer(user)
+            # Add the user to the leaderboard if he is not already in it
+            if user not in leaderboard:
+                serializer.data.append(user_serializer.data)
+        return Response({'leaderboard': serializer.data}, status=status.HTTP_200_OK)
 
 class WebsiteUserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -314,7 +602,6 @@ class QuizView(APIView):
 
 '''
 
-
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
@@ -334,15 +621,19 @@ class QuizView(APIView):
         queryset = QuestionModel.objects.all().order_by('?')[:q_count]
         serializer = QuestionsSerializer(queryset, many=True)
         data = serializer.data
-
+        questions = []
+        answers = []
         # for each question, get the answers
         for i in range(len(data)):
             question = data[i]
             answers = AnswerModel.objects.filter(question=question['question_id'])
+            questions.append(question['question_id'])
 
             ## get the correct answer
             correct_answer = answers.filter(is_correct=True).order_by('?')[:true_positives]
             false_answers = answers.filter(is_correct=False).order_by('?')[:false_positives]
+            # add answer id to answers
+
             ## use QuizAnswerSerializer to get the answers without revealing the correct answer
             serializer = QuizAnswerSerializer(correct_answer, many=True)
             correct_answer_serialized = serializer.data
@@ -354,6 +645,13 @@ class QuizView(APIView):
             shuffle(shuffled_answers)
 
             data[i]['answers'] = shuffled_answers
+
+        hash = self.getQuizHash(questions, user)
+        # create Quiz Record
+        quizRecordSerializer = QuizRecordSerializer(data={'quiz_hash': hash})
+        if quizRecordSerializer.is_valid(raise_exception=True):
+            quizRecord = quizRecordSerializer.create(quizRecordSerializer.validated_data)
+            quizRecord.save()
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -381,11 +679,21 @@ class QuizView(APIView):
 
         if not self.isLocationValid(data['latitude'], data['longitude'], data['vendor_id']):
             return Response({
-                                "message": "You are not in the correct location to submit a quiz, you need to be on site to submit a quiz (500m from vendor)"},
-                            status=status.HTTP_200_OK)
+                "message": "You are not in the correct location to submit a quiz, you need to be on site to submit a quiz (500m from vendor)"},
+                status=status.HTTP_200_OK)
+
+        # get all question ID's to check if the quiz has actually been issued using Quiz Records
+        questions_ids = [x['question_id'] for x in data['quiz']]
+        hash = self.getQuizHash(questions_ids, user)
+        quiz_record = QuizRecordModel.objects.filter(quiz_hash=hash).first()
+        if not quiz_record:
+            return Response({"message": "You have not been issued a quiz"}, status=status.HTTP_200_OK)
+        else:
+            # delete record from the DB
+            QuizRecordModel.objects.filter(quiz_hash=hash).delete()
 
         quiz = data['quiz']
-        vendor_id = data['vendor_id']
+        bag_group = data['bag_group']
         for question in quiz:
             if 'question_id' and 'answer_id' not in question:
                 return Response({"message": "You need to provide a question_id and an answer_id for each question."},
@@ -400,43 +708,43 @@ class QuizView(APIView):
 
         # get the vendor
         print("Quiz Passed!!!")
-        return self.attempt_claim(vendor_id, user)
+        return self.attempt_claim(bag_group, user)
 
-
-
-    def attempt_claim(self, vendor_id, user):
+    def attempt_claim(self, bag_group, user):
         ## start transaction
         with transaction.atomic():
             try:
 
                 # get the vendor
-                vendor = VendorModel.objects.get(id=vendor_id)
+
                 # get the bag
-                bag = BagModel.objects.filter(vendor=vendor, claimed=False).order_by('-collection_time').first()
+                bag = BagModel.objects.filter(bag_group=bag_group, claimed=False).order_by('-collection_time').first()
                 if not bag:
                     return Response({"message": "No bags to claim"}, status=status.HTTP_418_IM_A_TEAPOT)
                 # create the claim
 
-                claimSerializer = ClaimSerializer(data={'bag': bag.bag_id, 'user': user.id, 'time': datetime.datetime.now()})
+                claimSerializer = ClaimSerializer(
+                    data={'bag': bag.bag_id, 'user': user.id, 'time': datetime.datetime.now()})
                 if claimSerializer.is_valid(raise_exception=True):
                     claim = claimSerializer.create(claimSerializer.validated_data)
                     claim.save()
+
+                    vendor = VendorModel.objects.filter(id=bag.bag_group.vendor.id).first()
+
                     # remove bag from vendor bags_left
                     VendorModel.objects.filter(id=vendor.id).update(bags_left=vendor.bags_left - 1)
                     # update bag to claimed
                     BagModel.objects.filter(bag_id=bag.bag_id).update(claimed=True)
+                    # update group bags_unclaimed
 
-
-
-
-
+                    BagGroupModel.objects.filter(bag_group_id=bag.bag_group.bag_group_id).update(
+                        bags_unclaimed=bag.bag_group.bags_unclaimed - 1)
 
 
                     return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
                 return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({"message": "Error creating claim", "Error": e}, status=status.HTTP_400_BAD_REQUEST)
-
 
     def isLocationValid(self, latitude, longitude, vendor_id):
         vendor = VendorModel.objects.get(id=vendor_id)
@@ -445,11 +753,22 @@ class QuizView(APIView):
         testLocation = LocationModel(latitude=latitude, longitude=longitude)
         return fence.is_inside(testLocation, accuracy=0)
 
+    def getQuizHash(self, questions, user):
+        user_id = user.id
+        # questions and answers are an array of ints
+        # sort lists to be deterministic
+        questions.sort()
+        # concatenate into string
+        questions = ''.join(str(question) for question in questions)
+
+        print("Hashing: " + str(user_id) + questions)
+        return hash((user_id, questions))
 
 
 class ClaimsView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
+
     def get(self, request):
         if not request.user:
             return Response({"message": "You are not logged in"}, status=status.HTTP_403_FORBIDDEN)
@@ -461,24 +780,25 @@ class ClaimsView(APIView):
         serializer = ClaimSerializer(claims, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class CreateClaim(APIView):
-	def post(self, request):
+    def post(self, request):
 
-		user = UserModel.objects.get(username=request.user.username)
-		bag = BagModel.objects.get(bag_id=0)
-		time = datetime.datetime.now()
-		success = True
+        user = UserModel.objects.get(username=request.user.username)
+        bag = BagModel.objects.get(bag_id=0)
+        time = datetime.datetime.now()
+        success = True
 
-		data = {'user': user.id, 'bag': bag.bag_id, 'time': time, 'success': success}
-		print(f"{data} \n")
+        data = {'user': user.id, 'bag': bag.bag_id, 'time': time, 'success': success}
+        print(f"{data} \n")
 
-		serializer = ClaimSerializer(data=data)
+        serializer = ClaimSerializer(data=data)
 
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		else:
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateQuestion(APIView):
@@ -554,7 +874,6 @@ class CreateAdmin(APIView):
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
 
 
-
 class CreateVendor(APIView):
     '''
     Example Vendor:
@@ -576,7 +895,8 @@ class CreateVendor(APIView):
         if request.user.role != "ADMIN":
             return Response({"message": "You are not an admin"}, status=status.HTTP_403_FORBIDDEN)
         if 'latitude' and 'longitude' not in request.data:
-            return Response({"message": "You need to provide a latitude and a longitude"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "You need to provide a latitude and a longitude"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         locationSerializer = LocationSerializer(data=request.data)
         if locationSerializer.is_valid(raise_exception=True):
@@ -589,12 +909,10 @@ class CreateVendor(APIView):
 
             serializer = VendorSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
-
-
-                vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'], password=data['password'], location=location)
+                vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'],
+                                                         password=data['password'], location=location, role="VENDOR")
                 vendor.save()
                 # create location for vendor
-
 
                 VendorModel.objects.filter(id=vendor.id).update(location=location)
 
@@ -606,6 +924,7 @@ class CreateVendor(APIView):
 class CreateTestVendor(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)
+
     def post(self, request):
         username = "vendor"
         password = "bob12345"
@@ -625,6 +944,8 @@ class CreateTestVendor(APIView):
         # VendorModel.objects.filter(id=vendor.id).update(location=location)
         serializer = VendorSerializer(vendor)
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
+
+
 class GeoFenceTest(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)
@@ -642,4 +963,355 @@ class GeoFenceTest(APIView):
 
         return Response({"location1 radius:": location.radius, "distance": distance, "is_inside": is_inside},
                         status=status.HTTP_200_OK)
+
+
 # @allowed_users(allowed_roles=['admin'])
+class AllergenView(APIView):
+    permissions_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request, allergen_id):
+        allergen = AllergenModel.objects.get(allergen_id=allergen_id)
+        serializer = AllergenSerializer(allergen)
+
+        try:
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response({"message": "Error accessing allergen"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteUser(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+
+        if not request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        data = request.data
+        if request.user.role == UserModel.Role.ADMIN:
+            username = data['username']
+            user = UserModel.objects.get(username=username)
+            if user.role == UserModel.Role.VENDOR:
+                user.delete()
+                # Check if user is a vendor if we don't want to be able to delete normal users
+                return Response({"message": "User deleted"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "Admin can only delete vendors"}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = request.data
+        email = data['email']
+        password = data['password']
+        # verify login details
+        user = UserModel.objects.get(email__exact=email)
+        if user.check_password(password):
+            user.delete()
+            return Response({"message": "User deleted"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+          
+
+class VerifyClaim(APIView):
+    '''Takes in claim information and verifies that it exsits
+    {
+    "claim_id" : [Int],
+    "user_id" : [Int]
+    }
+
+
+    '''
+    def post(self, request):
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        data = request.data
+        if 'claim_id' and 'user_id' not in data:
+            return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
+        claim_id = data['claim_id']
+        user_id = data['user_id']
+        claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
+        if not claim:
+            return Response({"message": "Claim does not exist"}, status=status.HTTP_200_OK)
+        return Response({"message": "Claim exists"}, status=status.HTTP_200_OK)
+
+
+
+
+class ClaimClaim(APIView):
+    '''Takes in claim information and claims the claim
+    {
+    "claim_id" : [Int],
+    "user_id" : [Int]
+    }
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+
+        user = request.user
+        if user.role != UserModel.Role.VENDOR:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        data = request.data
+        if 'claim_id' and 'user_id' not in data:
+            return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
+        claim_id = data['claim_id']
+        user_id = data['user_id']
+        claim = ClaimModel.objects.filter(claim_id=claim_id, user_id=user_id).first()
+        if not claim:
+            return Response({"message": "Claim does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        claim.success = True
+        claim.save()
+        return Response({"message": "Claim successful"}, status=status.HTTP_200_OK)
+
+
+class DeleteBags(APIView):
+
+    """
+    Example JSON:
+    {
+        "bag_group_id": [11,7,3,...]
+    }
+    """
+
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        if request.user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
+
+        data = request.data
+        # Data is list of ids to delete
+        vendor = request.user
+        group = BagGroupModel.objects.filter(vendor=vendor.id)
+        # Check that vendor owns the bag groups
+        if vendor.id == group.bag_group_id:
+            for bagsId in data:
+                BagGroupModel.objects.filter(bag_group_id=bagsId).delete()
+
+        BagGroupModel.objects.filter(bag_group_id=group.bag_group_id).update(bags_unclaimed=group.bags_unclaimed - len(data))
+
+
+# Get bag groups
+class GetBagGroups(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request, group_id):
+        if request.user.role != UserModel.Role.VENDOR:
+            return Response({"message": "You are not a vendor"}, status=status.HTTP_403_FORBIDDEN)
+
+        group = BagGroupModel.objects.filter(bag_group_id=group_id)
+        serializer = BagGroupSerializer(group, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UploadImageView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+    """
+    Post
+    {'vendorid': [Int]
+    'name': [String]
+    'type': [String] banner or icon
+    'image': [String]
+    }
+    make sure that image is a base64_encoded_image string
+    """
+    def post(self, request):
+        #=request.vendor.vendor_id) add later
+        # Retrieve vendor based on ID
+        if (request.user.role != UserModel.Role.VENDOR) or UserModel.Role.ADMIN:
+            return Response({"message": "You are not a vendor or admin"},status=status.HTTP_403_FORBIDDEN)
+        # checked vendor id sent is the same as vendor logged in
+        elif request.user.role == UserModel.Role.VENDOR:
+            try:
+                vendor = VendorModel.objects.get(id=request.data.get('vendor_id'))
+                if not (request.user.id == vendor.id):
+                    return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
+            except VendorModel.DoesNotExist:
+                return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        vendor_id = request.data.get("vendor_id")
+
+        try:
+            vendor = VendorModel.objects.get(id=vendor_id)
+        except VendorModel.DoesNotExist:
+            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Decode and save the image
+        image_data = request.data["image"]
+        image_filename = f"{vendor.username}_{request.data['type']}.jpg"
+        image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
+
+        # check if path exists
+        if os.path.exists(image_path):
+            return Response({'error': 'File already exists please delete before you update your image'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Prepare data for serialization
+        data = {'vendor_id': vendor_id, 'name': image_filename, 'image_url': image_path}
+
+        # Serialize and save data + image
+        serializer = ImageSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            try:
+                # Decode and save image
+                decoded_image_data = base64.b64decode(image_data)
+                image_stream = io.BytesIO(decoded_image_data)
+                image = PIL.Image.open(image_stream)
+                # Convert the image to RGB mode (remove alpha channel)
+                image = image.convert("RGB")
+                image.save(image_path)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Image uploaded successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class DeleteImageView(APIView):
+    """
+    Post
+    {
+    vendor_id
+    name
+    """
+    def post(self, request, image_name):
+
+        # Split the filename string using '_' as a delimiter and get the first part
+        vendor_username = image_name.split('_')[0]
+
+        if (request.user.role != UserModel.Role.VENDOR) or UserModel.Role.ADMIN:
+            return Response({"message": "You are not a vendor or admin"},status=status.HTTP_403_FORBIDDEN)
+        # Check so vendors cannot delete other vendors images
+        elif request.user.role == UserModel.Role.VENDOR:
+            try:
+                vendor = VendorModel.objects.get(id=request.data.get('vendor_id'))
+                if not (vendor_username == vendor.username):
+                    return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
+            except VendorModel.DoesNotExist:
+                return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            image = ImageModel.objects.get(name=image_name)
+        except ImageModel.DoesNotExist:
+            return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if image:
+            # Delete the associated image file
+            os.remove(image.image_url)
+
+            # Delete the ImageModel instance from the database
+            image.delete()
+            return Response({"message": "Image deleted"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+def send_verification_email(request, user):
+    email_verification, created = EmailVerification.objects.get_or_create(user=user)
+    if not email_verification.is_verified:
+        token = email_verification.token
+        verification_link = request.build_absolute_uri('verify_email/') + token + '/'
+        subject = "Verify your email address"
+        message = render_to_string('verification_email.html', {'verification_link': verification_link})
+        send_mail(subject, message, "noreply@ecogo.com", [user.email], fail_silently=False)
+        return Response("Verification email sent.")
+    return Response("Email already verified.")
+
+
+def verify_email(request, token):
+    try:
+        email_verification = EmailVerification.objects.get(token=token)
+    except EmailVerification.DoesNotExist:
+        return Response("Invalid verification link.")
+
+    if email_verification.is_verified:
+        return Response("Email already verified.")
+
+    email_verification.is_verified = True
+    email_verification.save()
+    return Response("Email verified successfully.")
+
+def getimage(request, image_name):
+    # Construct the absolute path to the image
+    absolute_image_path = os.path.join(settings.MEDIA_ROOT, image_name)
+
+    # Check if the file exists
+    if os.path.exists(absolute_image_path):
+        # Open the file in binary mode
+        with open(absolute_image_path, 'rb') as f:
+            # Read the file data
+            image_data = f.read()
+
+        # Determine the content type based on the file extension
+        content_type = 'image/jpeg' if image_name.endswith('.jpg') else 'image/png'
+
+        # Return the image data with the appropriate content type
+        return HttpResponse(image_data, content_type=content_type)
+    else:
+        # Return 404 if the file does not exist
+        return Response({"message": "Image not found"},status=404)
+
+class UpdateUser(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+    '''
+    Example post request with "new" fields being denoted by "new_" + fieldName: 
+    {
+        "email" : "bob@exeter.ac.uk",
+        "password" : "bob12345",
+        "username" : "bob",
+        "new_first_name" : "new Name",
+        "new_last_name" : "New Last Name"
+}'''
+
+    def post(self, request):
+        if not request.user:
+            return Response({"message": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data
+        user = request.user
+        ## validateUpdateUser(data)
+
+        ## validate email password
+        password = data['password']
+        user = UserModel.objects.get(email__exact=user.email)
+        if not user.check_password(password):
+            return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        keySet = set(data.keys())
+        updateFields = {}
+        for key in keySet:
+            if key.startswith("new_"):
+                field = key[4:]
+                # Cannot change Email because impossible to have 2 exeter emails
+                if field == 'email':
+                    return Response({"message": "You cannot change your email address"}, status=status.HTTP_400_BAD_REQUEST)
+                updateFields[field] = data[key]
+
+        for field in updateFields:
+            # Get the new value for the field from the data dictionary
+            new_value = data[f'new_{field}']
+            if field == 'password':
+                user.set_password(new_value)
+            else:
+                # Update the user object's attribute with the new value
+                setattr(user, field, new_value)
+
+        # performs bulk update on fields
+        user.save()
+
+        return Response({"message": f"The following fields have been updated: {updateFields}"},
+                                status=status.HTTP_200_OK)
+
+
+
+def parse_allergens(data):
+    allergendict = {}
+    for key in data:
+        if key in ['vegan', 'vegetarian','milk', 'eggs', 'fish', 'crustacean', 'tree_nuts', 'peanuts', 'wheat', 'soybeans', 'sesame']:
+            allergendict[key] = data[key]
+    return allergendict
+
+
+

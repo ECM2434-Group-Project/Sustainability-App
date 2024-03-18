@@ -45,7 +45,7 @@ export default function Quiz() {
     }, []);
 
     useEffect(() => {
-        if (answers.length !== 2) {
+        if (answers.length !== 3) {
             return;
         }
         const req = {
@@ -54,7 +54,8 @@ export default function Quiz() {
             vendor_id: location.state.vendorID,
             quiz: [
                 {question_id: questions[0].question_id, answer_id: answers[0]},
-                {question_id: questions[1].question_id, answer_id: answers[1]}
+                {question_id: questions[1].question_id, answer_id: answers[1]},
+                {question_id: questions[2].question_id, answer_id: answers[2]}
             ]
         }
         console.log(JSON.stringify(req));
@@ -78,52 +79,83 @@ export default function Quiz() {
     if (questions.length === 0) {
         return <div>Loading...</div>
     }
-    return page === 0 ? (
-        <div className="flex flex-col justify-between h-full p-4">
-                <div className="flex flex-col gap-4">
-                    <div>
-                        <h1 className="text-2xl font-semibold">Quiz</h1>
-                        <p>{questions[0] ? questions[0].question : "not yet loaded in"}</p>
+    if (page === 0) {
+        return (
+            <div className="flex flex-col justify-between h-full p-4">
+                    <div className="flex flex-col gap-4">
+                        <div>
+                            <h1 className="text-2xl font-semibold">Quiz</h1>
+                            <p>{questions[0] ? questions[0].question : "not yet loaded in"}</p>
+                        </div>
+    
+                        {
+                            questions[0] ? (
+                                questions[0].answers.map((answer, index) => (
+                                    <AnswerButton key={answer.answer_id} index={answer.answer_id}  selected={selected} answer={answer.answer} setSelected={setSelected}/>
+                                ))
+                            ) : (
+                                <>not loaded in yet</>
+                            )
+                        }
                     </div>
-
-                    {
-                        questions[0] ? (
-                            questions[0].answers.map((answer, index) => (
-                                <AnswerButton key={answer.answer_id} index={answer.answer_id}  selected={selected} answer={answer.answer} setSelected={setSelected}/>
-                            ))
-                        ) : (
-                            <>not loaded in yet</>
-                        )
-                    }
-                </div>
-
-                <div>
-                    <NextQuizButton disabled={!selected} setPage={setPage} setAnswer={setAnswers} answer={selected}/>
-                </div>
-        </div>
-            
-    ) : (
-        <div className="flex flex-col justify-between h-full p-4">
-                <div className="flex flex-col gap-4">
+    
                     <div>
-                        <h1 className="text-2xl font-semibold">Quiz</h1>
-                        <p>{questions[1] ? questions[1].question : "not yet loaded in"}</p>
+                        <NextQuizButton disabled={!selected} setPage={setPage} setAnswer={setAnswers} answer={selected}/>
                     </div>
-
-                    {
-                        questions[1] ? (
-                            questions[1].answers.map((answer, index) => (
-                                <AnswerButton key={answer.answer_id} index={answer.answer_id} selected={selected} answer={answer.answer} setSelected={setSelected} />
-                            ))
-                        ) : (
-                            <>not loaded in yet</>
-                        )
-                    }
-                </div>
-
-                <div>
-                    <SubmitButton disabled={!selected} setAnswer={setAnswers} answer={selected}/>
-                </div>
-        </div>
-    )
+            </div>
+                
+        )
+    } else if (page === 1) {
+        return (
+            <div className="flex flex-col justify-between h-full p-4">
+                    <div className="flex flex-col gap-4">
+                        <div>
+                            <h1 className="text-2xl font-semibold">Quiz</h1>
+                            <p>{questions[1] ? questions[1].question : "not yet loaded in"}</p>
+                        </div>
+    
+                        {
+                            questions[1] ? (
+                                questions[1].answers.map((answer, index) => (
+                                    <AnswerButton key={answer.answer_id} index={answer.answer_id}  selected={selected} answer={answer.answer} setSelected={setSelected}/>
+                                ))
+                            ) : (
+                                <>not loaded in yet</>
+                            )
+                        }
+                    </div>
+    
+                    <div>
+                        <NextQuizButton disabled={!selected} setPage={setPage} setAnswer={setAnswers} answer={selected}/>
+                    </div>
+            </div>
+                
+        )
+    } else if (page === 2) {
+        return (
+            <div className="flex flex-col justify-between h-full p-4">
+                    <div className="flex flex-col gap-4">
+                        <div>
+                            <h1 className="text-2xl font-semibold">Quiz</h1>
+                            <p>{questions[2] ? questions[2].question : "not yet loaded in"}</p>
+                        </div>
+    
+                        {
+                            questions[2] ? (
+                                questions[2].answers.map((answer, index) => (
+                                    <AnswerButton key={answer.answer_id} index={answer.answer_id} selected={selected} answer={answer.answer} setSelected={setSelected} />
+                                ))
+                            ) : (
+                                <>not loaded in yet</>
+                            )
+                        }
+                    </div>
+    
+                    <div>
+                        <SubmitButton disabled={!selected} setAnswer={setAnswers} answer={selected}/>
+                    </div>
+            </div>
+        )
+    }
+     
 }

@@ -3,6 +3,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
 
 from django.db.models import Choices
+from django.utils.crypto import get_random_string
 
 
 class UserModel(AbstractUser, PermissionsMixin):
@@ -40,12 +41,9 @@ class UserModel(AbstractUser, PermissionsMixin):
         permissions = [
             # Assign default permissions
         ]
-
+    # todo: if issues arise re add custom save function
     # Overrides save method to set base_role to the default value
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.role = self.base_role
-            return super().save(*args, **kwargs)
+
 
 class LocationModel(models.Model):
     """Model for storing locations of vendors"""
@@ -119,17 +117,43 @@ class AdminModel(UserModel):
         return (f'username: {self.username}, email: {self.email}, role: {self.role}'
                 f', permission_level: {self.permission_level}')
 
+class AllergenModel(models.Model):
+    '''Model for the Allergens'''
+    allergen_id = models.AutoField(primary_key=True)
+    vegan = models.BooleanField(default=False)
+    vegetarian = models.BooleanField(default=False)
+    milk = models.BooleanField(default=False)
+    eggs = models.BooleanField(default=False)
+    fish = models.BooleanField(default=False)
+    crustacean = models.BooleanField(default=False)
+    tree_nuts = models.BooleanField(default=False)
+    peanuts = models.BooleanField(default=False)
+    wheat = models.BooleanField(default=False)
+    soybeans = models.BooleanField(default=False)
+    sesame = models.BooleanField(default=False)
+
+
+    def __str__(self):
+        """Return string representation of the Allergens"""
+        return f'allergen_id: {self.allergen_id}, vegan: {self.vegan}, vegetarian: {self.vegetarian} milk: {self.milk}, eggs: {self.eggs}, fish: {self.fish}, crustacean: {self.crustacean}, tree_nuts: {self.tree_nuts}, peanuts: {self.peanuts}, wheat: {self.wheat}, soybeans: {self.soybeans}, sesame: {self.sesame}'
+class BagGroupModel(models.Model):
+    '''Model for the BagGroups'''
+    bag_group_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=128)
+    vendor = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
+    allergen = models.ForeignKey(AllergenModel, on_delete=models.CASCADE)
+    bags_unclaimed = models.IntegerField(default=0) # no default, this must be set
 
 class BagModel(models.Model):
     """Model for the Bags"""
     bag_id = models.AutoField(primary_key=True)
+    bag_group = models.ForeignKey(BagGroupModel, on_delete=models.CASCADE)
     collection_time = models.DateTimeField()
-    vendor = models.ForeignKey(VendorModel, on_delete=models.CASCADE)
     claimed = models.BooleanField(default=False)
 
     def __str__(self):
         """Return string representation of the Bags"""
-        return f'id: {self.bag_id}, time: {self.collection_time}, vendor_id: {self.vendor}, claimed: {self.claimed}'
+        return f'id: {self.bag_id}, time: {self.collection_time}, claimed: {self.claimed}, allergen_id: {self.bag_group.allergen.allergen_id}'
 
 
 class ClaimModel(models.Model):
@@ -172,3 +196,24 @@ class AnswerModel(models.Model):
         """Return string representation of the answers"""
         return f'answer_id: {self.answer_id}, answer: {self.answer}, is_correct: {self.is_correct}, question_id: {self.answer_id}'
 
+class QuizRecordModel(models.Model):
+    """Model to record active quiz by hash"""
+    quiz_record_id = models.AutoField(primary_key=True)
+    quiz_hash = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class EmailVerification(models.Model):
+    user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
+    token = models.CharField(max_length=100, unique=True)
+    is_verified = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            self.token = get_random_string(length=32)
+        super().save(*args, **kwargs)
+
+class ImageModel(models.Model):
+    id = models.AutoField(primary_key=True)
+    vendor_id = models.OneToOneField(VendorModel, on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=128, default='your_default_value')
+    image_url = models.CharField(max_length=128, default='your_default_value')
