@@ -1,4 +1,4 @@
-import { useEffect, useState, useNavigate } from "react";
+import { useEffect, useState } from "react";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { VendorItem } from "../../components/Admin/VendorItem";
 import { Popup } from "../../components/General/Popup";
@@ -6,6 +6,7 @@ import { useUser } from "../../contexts/userContext";
 import { NotAdmin } from "../../components/Admin/NotAdmin";
 import { client } from '../../axios'
 import { NotLoggedIn } from "../../components/General/NotLoggedIn";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminPage() {
 
