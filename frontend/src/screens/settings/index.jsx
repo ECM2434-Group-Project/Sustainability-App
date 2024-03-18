@@ -1,21 +1,22 @@
 import { Link, useNavigate } from "react-router-dom";
-import { UserAvatar } from "../../components/User/UserAvatar";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { useUser } from "../../contexts/userContext";
+import React from "react"
 
 
-export function SettingsPage() {
+export function SettingsPage(params, props) {
 
     const nav = useNavigate();
 
-    const { user, logout } = useUser()
     
+
+    const { user, logout } = useUser();
 
     return (
         <section className="p-4 flex flex-col gap-8">
 
-            <GoBackLink href={"/outlet"} />
+            <GoBackLink />
 
             <div className="flex flex-col gap-4">
                 {/* <UserAvatar large={true} /> */}
@@ -31,13 +32,19 @@ export function SettingsPage() {
 
                 <div className="flex flex-col gap-4 pb-32">
 
-                    <Link to={"/settings/change-password"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change password</Link>
+                    <Link to={"/settings/change-password"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change Password</Link>
 
-                    <Link to={"/settings/change-name"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change name</Link>
+                    <Link to={"/settings/change-username"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change Username</Link>
 
-                    <Link to={"/settings/change-name"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Leaderboard</Link>
+                    <Link to={"/leaderboard"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Leaderboard</Link>
 
                     <Link to={"/view-claim"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Claims</Link>
+
+                    <Link to={"/privacy-policy"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Privacy Policy</Link>
+
+                    <Link to={"/terms-and-conditions"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Terms and Conditions</Link>
+
+                    <Link to={"/delete-account"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-white bg-red-600">Delete account</Link>
 
                 </div>
 

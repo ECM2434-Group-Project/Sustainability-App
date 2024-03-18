@@ -665,11 +665,7 @@ class LeaderboardView(APIView):
                 userdata = {"username" : user.username, "score" : user.score}
                 returndata.append(userdata)
             # Include the user in the leaderboard data if not already present
-
         return Response({'leaderboard': returndata, 'user_rank': user_rank}, status=status.HTTP_200_OK)
-
-
-
 
 class WebsiteUserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -1013,7 +1009,7 @@ class CreateVendor(APIView):
             serializer = VendorSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
                 vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'],
-                                                         password=data['password'], location=location, role="VENDOR")
+                                                         password=data['password'], location=location, role="VENDOR", first_name=data['first_name'])
                 vendor.save()
                 # create location for vendor
 

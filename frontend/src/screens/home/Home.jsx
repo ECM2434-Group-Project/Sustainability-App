@@ -4,9 +4,10 @@ import { StandoutButton } from "../../components/General/StandoutButton";
 import { MdLocationOn } from "react-icons/md";
 
 import { UserClaimView } from "../../components/User/UserClaimView";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
 import { client } from "../../axios";
+import GDPR from "../../components/General/GDPR";
 
 // Based on state passed in which contains if logged in or not, display the home page with a login and register button
 
@@ -110,6 +111,13 @@ export default function Home() {
                         <br />
 
                         <div className="text-center">
+                            <div className="flex justify-center">
+                                <img
+                                    src="/logo.jpeg"
+                                    alt="RePlate"
+                                    className="w-128 h-64 object-cover rounded-full"
+                                />
+                            </div>
                             <h1
                                 className="text-4xl font-semibold text-gray-700"
                             >Welcome!</h1>
@@ -126,6 +134,7 @@ export default function Home() {
                     </>
                 )
             }
+            <GDPR />
         </section>
     )
 }

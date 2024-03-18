@@ -1,15 +1,11 @@
-import { useUser } from "../../contexts/userContext"
 import { OutletCard } from "../../components/Dashboard/OutletCard";
 import { OnCampusIndicator } from "../../components/Dashboard/OnCampusIndicator";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { GoBackLink } from "../../components/General/GoBackLink";
-
 import { useState, useCallback, useEffect } from "react";
 import { client } from "../../axios";
 
 export function VendorPage() {
-
-	const { user, locationVerified } = useUser()
 
 	const [outlets, setOutlets] = useState([]);
 

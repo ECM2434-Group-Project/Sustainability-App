@@ -1,0 +1,103 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: popupContainerEnter 0.4s forwards;
+}
+
+.containerSmall {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: popupContainerEnter 0.4s forwards;
+}
+
+.containerLarge {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: popupContainerEnter 0.4s forwards;
+}
+
+.popup {
+    position: relative;
+    background-color: var(--default-fg-colour);
+    padding: 30px;
+    border-radius: 15px;
+    max-height: 100%;
+    margin: auto;
+    box-shadow: var(--default-box-shadow);
+    overflow-y: auto;
+    animation: popupEnter 0.4s forwards;
+}
+
+.container .popup {
+    max-width: 600px;
+}
+
+.containerSmall .popup {
+    max-width: 350px;
+}
+
+.containerLarge .popup {
+    max-width: 850px;
+}
+
+.close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    border: none;
+    font-size: 1.2rem;
+    width: 2rem;
+    height: 2rem;
+    transition: 0.2s;
+}
+
+.close:hover {
+    background-color: rgb(240, 240, 240);
+}
+
+@keyframes popupEnter {
+    from {
+        opacity: 0;
+        transform: translateY(35px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes popupContainerEnter {
+    from {
+        background-color: rgba(0, 0, 0, 0);
+    }
+    to {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+}

@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TextInput } from "../../components/General/TextInput";
 import { useUser } from "../../contexts/userContext";
+import GDPR from "../../components/General/GDPR";
 
 
 
@@ -16,7 +17,7 @@ export default function Login() {
 
 	const [error, setError] = useState();
 
-	const { user, login } = useUser();
+	const { user, login, refreshUser } = useUser();
 
 	const nav = useNavigate()
 
@@ -39,6 +40,10 @@ export default function Login() {
 		},
 		[error, email, password]
 	);
+
+	// useEffect(() => {
+	// 	refreshUser();
+	// }, []);
 
 	return !user ? (
 		<div className="h-screen flex flex-col justify-center p-4 bg-exeterDeepGreen text-white gap-6">
@@ -87,6 +92,7 @@ export default function Login() {
 					</Link>
 				</small>
 			</div>
+			<GDPR />
 		</div>
 	) : (
 		<section className="p-4 text-center flex flex-col items-center">
