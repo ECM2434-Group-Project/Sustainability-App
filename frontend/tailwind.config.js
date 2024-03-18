@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -17,8 +18,8 @@ module.exports = {
         exeterLightRed: "#f9423a",
         exeterBlue: "#0097b2",
         exeterDimRed: "#9f1717"
+      }
     },
-  },
-  plugins: [],
+    plugins: []
+  }
 }
-
