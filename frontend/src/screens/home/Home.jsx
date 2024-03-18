@@ -70,7 +70,7 @@ export default function Home() {
                                     <div>
                                         <h1
                                             className="text-4xl font-semibold text-gray-700"
-                                        >Welcome back, {user.username}</h1>
+                                        >Welcome back, {user?.first_name}</h1>
                                     </div>
                 
                                     {

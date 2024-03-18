@@ -19,7 +19,6 @@ import VendorAdminScreen from './screens/vendor-admin/VendorAdminScreen';
 import { VendorLoginPage } from './screens/vendor-admin/login/VendorLoginPage';
 import { VendorScanPage } from './screens/vendor-admin/scan/VendorScanPage';
 import { VendorSettingsPage } from './screens/vendor-admin/settings/VendorSettingsPage';
-import { VendorAccountDetails } from './screens/vendor-admin/settings/details/VendorAccountDetails';
 import { VendorChangePassword } from './screens/vendor-admin/settings/change-password/VendorChangePassword';
 import ChangeUsername from './screens/change-username';
 import ChangePassword from './screens/change-password';
@@ -29,6 +28,8 @@ import CreateVendorPage from './screens/create-vendor';
 import PrivacyPolicy from './screens/privacy-policy';
 import TermsAndConditions from './screens/terms-and-conditions';
 import DeleteAccount from './screens/delete-account';
+import { VendorAccountImages } from './screens/vendor-admin/settings/images/VendorAccountDetails';
+import { VendorChangeName } from './screens/vendor-admin/settings/change-name';
 function App() {
 
 	// Create a home page that has two buttons, one for login and one for register which navigate to the respective pages
@@ -55,8 +56,9 @@ function App() {
 				<Route path="/vendor-admin/login" element={<VendorLoginPage />} />
 				<Route path="/vendor-admin/scan" element={<VendorScanPage />} />
 				<Route path="/vendor-admin/settings" element={<VendorSettingsPage />} />
-				<Route path="/vendor-admin/settings/details" element={<VendorAccountDetails />} />
+				<Route path="/vendor-admin/settings/images" element={<VendorAccountImages />} />
 				<Route path="/vendor-admin/settings/change-password" element={<VendorChangePassword />} />
+				<Route path="/vendor-admin/settings/change-name" element={<VendorChangeName />} />
 				<Route path="/settings/change-username" element={<ChangeUsername />} />
 				<Route path="/settings/change-password" element={<ChangePassword />} />
 				<Route path="/privacy-policy" element={<PrivacyPolicy />} />
