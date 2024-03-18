@@ -44,7 +44,7 @@ export function UserClaimView() {
                                             </h3>
                                         </div>
             
-                                        <h4>You have a bag waiting</h4>
+                                        <h4>You have a {c.bag_group_name} bag waiting from {c.vendor_name}</h4>
             
                                         <p>You claimed this bag at {new Date(c.time).toLocaleTimeString()} on {new Date(c.time).toLocaleDateString()}</p>
                                         
