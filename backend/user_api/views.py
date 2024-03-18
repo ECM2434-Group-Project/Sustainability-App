@@ -170,7 +170,7 @@ class VendorsView(APIView):
         data = []
         for vendor in vendors:
             location = vendor.location
-            data.append({"id": vendor.id, "username": vendor.username, "latitude": location.latitude,
+            data.append({"id": vendor.id,"first_name":vendor.first_name, "username": vendor.username, "latitude": location.latitude,
                          "longitude": location.longitude, "bags_left": vendor.bags_left})
 
         return Response(data, status=status.HTTP_200_OK)
@@ -968,12 +968,20 @@ class GeoFenceTest(APIView):
 
 # @allowed_users(allowed_roles=['admin'])
 class AllergenView(APIView):
+    """
+    "/api/allergen/<int:group_id>"
+    Returns an allergen from the group id
+    """
     permissions_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
-    def get(self, request, allergen_id):
-        allergen = AllergenModel.objects.get(allergen_id=allergen_id)
-        serializer = AllergenSerializer(allergen)
+    def get(self, request, group_id):
+        try:
+            allergen_id = BagGroupModel.objects.get(bag_group_id=group_id).allergen.allergen_id
+            allergen = AllergenModel.objects.get(allergen_id=allergen_id)
+            serializer = AllergenSerializer(allergen)
+        except:
+            return Response({"message": f"Group {group_id} Does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
 
