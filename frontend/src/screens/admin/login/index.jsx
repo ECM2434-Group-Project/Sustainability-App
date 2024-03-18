@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { TextInput } from "../../components/General/TextInput";
-import { useUser } from "../../contexts/userContext";
+import { TextInput } from "../../../components/General/TextInput";
+import { useUser } from "../../../contexts/userContext";
 
 
 

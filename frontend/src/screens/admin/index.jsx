@@ -68,11 +68,19 @@ export default function AdminPage() {
 						<div className="flex justify-between sticky top-0 bg-white pb-2 pt-2">
 							<div className="flex justify-between w-full pr-36">
 								<h1 className="font-extrabold text-4xl p-2 b-0 m-0">Welcome Admin</h1>
-								<button className="bg-exeterBlue pl-6 pr-6 pt-4 pb-4 rounded-lg" onClick={() => {
-									nav("/admin/create-vendor")
-								}}>
-									Create Vendor
-								</button>
+								<div className="flex gap-10">
+									<button className="bg-exeterBlue pl-6 pr-6 pt-4 pb-4 rounded-lg" onClick={() => {
+										nav("/admin/create-question")
+									}}>
+										Manage Questions
+									</button>
+									<button className="bg-exeterBlue pl-6 pr-6 pt-4 pb-4 rounded-lg" onClick={() => {
+										nav("/admin/create-vendor")
+									}}>
+										Create Vendor
+									</button>
+								</div>
+								
 							</div>
 
 
