@@ -1253,6 +1253,10 @@ def getimage(request, image_name):
     # Construct the absolute path to the image
     absolute_image_path = os.path.join(settings.MEDIA_ROOT, image_name)
 
+    # Check if the absolute path starts with MEDIA_ROOT to prevent directory traversal
+    if not absolute_image_path.startswith(settings.MEDIA_ROOT):
+        return HttpResponse({"Error": "Invalid image path"}, status=status.HTTP_400_BAD_BAD_REQUEST)
+
     # Check if the file exists
     if os.path.isfile(absolute_image_path):
         # Open the file in binary mode
