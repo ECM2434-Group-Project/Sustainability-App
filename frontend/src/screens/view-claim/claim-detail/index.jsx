@@ -16,6 +16,8 @@ export function ClaimDetailPage() {
     const { user } = useUser();
 
     const [claimData, setClaimData] = useState({});
+    const [bagData, setBagData] = useState({});
+    const [bagGroupData, setBagGroupData] = useState({});
 
     // FETCH THIS CLAIM'S INFO
     useEffect(() => {
@@ -23,11 +25,23 @@ export function ClaimDetailPage() {
             for (const c of response.data) {
                 if (c.claim_id === parseInt(claim)) {
                     setClaimData(c);
+                    client.get("/api/bags").then((response) => {
+                        for (let i = 0; i < response.data.length; i++) {
+                            if (response.data[i].bag_id === c.bag) {
+                                setBagData(response.data[i]);
+                                return;
+                            }
+                        }
+                    });
                     return;
                 }
             }
         });
     }, []);
+
+    // useEffect(() => {
+        
+
 
 	if (claimData.claim_id === undefined) {
         return (
@@ -47,7 +61,7 @@ export function ClaimDetailPage() {
                     <GoBackLink href={"/view-claim"} />
                 </div>
 
-                <h1 className="text-2xl font-semibold">Your claim {claimData.claim_id}</h1>
+                <h1 className="text-2xl font-semibold">Your claim</h1>
 
                 <p className="text-gray-600">{new Date(claimData.time).toLocaleTimeString()} on {new Date(claimData.time).toLocaleDateString()}</p>
 
@@ -58,6 +72,10 @@ export function ClaimDetailPage() {
                     })}/>,
                 </div>
 
+                <div className="flex flex-col gap-4">
+                    <h2 className="text-2xl font-semibold">Bag details</h2>
+                    <p>Collect your bag at {new Date(bagData.collection_time).toLocaleTimeString()} on {new Date(bagData.collection_time).toLocaleDateString()}</p>
+                    </div>
             </div>
         );
     }

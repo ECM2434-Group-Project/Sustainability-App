@@ -79,7 +79,7 @@ class BagSerializer(serializers.ModelSerializer):
 class BagGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = BagGroupModel
-        fields = ('bag_group_id', 'vendor', 'allergen', 'bags_unclaimed')
+        fields = ('bag_group_id', 'vendor', 'allergen', 'bags_unclaimed', 'name')
 
 class AllergenSerializer(serializers.ModelSerializer):
     class Meta:
