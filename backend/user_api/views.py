@@ -1024,7 +1024,7 @@ class AllergenView(APIView):
 
         try:
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"group_name": BagGroupModel.objects.get(bag_group_id=group_id).name, "allergen_data": serializer.data}, status=status.HTTP_200_OK)
         except:
             return Response({"message": "Error accessing allergen"}, status=status.HTTP_400_BAD_REQUEST)
 
