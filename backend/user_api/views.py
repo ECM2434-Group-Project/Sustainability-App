@@ -6,6 +6,8 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
+from django.db.models import F, Window
+from django.db.models.functions import Rank
 
 from .decorators import allowed_users
 from .models import UserModel, VendorModel, AdminModel, LocationModel, BagGroupModel, AllergenModel, QuizRecordModel, \
@@ -542,14 +544,93 @@ class UsersBagView(APIView):
         return Response({'bags': serializer.data}, status=status.HTTP_200_OK)
 
 
+
+
+
+
+
 class QuestionsView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
     def get(self, request):
+        if request.user.role != UserModel.Role.ADMIN:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         questions = QuestionModel.objects.all()
-        serializer = QuestionsSerializer(questions, many=True)
-        return Response({'questions': serializer.data}, status=status.HTTP_200_OK)
+
+        returndata = {"questions": []}
+
+        for question in questions:
+            qdata = {}
+            questionserializer = QuestionsSerializer(question)
+            answers = AnswerModel.objects.filter(question_id=question.pk)
+            qdata["question"] = questionserializer.data
+            answersserializer = AnswerSerializer(answers, many=True)
+            qdata["answers"] = answersserializer.data
+            returndata["questions"].append(qdata)
+
+
+
+        return Response(returndata, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        """
+        {
+        "question_id" : [Int],
+        "new_text" : [String]
+        }
+        or
+        {
+        "answer_id" : [Int],
+        "new_text" : [String],
+        "is_correct" : [Boolean] (Optional, Will stay the same if not provided)
+        }
+        or
+        {
+        "delete" : [boolean],
+        "question_id" : [Int]
+        or
+        "answer_id" : [Int]
+        }
+        """
+        if request.user.role != UserModel.Role.ADMIN:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        if ('question_id' not in request.data) and ('answer_id' not in request.data):
+            return Response({"message" : "Invalid Selector"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if ('new_text' not in request.data) and ('delete' not in request.data):
+            return Response({"message" : "Invalid Type"}, status=status.HTTP_400_BAD_REQUEST)
+        if 'delete' in request.data:
+            if request.data['delete']:
+                if 'question_id' in request.data:
+                    question = QuestionModel.objects.filter(question_id=request.data['question_id']).first()
+                    question.delete()
+                    return Response({"message" : f"Question {question.pk} deleted"}, status=status.HTTP_200_OK)
+                elif 'answer_id' in request.data:
+                    answer = AnswerModel.objects.filter(answer_id=request.data['answer_id']).first()
+                    answer.delete()
+                    return Response({"message" : f"Answer {answer.pk} deleted"}, status=status.HTTP_200_OK)
+            return Response({"message" : "Nothing deleted, There was some sort of error"}, status=status.HTTP_200_OK)
+        elif 'question_id' in request.data:
+            question = QuestionModel.objects.filter(question_id=request.data['question_id']).first()
+            question.question = request.data['new_text']
+            question.save()
+            return Response({"message" : f"Question {question.pk} updated"}, status=status.HTTP_200_OK)
+        elif 'answer_id' in request.data:
+            answer = AnswerModel.objects.filter(answer_id=request.data['answer_id']).first()
+            answer.answer = request.data['new_text']
+            if 'is_correct' in request.data:
+                answer.is_correct = request.data['is_correct']
+            answer.save()
+            return Response({"message" : f"Answer {answer.pk} updated"}, status=status.HTTP_200_OK)
+
+        return Response({"message" : "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
 
 
 class LeaderboardView(APIView):
@@ -584,7 +665,6 @@ class LeaderboardView(APIView):
                 userdata = {"username" : user.username, "score" : user.score}
                 returndata.append(userdata)
             # Include the user in the leaderboard data if not already present
-
         return Response({'leaderboard': returndata, 'user_rank': user_rank}, status=status.HTTP_200_OK)
 
 class WebsiteUserView(APIView):
@@ -687,11 +767,11 @@ class QuizView(APIView):
             return Response({"message": "You are not a user, you cannot submit a quiz"},
                             status=status.HTTP_403_FORBIDDEN)
 
-        if 'quiz' and 'vendor_id' not in request.data:
+        if 'quiz' not in request.data and 'vendor_id' not in request.data:
             return Response({"message": "You need to provide a quiz and a vendor_id"},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if 'latitude' and 'longitude' not in request.data:
+        if 'latitude' not in request.data and 'longitude' not in request.data:
             return Response({"message": "You need to provide a latitude and a longitude"},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -913,7 +993,7 @@ class CreateVendor(APIView):
     def post(self, request):
         if request.user.role != "ADMIN":
             return Response({"message": "You are not an admin"}, status=status.HTTP_403_FORBIDDEN)
-        if 'latitude' and 'longitude' not in request.data:
+        if 'latitude' not in request.data and 'longitude' not in request.data:
             return Response({"message": "You need to provide a latitude and a longitude"},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -1054,7 +1134,7 @@ class VerifyClaim(APIView):
         if user.role != UserModel.Role.VENDOR:
             return Response(status=status.HTTP_403_FORBIDDEN)
         data = request.data
-        if 'claim_id' and 'user_id' not in data:
+        if 'claim_id' not in data and 'user_id' not in data:
             return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
         claim_id = data['claim_id']
         user_id = data['user_id']
@@ -1084,7 +1164,7 @@ class ClaimClaim(APIView):
         if user.role != UserModel.Role.VENDOR:
             return Response(status=status.HTTP_403_FORBIDDEN)
         data = request.data
-        if 'claim_id' and 'user_id' not in data:
+        if 'claim_id' not in data and 'user_id' not in data:
             return Response({"message": "You need to provide a claim_id and a user_id"}, status=status.HTTP_400_BAD_REQUEST)
         claim_id = data['claim_id']
         user_id = data['user_id']
@@ -1174,8 +1254,20 @@ class UploadImageView(APIView):
 
         # Decode and save the image
         image_data = request.data["image"]
-        image_filename = f"{vendor.username}_{request.data['type']}.jpg"
-        image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
+        # Check if the image is in PNG format
+        if image_data.startswith("data:image/png;base64,"):
+            image_data = image_data.replace("data:image/png;base64,", "")
+            image_filename = f"{vendor.username}_{request.data['type']}.png"
+            image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
+
+        # Check if the image is in JPEG format
+        elif image_data.startswith("data:image/jpeg;base64,"):
+            image_data = image_data.replace("data:image/jpeg;base64,", "")
+            image_filename = f"{vendor.username}_{request.data['type']}.jpg"
+            image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
+        else:
+            return Response({'error': 'File type not supported'}, status=status.HTTP_400_BAD_REQUEST)
+
 
         # check if path exists
         if os.path.exists(image_path):

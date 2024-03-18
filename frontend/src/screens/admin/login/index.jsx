@@ -95,7 +95,7 @@ export default function AdminLogin() {
 	) : (
 		<section className="p-4 text-center flex flex-col items-center">
 			<p>You are logged in already</p>
-			<Link to={"/"}>Go back home</Link>
+			<Link to={"/admin"}>Go back home</Link>
 		</section>
 	)
 }
