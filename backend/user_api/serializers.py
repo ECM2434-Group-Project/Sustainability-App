@@ -106,9 +106,19 @@ class QuizAnswerSerializer(serializers.ModelSerializer):
 
 
 class ClaimSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = ClaimModel
-		fields = ('claim_id', 'bag', 'user', 'time')
+    vendor_name = serializers.SerializerMethodField()
+    bag_group_name = serializers.SerializerMethodField()
+
+
+    class Meta:
+        model = ClaimModel
+        fields = ('claim_id', 'vendor_name', 'bag_group_name', 'bag', 'user', 'time')
+
+    def get_vendor_name(self, obj):
+        return obj.bag.vendor.name if obj.bag.vendor else None
+
+    def get_bag_group_name(self, obj):
+        return obj.bag.bag_group.name if obj.bag.bag_group else None
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:

@@ -865,16 +865,18 @@ class QuizView(APIView):
 class ClaimsView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
+    # claims return vendor name
+    # bag group name
 
     def get(self, request):
         if not request.user:
             return Response({"message": "You are not logged in"}, status=status.HTTP_403_FORBIDDEN)
         if request.user.role != UserModel.Role.USER:
             return Response({"message": "Vendors or Admin cannot have claims. Only users can have claims."},
-                            status=status.HTTP_403_FORBIDDEN)
-
+                        status=status.HTTP_403_FORBIDDEN)
         claims = ClaimModel.objects.filter(user_id=request.user)
         serializer = ClaimSerializer(claims, many=True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -1082,7 +1084,7 @@ class AllergenView(APIView):
 
         try:
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response( serializer.data, status=status.HTTP_200_OK)
         except:
             return Response({"message": "Error accessing allergen"}, status=status.HTTP_400_BAD_REQUEST)
 
