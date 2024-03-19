@@ -3,7 +3,7 @@ import { TextInput } from "../../../../components/General/TextInput";
 import { GoBackLink } from "../../../../components/General/GoBackLink";
 import { client } from "../../../../axios";
 import { useUser } from "../../../../contexts/userContext";
-import { Popup } from "../../../../components/General/Popup";
+import { Popup } from "../../../../components/General/Popup_Mobile";
 
 export function VendorAccountImages() {
 

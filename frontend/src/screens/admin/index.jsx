@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { VendorItem } from "../../components/Admin/VendorItem";
-import { Popup } from "../../components/General/Popup";
+import { Popup } from "../../components/General/Popup_Desktop";
 import { useUser } from "../../contexts/userContext";
 import { NotAdmin } from "../../components/Admin/NotAdmin";
 import { client } from '../../axios'
@@ -53,7 +53,7 @@ export default function AdminPage() {
 							<div className="bg-white p-4 rounded-lg flex flex-col">
 
 								<h1 className="text-4xl font-bold">{editing.first_name}</h1>
-								<img src={`http://127.0.0.1:8000/api/getvendorimage/${editing.first_name}_banner.jpg`} alt={editing.first_name} className="rounded-3xl" />
+								<img src={`http://127.0.0.1:8000/api/getvendorimage/${editing.username}_banner.jpg`} alt={editing.first_name} className="rounded-3xl" />
 								<button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-5" onClick={() => {
 
 									// delete the vendor and close the popup
