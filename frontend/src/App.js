@@ -31,8 +31,7 @@ import DeleteAccount from './screens/delete-account';
 import CreateQuestionPage from './screens/admin/create-question';
 import { VendorAccountImages } from './screens/vendor-admin/settings/images/VendorAccountDetails';
 import { VendorChangeName } from './screens/vendor-admin/settings/change-name';
-
-
+import CreateQuestionPage from './screens/admin/create-question';
 function App() {
 
 	return (

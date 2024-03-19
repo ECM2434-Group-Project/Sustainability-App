@@ -79,7 +79,7 @@ class BagSerializer(serializers.ModelSerializer):
 class BagGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = BagGroupModel
-        fields = ('bag_group_id', 'vendor', 'allergen', 'bags_unclaimed')
+        fields = ('bag_group_id', 'vendor', 'allergen', 'bags_unclaimed', 'name')
 
 class AllergenSerializer(serializers.ModelSerializer):
     class Meta:
@@ -106,9 +106,23 @@ class QuizAnswerSerializer(serializers.ModelSerializer):
 
 
 class ClaimSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = ClaimModel
-		fields = ('claim_id', 'bag', 'user', 'time')
+    vendor_name = serializers.SerializerMethodField()
+    bag_group_name = serializers.SerializerMethodField()
+
+
+    class Meta:
+        model = ClaimModel
+        fields = ('claim_id', 'vendor_name', 'bag_group_name', 'bag', 'user', 'time')
+
+    def get_vendor_name(self, obj):
+        bag_group = BagGroupModel.objects.get(bag_group_id=obj.bag.bag_group_id)
+        vendor = VendorModel.objects.get(id=bag_group.vendor_id)
+        return vendor.first_name
+
+
+    def get_bag_group_name(self, obj):
+        bag_group = BagGroupModel.objects.get(bag_group_id=obj.bag.bag_group_id)
+        return bag_group.name
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
