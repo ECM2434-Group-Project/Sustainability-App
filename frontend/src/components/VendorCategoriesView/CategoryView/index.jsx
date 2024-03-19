@@ -1,7 +1,17 @@
+import { useCallback } from "react";
 import { TbPaperBag, TbX } from "react-icons/tb";
 
 
 export function CategoryView({ category, edit }) {
+
+    const addBag = useCallback(() => {
+        // Create a bag for this category
+    }, [])
+    
+    const removeBag = useCallback(() => {
+        // Create a bag for this category
+    }, [])
+
     return (
         <div className="flex items-center gap-4 justify-between">
             <div className="flex items-center gap-2">
