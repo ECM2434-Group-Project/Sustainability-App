@@ -129,7 +129,43 @@ export default function ManageQuestionPage() {
 	const editQuestion = (e) => {
 		e.preventDefault()
 
-		// check for any modifications that have been made to the question
+		let success = true;
+
+		// check if the question has been modified
+		if (question.changed) {
+
+			const data = {"question_id": question.question_id, "new_text": question.question}
+			// send the question
+			client.post("/api/questions", data).then((res) => {
+				// close the popup
+				setChanged((chg) => (chg + 1))
+				success = true;
+			}).catch((error) => {
+				// show the error to the user
+				success = false;
+			})
+		}
+
+		// for each answer
+		answers.forEach((a) => {
+			if (a.changed) {
+				const data = {"answer_id": a.answer_id, "new_text": a.answer, "is_correct": a.is_correct}
+				// send the question
+				client.post("/api/questions", data).then((res) => {
+					// close the popup
+					setChanged((chg) => (chg + 1))
+					
+				}).catch((error) => {
+					// show the error to the user
+					success = false;
+				})
+			}
+		})
+
+		if (success) {
+			setEditing(false)
+		}
+
 
 	}
 
@@ -160,6 +196,7 @@ export default function ManageQuestionPage() {
 							setQuestion((q) => {
 								return { ...q, "question": e.target.value }
 							})
+							
 
 						}}/>
 					</div>
@@ -202,7 +239,7 @@ export default function ManageQuestionPage() {
 						<input className="border rounded-2xl border-black p-2" type="text" value={question.question} onChange={(e) => {
 							console.log(question)
 							setQuestion((q) => {
-								return { ...q, "question": e.target.value }
+								return { ...q, "question": e.target.value, "changed": true }
 							})
 
 						}}/>
@@ -224,12 +261,14 @@ export default function ManageQuestionPage() {
 				</form>
 			</Popup>
 
+			{/* top bar */}
 			<div className="flex justify-between">
 				<GoBackLink  href="/admin"/>
 
 				<UserAvatar />
 			</div>
-
+		
+			{/* question editing */}
 			<div className="flex flex-col w-1/2 h-full">
 				<div className="flex justify-between pb-8">
 					<h1 className="text-4xl font-bold w-max ">Manage Questions</h1>
