@@ -13,6 +13,7 @@ import { AnswerItem } from "../../../components/Admin/AnswerItem"
 
 export default function ManageQuestionPage() {
 
+	// the users context
 	const { user } = useUser()
 
 	// creating questions state
@@ -28,6 +29,7 @@ export default function ManageQuestionPage() {
 	const [creating, setCreating] = useState(false)
 	const [creatingError, setCreatingError] = useState(["something here", "something else here"])
 
+	// update ( add 1 ) when there is a change in the database ( to refresh the questions)
 	const [changed, setChanged] = useState(0)
 
 	
@@ -126,6 +128,9 @@ export default function ManageQuestionPage() {
 
 	const editQuestion = (e) => {
 		e.preventDefault()
+
+		// check for any modifications that have been made to the question
+
 	}
 
 	// load in all the questions
@@ -145,10 +150,12 @@ export default function ManageQuestionPage() {
 			{/* creating questions */}
 			<Popup trigger={creating} setTrigger={setCreating} size="large">
 				<form className="bg-white p-4 rounded-xl flex flex-col justify-center" onSubmit={createQuestion}>
+
 					<h1 className="text-2xl">Question</h1>
 
+					{/* the question */}
 					<div className="flex gap-5">
-						<input className="border rounded-2xl border-black p-2" type="text" value={question.question} onChange={(e) => {
+						<input className="border rounded-2xl border-black p-2" type="text" content={question.question} onChange={(e) => {
 							console.log(question)
 							setQuestion((q) => {
 								return { ...q, "question": e.target.value }
@@ -158,6 +165,8 @@ export default function ManageQuestionPage() {
 					</div>
 					
 					<h1 className="text-2xl">Answers</h1>
+
+					{/* each answer */}
 					<div className="flex flex-col gap-2">
 						{
 							answers?.map((a, index) => {
@@ -235,13 +244,16 @@ export default function ManageQuestionPage() {
 					}}>Create Question</button>
 				</div>
 				
-				{
-					questions.map((q) => {
-						return (
-							<QuestionItem question={q} setEditing={setEditing} setQuestion={setQuestion} setAnswers={setAnswers} />
-						)
-					})
-				}
+				<div className="flex flex-col gap-2">
+					{
+						questions.map((q) => {
+							return (
+								<QuestionItem question={q} setEditing={setEditing} setQuestion={setQuestion} setAnswers={setAnswers} />
+							)
+						})
+					}
+				</div>
+				
 			</div>
 		</div>
 	) : (

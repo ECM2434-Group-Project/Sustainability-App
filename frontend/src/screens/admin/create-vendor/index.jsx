@@ -8,7 +8,7 @@ import { useUser } from "../../../contexts/userContext"
 import { NotLoggedIn } from "../../../components/General/NotLoggedIn"
 import { NotAdmin } from "../../../components/Admin/NotAdmin"
 
-export default function CreateVendorPage() {
+export default function ManageVendorPage() {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
 	const [latitude, setLatitude] = useState("")

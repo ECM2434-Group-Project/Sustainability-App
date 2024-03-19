@@ -77,7 +77,7 @@ export default function AdminPage() {
 									<button className="bg-exeterBlue pl-6 pr-6 pt-4 pb-4 rounded-lg" onClick={() => {
 										nav("/admin/create-vendor")
 									}}>
-										Create Vendor
+										Create Vendors
 									</button>
 								</div>
 								
