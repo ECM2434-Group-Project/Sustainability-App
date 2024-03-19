@@ -70,7 +70,7 @@ export default function AdminPage() {
 								<h1 className="font-extrabold text-4xl p-2 b-0 m-0">Welcome Admin</h1>
 								<div className="flex gap-10">
 									<button className="bg-exeterBlue pl-6 pr-6 pt-4 pb-4 rounded-lg" onClick={() => {
-										nav("/admin/create-question")
+										nav("/admin/manage-questions")
 									}}>
 										Manage Questions
 									</button>
