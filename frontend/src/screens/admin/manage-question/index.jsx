@@ -126,6 +126,7 @@ export default function ManageQuestionPage() {
 		})
 	}
 
+	// edit a questions content ( question or answers )
 	const editQuestion = (e) => {
 		e.preventDefault()
 
@@ -165,8 +166,22 @@ export default function ManageQuestionPage() {
 		if (success) {
 			setEditing(false)
 		}
+	}
 
+	// remove a question
+	const deleteQuestion = () => {
+		console.log("deleting question")
 
+		const data = {"question_id": question.question_id, "delete": true}
+
+		// send the delete request
+		client.post("/api/questions", data).then((res) => {
+			// close the popup
+			setChanged((chg) => (chg + 1))
+			setEditing(false)
+		}).catch((error) => {
+			// show the error to the user
+		})
 	}
 
 	// load in all the questions
@@ -258,6 +273,12 @@ export default function ManageQuestionPage() {
 					</div>
 
 					<button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-2xl mt-2">Save</button>
+
+					<button type="button" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-2xl mt-2" onClick={() => {
+						
+						// call the remove question api
+						deleteQuestion()
+					}}>Delete</button>
 				</form>
 			</Popup>
 
