@@ -203,6 +203,8 @@ class VendorView(APIView):
         bagGroupSerializer = BagGroupSerializer(bag_groups, many=True)
 
         data["bag_groups"] = bagGroupSerializer.data
+        data["longitude"] = vendor.location.longitude
+        data["latitude"] = vendor.location.latitude
         return Response(data, status=status.HTTP_200_OK)
 
 class AddBags(APIView):
