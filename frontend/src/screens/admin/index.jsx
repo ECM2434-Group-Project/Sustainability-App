@@ -63,11 +63,11 @@ export default function AdminPage() {
 				user.role === "ADMIN" ? (
 					<section className="p-4 pl-36">
 						<Popup trigger={editing} setTrigger={setEditing} size="large">
-							<div className="bg-white p-4 rounded-lg flex flex-col">
+							<div className="bg-white p-4 rounded-lg flex flex-col justify-between h-full">
 
 								<h1 className="text-4xl font-bold">{editing.first_name}</h1>
-								<img src={`http://127.0.0.1:8000/api/getvendorimage/${editing.username}_banner.jpg`} alt={editing.first_name} className="rounded-3xl" />
-								<button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-5" onClick={() => {
+								<img src={editing.banner} alt={editing.first_name} className="rounded-3xl" />
+								<button className="bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-4 rounded mt-5" onClick={() => {
 
 									// delete the vendor and close the popup
 									deleteVendor(editing)
@@ -93,7 +93,6 @@ export default function AdminPage() {
 										Create Vendors
 									</button>
 								</div>
-								
 							</div>
 
 

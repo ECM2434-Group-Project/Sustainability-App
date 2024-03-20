@@ -29,6 +29,7 @@ class UserModel(AbstractUser, PermissionsMixin):
     # Makes role a mandatory field so user cannot be undefined
     role = models.CharField(max_length=50, choices=Role.choices)
     score = models.IntegerField(default=0)
+    email_verified = models.BooleanField(default=True)
 
     class UserManager(BaseUserManager):
         def get_queryset(self, *args, **kwargs):
@@ -70,8 +71,8 @@ class VendorModel(UserModel):
     base_role = UserModel.Role.VENDOR
     location = models.ForeignKey(LocationModel, on_delete=models.CASCADE)
     bags_left = models.IntegerField(default=0)
-    icon = models.CharField(max_length=256)
-    banner = models.CharField(max_length=256)
+    icon = models.CharField(max_length=256, default="https://placehold.co/256x256")
+    banner = models.CharField(max_length=256, default="https://placehold.co/600x200")
 
     class VendorManager(BaseUserManager):
         def get_queryset(self, *args, **kwargs):

@@ -53,7 +53,6 @@ function App() {
 				<Route path="/claim/:claim" element={<ClaimDetailPage />} />
 				<Route path="/leaderboard" element={<LeaderboardPage />} />
 
-				
 				<Route path="/admin" element={<AdminPage />} />
 				<Route path="/admin/login" element={<AdminLogin />} />
 				<Route path="/admin/create-vendor" element={<CreateVendorPage />} />

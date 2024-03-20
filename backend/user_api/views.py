@@ -60,6 +60,7 @@ class UserRegister(APIView):
             user.save()
 
             if user:
+                send_verification_email(request, user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -98,8 +99,11 @@ class UserLogin(APIView):
             if serializer.is_valid(raise_exception=True):
                 username = UserModel.objects.get(email__exact=email).username
                 user = serializer.get_user(username, password)
-                login(request, user)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                if user.email_verified:
+                    login(request, user)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response({"message": "Email not verified"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
 
@@ -173,7 +177,7 @@ class VendorsView(APIView):
         for vendor in vendors:
             location = vendor.location
             data.append({"id": vendor.id,"first_name":vendor.first_name, "username": vendor.username, "latitude": location.latitude,
-                         "longitude": location.longitude, "bags_left": vendor.bags_left})
+                         "longitude": location.longitude, "bags_left": vendor.bags_left, "icon": vendor.icon, "banner": vendor.banner})
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -394,6 +398,8 @@ class ViewGroups(APIView):
         groups = BagGroupModel.objects.filter(vendor=user)
         serializer = BagGroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class IssueBagsView(APIView):
     '''
     This endpoint allows vendors to issue bags. The issued bags will be automatically associated with the vendor who issued them.
@@ -974,6 +980,7 @@ class CreateAdmin(APIView):
         email = "admin@admin.com"
         user = AdminModel.objects.create_user(username, email, password)
         user.role = "ADMIN"
+        user.email_verified = True
         user.save()
         serializer = AdminSerializer(user)
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -1015,7 +1022,7 @@ class CreateVendor(APIView):
             serializer = VendorSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
                 vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'],
-                                                         password=data['password'], location=location, role="VENDOR", first_name=data['first_name'])
+                                                         password=data['password'], location=location, role="VENDOR", first_name=data['first_name'], email_verified=True)
                 vendor.save()
                 # create location for vendor
 
@@ -1045,7 +1052,9 @@ class CreateTestVendor(APIView):
         else:
             return Response({"message": "Error accesing location"}, status=status.HTTP_400_BAD_REQUEST)
         vendor = VendorModel.objects.create_user(username, email, password, location=location)
+        vendor.email_verified = True
         vendor.save()
+
         # VendorModel.objects.filter(id=vendor.id).update(location=location)
         serializer = VendorSerializer(vendor)
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -1250,13 +1259,12 @@ class UploadImageView(APIView):
                     return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
             except VendorModel.DoesNotExist:
                 return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        vendor_id = request.data.get("vendor_id")
-
-        try:
-            vendor = VendorModel.objects.get(id=vendor_id)
-        except VendorModel.DoesNotExist:
-            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+        elif request.user.role == UserModel.Role.ADMIN:
+            try:
+                vendor_id = request.data.get("vendor_id")
+                vendor = VendorModel.objects.get(id=vendor_id)
+            except VendorModel.DoesNotExist:
+                return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Decode and save the image
         image_data = request.data["image"]
@@ -1323,11 +1331,11 @@ class DeleteImageView(APIView):
                     return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
             except VendorModel.DoesNotExist:
                 return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            image = ImageModel.objects.get(name=image_name)
-        except ImageModel.DoesNotExist:
-            return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        elif request.user.role == UserModel.Role.ADMIN:
+            try:
+                image = ImageModel.objects.get(name=image_name)
+            except ImageModel.DoesNotExist:
+                return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
 
         if image:
             # Delete the associated image file
@@ -1338,6 +1346,18 @@ class DeleteImageView(APIView):
             return Response({"message": "Image deleted"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def resend_verification_email(request, email):
+    user = UserModel.objects.get(email__exact=email)
+    if not user:
+        return Response({"message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+    if user.email_verified:
+        return Response({"message": "Email already verified."}, status=status.HTTP_200_OK)
+    else:
+        send_verification_email(request, user)
+        return Response({"message": "Verification email sent."}, status=status.HTTP_200_OK)
+
 
 def send_verification_email(request, user):
     email_verification, created = EmailVerification.objects.get_or_create(user=user)

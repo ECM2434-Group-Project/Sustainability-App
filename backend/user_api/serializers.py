@@ -62,7 +62,7 @@ class VendorSerializer(serializers.ModelSerializer):
 class VendorOverviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorModel
-        fields = ('id','username', 'location', 'bags_left')
+        fields = ('id','first_name', 'location', 'bags_left', 'icon', 'banner')
 
 
 class AdminSerializer(serializers.ModelSerializer):
