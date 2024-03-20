@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { client } from "../../../axios";
-import { useNavigate } from "react-router-dom";
 import { GoBackLink } from "../../../components/General/GoBackLink";
 import {QRCodeSVG} from 'qrcode.react';
 import {useUser} from "../../../contexts/userContext";
@@ -10,14 +9,10 @@ import {useUser} from "../../../contexts/userContext";
 export function ClaimDetailPage() {
 
 	const { claim } = useParams();
-
-    const nav = useNavigate();
-
     const { user } = useUser();
 
     const [claimData, setClaimData] = useState({});
     const [bagData, setBagData] = useState({});
-    const [bagGroupData, setBagGroupData] = useState({});
 
     // FETCH THIS CLAIM'S INFO
     useEffect(() => {

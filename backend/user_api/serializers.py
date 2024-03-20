@@ -112,7 +112,7 @@ class ClaimSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClaimModel
-        fields = ('claim_id', 'vendor_name', 'bag_group_name', 'bag', 'user', 'time')
+        fields = ('claim_id', 'vendor_name', 'bag_group_name', 'bag', 'user', 'time', 'success')
 
     def get_vendor_name(self, obj):
         bag_group = BagGroupModel.objects.get(bag_group_id=obj.bag.bag_group_id)

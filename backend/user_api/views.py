@@ -51,13 +51,19 @@ class UserRegister(APIView):
         data = request.data
         # if email exists and is exeter email, throws exception if it doesn't
         email = data['email']
-        assert validate_email_register(data)
+        try:
+            validate_email_register(data)
+        except:
+            return Response({"message": "Naughty Naughty you do not have an exeter email"},
+            status=status.HTTP_400_BAD_REQUEST)
+
         clean_data = user_creation_validation(request.data)
         serializer = UserRegisterSerializer(data=clean_data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.create(clean_data)
             user.role = UserModel.Role.USER
             user.save()
+
 
             if user:
                 send_verification_email(request, user)
@@ -102,7 +108,8 @@ class UserLogin(APIView):
 
                 if (user.role == UserModel.Role.VENDOR) or (user.role == UserModel.Role.ADMIN):
                     login(request, user)
-                elif user.is_verified:
+                    return Response({"message": "Logged in successfully"}, status=status.HTTP_200_OK)
+                elif user.email_verified:
                     login(request, user)
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 else:
@@ -891,6 +898,7 @@ class ClaimsView(APIView):
             return Response({"message": "Vendors or Admin cannot have claims. Only users can have claims."},
                         status=status.HTTP_403_FORBIDDEN)
         claims = ClaimModel.objects.filter(user_id=request.user)
+        print(claims)
         serializer = ClaimSerializer(claims, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -1192,7 +1200,7 @@ class ClaimClaim(APIView):
         if not claim:
             return Response({"message": "Claim does not exist"}, status=status.HTTP_404_NOT_FOUND)
         if claim.success:
-            return Response({"message": "Claim already claimed"}, status=status.HTTP_200_OK)
+            return Response({"message": "Claim already claimed"}, status=status.HTTP_403_FORBIDDEN)
         claim.success = True
         claim.save()
         return Response({"message": "Claim successful"}, status=status.HTTP_200_OK)
@@ -1400,6 +1408,10 @@ def verify_email(request, token):
         return HttpResponse("Email already verified.")
 
     email_verification.is_verified = True
+    emailModel = EmailVerification.objects.get(token=token)
+    user = UserModel.objects.get(id = emailModel.user_id)
+    user.email_verified = True
+    user.save()
     email_verification.save()
     return HttpResponse("Email verified successfully.")
 

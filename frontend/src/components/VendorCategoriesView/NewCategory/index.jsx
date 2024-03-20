@@ -27,7 +27,7 @@ export function NewCategory({ setNewGroupOpen }) {
         .catch(err => {
             console.error("Error creating group", err)
         })
-    }, [name, refreshUser, allergenOptions])
+    }, [name, refreshUser, allergenOptions, setNewGroupOpen])
 
 
     return (

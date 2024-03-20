@@ -1,17 +1,13 @@
 import { useCallback, useRef, useState } from "react";
-import { TextInput } from "../../../../components/General/TextInput";
 import { GoBackLink } from "../../../../components/General/GoBackLink";
 import { client } from "../../../../axios";
 import { useUser } from "../../../../contexts/userContext";
 import { Popup } from "../../../../components/General/Popup_Mobile";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export function VendorAccountImages() {
 
     const { user, refreshUser } = useUser()
-
-    const [ name, setName ] = useState('')
 
     const [ changeLogoOpen, setChangeLogoOpen ] = useState(false)
     const [ changeBannerOpen, setChangeBannerOpen ] = useState(false)
@@ -101,7 +97,7 @@ export function VendorAccountImages() {
                 <div className="text-center flex flex-col gap-2">
                     <img
                         className="w-32 h-32 object-cover borer-[1px] border-solid border-gray-300 rounded-md m-auto"
-                        src={"http://127.0.0.1:8000" + user?.icon}
+                        src={process.env.REACT_APP_BACKEND_HOSTNAME + user?.icon}
                         alt={user?.first_name + " Icon"}
                     />
                     <div className="flex gap-2 justify-center">
@@ -117,7 +113,7 @@ export function VendorAccountImages() {
                     <div className="flex flex-col gap-2">
                         <img
                             className="w-full h-32 object-cover borer-[1px] border-solid border-gray-300 rounded-md"
-                            src={"http://127.0.0.1:8000" + user?.banner}
+                            src={process.env.REACT_APP_BACKEND_HOSTNAME + user?.banner}
                             alt={user?.first_name + " Banner"}
                         />
                         <div className="flex gap-2">

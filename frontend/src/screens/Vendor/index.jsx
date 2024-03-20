@@ -4,13 +4,11 @@ import { UserAvatar } from "../../components/User/UserAvatar";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { useState, useCallback, useEffect } from "react";
 import { client } from "../../axios";
-import { useUser } from "../../contexts/userContext";
 
 export function VendorPage() {
 
 	const [outlets, setOutlets] = useState([]);
 	const [onCampus, setOnCampus] = useState(false);
-	const { user } = useUser()
 
 	// Get the outlet ids then get the outlet data from the at /api/outlets/{id}
     const getOutlets = useCallback(() => {
@@ -25,13 +23,14 @@ export function VendorPage() {
             }
         })
 
-    }, [outlets])
+    }, [])
 
 	// Fetch the outlets
 	useEffect(() => {
 		getOutlets()
 
 		// Check if the user is on campus by using api endpoint
+		setOnCampus(true)
 		
 	}, [])
 
@@ -49,17 +48,27 @@ export function VendorPage() {
 			<div className="flex justify-end">
 				<UserAvatar />
 			</div>
+			
+			{
+				onCampus ? (
+					<>
+						<div className="sticky top-0">
+							<OnCampusIndicator />
+						</div>
 
-			<div className="sticky top-0">
-				<OnCampusIndicator />
-			</div>
+						<div className="flex flex-col gap-8 pb-4">
 
-			<div className="flex flex-col gap-8 pb-4">
+							<h1 className="text-2xl font-semibold">Food outlets</h1>
 
-				<h1 className="text-2xl font-semibold">Food outlets</h1>
-
-				{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={"http://127.0.0.1:8000" + vendor.banner} logoImage={"http://127.0.0.1:8000" + vendor.icon} name={vendor.first_name} walkTime={2} numBags={vendor.bags_left}/>)}
-			</div>
+							{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} vendor={vendor}/>)}
+						</div>
+					</>
+				) : (
+					<div className="bg-red-300 text-white p-4 rounded-xl text-center">
+						You are not on campus
+					</div>
+				)
+			}
 		</div>
 	)
 }

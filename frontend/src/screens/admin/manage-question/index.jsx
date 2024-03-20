@@ -64,7 +64,7 @@ export default function ManageQuestionPage() {
 				if (a.answer === "") {
 					setCreatingError((err) => [...err, "You must have content in each answer"])
 					answerContent = true;
-					throw {"error": "something went wrong"};
+					throw new Error({"error": "something went wrong"})
 				}
 			})
 		} catch (e) {

@@ -6,7 +6,7 @@ import { GoBackLink } from "../../../../components/General/GoBackLink"
 
 export function VendorChangeName() {
 
-    const { user } = useUser()
+    const { user, refreshUser } = useUser()
     const [ name, setName ] = useState("")
     const [ password, setPassword ] = useState("")
     const [ confirm, setConfirm ] = useState(false)
@@ -28,17 +28,19 @@ export function VendorChangeName() {
 
         client.post("/api/user/updateuser/", {
             password: password,
+            first_name: user.first_name,
             new_first_name: name
         })
         .then(res => {
             console.log("RESPONDED", res)
             setDone(true)
+            refreshUser()
         })
         .catch(err => {
             console.error(err)
             alert("Something went wrong")
         })
-    })
+    }, [refreshUser, password, name])
 
     return !done ? (
         <>
