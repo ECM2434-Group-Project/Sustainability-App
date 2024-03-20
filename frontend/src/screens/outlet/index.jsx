@@ -69,9 +69,9 @@ export function OutletPage() {
   }
 
   return (
-    <section className="h-full flex flex-col gap-4">
+    <section className="flex flex-col gap-4 pb-24">
       <div
-        className="relative h-48 w-full bg-cover bg-center"
+        className="relative h-36 w-full bg-cover bg-center"
         style={{ backgroundImage: "url(http://127.0.0.1:8000" + outletData.banner + ")" }}
       >
         <div className="absolute top-2 left-2 z-10 shadow">
@@ -80,7 +80,7 @@ export function OutletPage() {
       </div>
 
       <div className="p-4 flex flex-col h-full gap-4 justify-between">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           <div className="flex gap-4">
             <img
               className="w-20 rounded-md object-cover"
@@ -94,11 +94,17 @@ export function OutletPage() {
 							</h2>
 							{/* Outlet mins walk */}
 							<p className="text-gray-400 text-sm">
-								<span>{(60*checkDistance(location.latitude, location.longitude, outletData.latitude, outletData.longitude)/3).toFixed(2)}</span> mins walk
+								{
+									location ? (
+										<span>{(60*checkDistance(location.latitude, location.longitude, outletData.latitude, outletData.longitude)/3).toFixed(2)} mins walk</span>
+									) : (
+										<></>
+									)
+								}
 							</p>
-							<p className="text-gray-400 text-m">
+							{/* <p className="text-gray-400 text-m">
 								<span>{outletData.bags_left}</span> bags remaining
-							</p>
+							</p> */}
 						</div>
 					</div>
 
