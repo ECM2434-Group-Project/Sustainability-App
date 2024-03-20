@@ -67,7 +67,7 @@ export default function AdminPage() {
 							<div className="bg-white p-4 rounded-lg flex flex-col justify-between h-full">
 
 								<h1 className="text-4xl font-bold">{editing.first_name}</h1>
-								<img src={"https://"+ process.env.REACT_APP_BACKEND_HOSTNAME + editing.banner} alt={editing.first_name} className="rounded-3xl" />
+								<img src={process.env.REACT_APP_BACKEND_HOSTNAME + editing.banner} alt={editing.first_name} className="rounded-3xl" />
 								<button className="bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-4 rounded mt-5" onClick={() => {
 
 									// delete the vendor and close the popup
