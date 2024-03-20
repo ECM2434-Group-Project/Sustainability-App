@@ -1,30 +1,39 @@
 import { HiOutlineQrcode } from "react-icons/hi";
 import { CategoryView } from "../../components/VendorCategoriesView/CategoryView";
 import { VendorCategoriesView } from "../../components/VendorCategoriesView";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { IoSettingsOutline } from "react-icons/io5";
+import { useUser } from "../../contexts/userContext";
+import { useEffect } from "react";
 
 
 export default function VendorAdminScreen() {
 
-    const vendor = {
-        name: "The Ram Bar"
-    }
+    const { user } = useUser()
 
-    return (
+    const nav = useNavigate()
+
+
+
+    return user ? (
         <section className="flex flex-col gap-4">
 
             <div className="h-32 relative">
                 <Link to={"/vendor-admin/settings"} className="absolute h-10 w-10 flex justify-center items-center bg-white rounded-full top-2 right-2 border-solid border-[1px] border-gray-400">
                     <IoSettingsOutline />
                 </Link>
-                <img className="h-full w-full object-cover" src="https://liveevents.exeter.ac.uk/wp-content/uploads/2022/02/Section-1.png" />
+                <img className="h-full w-full object-cover" src={user?.banner} />
             </div>
 
             <section className="p-4 flex flex-col gap-6 pb-16">
-                <div>
-                    <small>Logged in as</small>
-                    <h2 className="text-3xl font-semibold">{vendor.name}</h2>
+
+                <div className="flex gap-3 items-center">
+                    <img src={user?.icon} alt="Vendor logo" className="w-10 h-10 rounded object-cover" />
+
+                    <div>
+                        <small>Logged in as</small>
+                        <h2 className="text-3xl font-semibold">{user?.first_name}</h2>
+                    </div>
                 </div>
 
                 <div>
@@ -44,5 +53,7 @@ export default function VendorAdminScreen() {
             </section>
 
         </section>
+    ) : (
+        <Link className="underline" to={"/vendor-admin/login"}>You are not logged in. Please log in</Link>
     )
 }

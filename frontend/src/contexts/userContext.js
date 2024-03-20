@@ -115,7 +115,7 @@ export const UserProvider = ({ children }) => {
 	// Get the user's data when the page loads
 	useEffect(() => {
 		refreshUser()
-		.then(() => console.log("Got user"))
+		.then(() => setTimeout(() => console.log("Got user", user), 100))
 		.catch(() => setUser(null))
 	}, [])
 	

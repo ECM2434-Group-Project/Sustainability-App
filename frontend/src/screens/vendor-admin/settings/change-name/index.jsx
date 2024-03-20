@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useUser } from "../../../../contexts/userContext"
 import { client } from "../../../../axios"
-import { Popup } from "../../../../components/General/Popup"
+import { Popup } from "../../../../components/General/Popup_Mobile"
 import { GoBackLink } from "../../../../components/General/GoBackLink"
 
 export function VendorChangeName() {
@@ -28,7 +28,6 @@ export function VendorChangeName() {
 
         client.post("/api/user/updateuser/", {
             password: password,
-            first_name: user.first_name,
             new_first_name: name
         })
         .then(res => {
@@ -54,17 +53,31 @@ export function VendorChangeName() {
                     <input className="p-3 w-full text-md border-[1px] border-solid border-gray-400 rounded-md" type="text" value={name} onChange={e => setName(e.target.value)} />
                 </div>
 
-                <button onClick={() => setConfirm(true)} className="w-full p-3 text-white rounded bg-gradient-to-r bg-exeterDimRed to-exeterBrightRed font-semibold text-lg">Change name</button>
+                <button
+                    onClick={() => setConfirm(true)}
+                    disabled={name === user.first_name}
+                    className={
+                        name !== user.first_name ? (
+                            "w-full p-3 text-white rounded bg-gradient-to-r bg-exeterDimRed to-exeterBrightRed font-semibold text-lg"
+                        ) : (
+                            "opacity-50 w-full p-3 text-white rounded bg-gradient-to-r bg-gray-600 to-bg-gray-500 font-semibold text-lg"
+                        )
+                    }
+                >Change name</button>
 
             </section>
 
             <Popup trigger={confirm} setTrigger={setConfirm}>
                 <div className="flex flex-col gap-4">
-                    <h2 className="font-semibold">Please confirm your passoword to change your vendor name</h2>
+
+                    <h2 className="font-semibold">Please confirm your password to change your vendor name</h2>
                     <input placeholder="Enter password" className="p-3 text-md border-[1px] border-solid border-gray-400 rounded-md" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+
                     <div className="flex gap-3">
-                    <button className="w-full p-3 text-white rounded bg-gray-500 font-semibold text-lg" onClick={() => setConfirm(false)}>Cancel</button>
+
+                        <button className="w-full p-3 text-white rounded bg-gray-500 font-semibold text-lg" onClick={() => setConfirm(false)}>Cancel</button>
                         <button className="w-full p-3 text-white rounded bg-gradient-to-r bg-exeterDimRed to-exeterBrightRed font-semibold text-lg" onClick={changeName}>Change name</button>
+
                     </div>
                 </div>
             </Popup>

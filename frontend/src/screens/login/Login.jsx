@@ -78,7 +78,7 @@ export default function Login() {
 				)}
 
 				<button
-					className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold"
+					className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold pointer"
 					type="submit"
 				>
 					Login
