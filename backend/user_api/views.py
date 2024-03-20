@@ -898,6 +898,7 @@ class ClaimsView(APIView):
             return Response({"message": "Vendors or Admin cannot have claims. Only users can have claims."},
                         status=status.HTTP_403_FORBIDDEN)
         claims = ClaimModel.objects.filter(user_id=request.user)
+        print(claims)
         serializer = ClaimSerializer(claims, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
