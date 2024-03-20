@@ -803,8 +803,9 @@ class QuizView(APIView):
                 return Response({"message": "You have answered a question incorrectly"},
                                 status=status.HTTP_200_OK)
 
-        # get the vendor
-        print("Quiz Passed!!!")
+        ## update score by 3
+        user.score = user.score + 3
+        user.save()
         return self.attempt_claim(bag_group, user)
 
     def attempt_claim(self, bag_group, user):
