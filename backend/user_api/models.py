@@ -29,7 +29,7 @@ class UserModel(AbstractUser, PermissionsMixin):
     # Makes role a mandatory field so user cannot be undefined
     role = models.CharField(max_length=50, choices=Role.choices)
     score = models.IntegerField(default=0)
-    email_verified = models.BooleanField(default=True)
+    email_verified = models.BooleanField(default=False)
 
     class UserManager(BaseUserManager):
         def get_queryset(self, *args, **kwargs):
