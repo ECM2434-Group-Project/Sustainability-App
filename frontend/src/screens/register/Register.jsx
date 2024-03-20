@@ -3,6 +3,7 @@ import { TextInput } from "../../components/General/TextInput";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
 import GDPR from "../../components/General/GDPR";
+import { Popup } from "../../components/General/Popup_Desktop";
 
 export default function Register() {
 	// Create a register page that has a form with three fields, one for email, one for username, and one for password
@@ -21,6 +22,8 @@ export default function Register() {
 
 	const [stage, setStage] = useState(0);
 
+	const [submitted, setSubmitted] = useState(false)
+
 	const { register } = useUser();
 
 	const submitForm = useCallback(
@@ -31,19 +34,25 @@ export default function Register() {
 			const result = await register(email, username, password, fName, lName)
 
 			if (result === true) {
-				console.log(result);
-				nav("/");
+				setSubmitted(true)
 			} else {
-				console.log("this is the error")
-				console.log(result);
 				setError(result);
 			}
 		},
 		[email, username, fName, lName, password]
-	);
+	)
 
 	return (
 		<div className="h-screen flex flex-col justify-center bg-exeterDeepGreen text-white gap-6">
+
+			<Popup trigger={submitted} setTrigger={setSubmitted}>
+				<div className="flex flex-col gap-4 p-4">
+					<h1 className="text-2xl font-bold text-black">Registration Successful</h1>
+					<p className="text-black"><small className="font-extrabold text-red-600">Please check your emails</small> and verify your email</p>
+					<button className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold" onClick={() => nav("/login")}>Go to Login</button>
+				</div>
+			</Popup>
+
 			<form onSubmit={submitForm} className="flex flex-col">
 				<div className="flex flex-col gap-6">
 					<div className="p-4">

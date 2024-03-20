@@ -7,10 +7,10 @@ export function Popup({ trigger, setTrigger, children }) {
             <div className="relative bg-white w-1/2 h-2/3 rounded-xl overflow-auto">
                 <div className="absolute top-0 right-0 p-4">
                     <button
-                        className="p-3 bg-white shadow rounded-full"
+                        className="p-3 bg-slate-300 shadow rounded-full"
                         onClick={() => setTrigger(false)}
                     >
-                        <IoCloseSharp />
+                        <IoCloseSharp/>
                     </button>
                 </div>
                 {children}

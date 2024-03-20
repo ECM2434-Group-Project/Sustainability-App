@@ -6,6 +6,7 @@ import React, {
 	useCallback
 } from 'react'
 import { client } from '../axios'
+import { useNavigate } from 'react-router-dom'
 
 
 
@@ -16,6 +17,8 @@ export const UserProvider = ({ children }) => {
 	const [user, setUser] = useState()
 	const [locationVerified, setLocationVerified] = useState()
 	const [location, setLocation] = useState(false)
+
+	const nav = useNavigate()
 
 	const register = useCallback(async (email, username, password, fName, lName) => {
 		try {
@@ -28,8 +31,6 @@ export const UserProvider = ({ children }) => {
 			})
 			
 			if (res.status >= 200 && res.status < 300) {
-				await login(email, password)
-				await refreshUser()
 				return true
 			} else {
 				return res.err
