@@ -46,8 +46,6 @@ Run `npm install` from insdie `/frontend` to install all dependencies
 ### Starting the frontend
 Run `npm start` to start the react project on port 3000 locally.
 
-NOTE: Currently due to some CORS issues, use `127.0.0.1:3000` in the browser until its sorted
-
 ### Frontend Contributions
 All of frontend has been authored Ed, Wiktor and Arjun.
 

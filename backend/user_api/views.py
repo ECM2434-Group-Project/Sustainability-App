@@ -107,7 +107,6 @@ class UserLogin(APIView):
                 user = serializer.get_user(username, password)
 
                 if (user.role == UserModel.Role.VENDOR) or (user.role == UserModel.Role.ADMIN):
-                    print(request.data)
                     login(request, user)
                     return Response({"message": "Logged in successfully"}, status=status.HTTP_200_OK)
                 elif user.email_verified:
