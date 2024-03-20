@@ -600,6 +600,7 @@ class QuestionsView(APIView):
 
         if ('new_text' not in request.data) and ('delete' not in request.data):
             return Response({"message" : "Invalid Type"}, status=status.HTTP_400_BAD_REQUEST)
+        
         if 'delete' in request.data:
             if request.data['delete']:
                 if 'question_id' in request.data:
@@ -611,11 +612,13 @@ class QuestionsView(APIView):
                     answer.delete()
                     return Response({"message" : f"Answer {answer.pk} deleted"}, status=status.HTTP_200_OK)
             return Response({"message" : "Nothing deleted, There was some sort of error"}, status=status.HTTP_200_OK)
+        
         elif 'question_id' in request.data:
             question = QuestionModel.objects.filter(question_id=request.data['question_id']).first()
             question.question = request.data['new_text']
             question.save()
             return Response({"message" : f"Question {question.pk} updated"}, status=status.HTTP_200_OK)
+        
         elif 'answer_id' in request.data:
             answer = AnswerModel.objects.filter(answer_id=request.data['answer_id']).first()
             answer.answer = request.data['new_text']
@@ -803,8 +806,9 @@ class QuizView(APIView):
                 return Response({"message": "You have answered a question incorrectly"},
                                 status=status.HTTP_200_OK)
 
-        # get the vendor
-        print("Quiz Passed!!!")
+        # update score by 3
+        user.score += 3
+        user.save()
         return self.attempt_claim(bag_group, user)
 
     def attempt_claim(self, bag_group, user):
@@ -837,9 +841,10 @@ class QuizView(APIView):
                     BagGroupModel.objects.filter(bag_group_id=bag.bag_group.bag_group_id).update(
                         bags_unclaimed=bag.bag_group.bags_unclaimed - 1)
 
-
+                    user.score += 2
+                    user.save()
                     return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
-                return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
+                return Response({"message": "No bags left"}, status=status.HTTP_418_IM_A_TEAPOT)
             except Exception as e:
                 return Response({"message": "Error creating claim", "Error": e}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -1444,4 +1449,17 @@ def parse_allergens(data):
     return allergendict
 
 
+class DeleteVendor(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
 
+    def post(self, request):
+        if not request.user:
+            return Response({"message" : "Not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
+        if request.user.role != UserModel.Role.ADMIN:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        data = request.data
+        vendor_id = data['vendor_id']
+        vendor = VendorModel.objects.get(id=vendor_id)
+        vendor.delete()
+        return Response(status=status.HTTP_200_OK)

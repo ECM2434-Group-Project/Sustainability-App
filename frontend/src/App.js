@@ -22,15 +22,17 @@ import { VendorSettingsPage } from './screens/vendor-admin/settings/VendorSettin
 import { VendorChangePassword } from './screens/vendor-admin/settings/change-password/VendorChangePassword';
 import ChangeUsername from './screens/change-username';
 import ChangePassword from './screens/change-password';
-import AdminLogin from './screens/admin-login';
+
+import AdminLogin from './screens/admin/login';
 import AdminPage from './screens/admin';
-import CreateVendorPage from './screens/create-vendor';
+import CreateVendorPage from './screens/admin/create-vendor';
+
 import PrivacyPolicy from './screens/privacy-policy';
 import TermsAndConditions from './screens/terms-and-conditions';
 import DeleteAccount from './screens/delete-account';
-import CreateQuestionPage from './screens/admin/create-question';
 import { VendorAccountImages } from './screens/vendor-admin/settings/images/VendorAccountDetails';
 import { VendorChangeName } from './screens/vendor-admin/settings/change-name';
+import ManageQuestionPage from './screens/admin/manage-question';
 
 function App() {
 
@@ -50,9 +52,13 @@ function App() {
 				<Route path="/incorrect-location" element={<IncorrectLocation />} />
 				<Route path="/claim/:claim" element={<ClaimDetailPage />} />
 				<Route path="/leaderboard" element={<LeaderboardPage />} />
-				<Route path="/admin-login" element={<AdminLogin />} />
+
+				
 				<Route path="/admin" element={<AdminPage />} />
+				<Route path="/admin/login" element={<AdminLogin />} />
 				<Route path="/admin/create-vendor" element={<CreateVendorPage />} />
+				<Route path="/admin/manage-questions" element={<ManageQuestionPage />} />
+
 				<Route path="/vendor-admin" element={<VendorAdminScreen />} />
 				<Route path="/vendor-admin/login" element={<VendorLoginPage />} />
 				<Route path="/vendor-admin/scan" element={<VendorScanPage />} />
@@ -60,6 +66,7 @@ function App() {
 				<Route path="/vendor-admin/settings/images" element={<VendorAccountImages />} />
 				<Route path="/vendor-admin/settings/change-password" element={<VendorChangePassword />} />
 				<Route path="/vendor-admin/settings/change-name" element={<VendorChangeName />} />
+
 				<Route path="/settings/change-username" element={<ChangeUsername />} />
 				<Route path="/settings/change-password" element={<ChangePassword />} />
 				<Route path="/privacy-policy" element={<PrivacyPolicy />} />

@@ -23,16 +23,12 @@ export default function CreateVendorPage() {
 	const { user } = useUser()
 
 	const handleSubmit = async (e) => {
-		console.log(e)
-
 		e.preventDefault()
 		setError([])
 
 		let data = { "email":email, "username":username, "password":password, "latitude":latitude, "longitude":longitude, "first_name": name }
-		console.log(data)
 
 		client.post("/api/createvendor", data).then((res) => {
-			console.log(res)
 			if (res.status === 201) {
 				nav("/admin")
 			}
@@ -60,7 +56,6 @@ export default function CreateVendorPage() {
 
 							{
 								Object.keys(error).map((key) => {
-									console.log(error[key])
 									return <small className="text-red-600">{key} | {error[key]}</small>
 								})
 							}
