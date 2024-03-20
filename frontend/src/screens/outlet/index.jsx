@@ -38,34 +38,29 @@ export function OutletPage() {
 		getAllergens();
 	}, [outletData]);
 
-	if (outletData.id === undefined) {
-		return <div>Loading...</div>;
-	}
+  if (outletData.id === undefined) {
+    return <div>Loading...</div>;
+  }
 
-	if (allergens.length === 0) {
-		return <div>Loading...</div>;
-	}
+  return (
+    <section className="h-full flex flex-col ">
+      <div
+        className="relative h-48 w-full bg-cover bg-center"
+        style={{ backgroundImage: "url(http://127.0.0.1:8000" + outletData.banner + ")" }}
+      >
+        <div className="absolute top-2 left-2 z-10 shadow">
+          <GoBackLink href={"/outlet"} />
+        </div>
+      </div>
 
-	return (
-		<section className="h-full flex flex-col ">
-			<div
-				className="relative h-48 w-full bg-cover bg-center"
-				style={{ backgroundImage: "url(" + outletData.banner + ")" }}
-			>
-				<div className="absolute top-2 left-2 z-10 shadow">
-					<GoBackLink href={"/outlet"} />
-				</div>
-			</div>
-
-			<div className="p-4 flex flex-col h-full gap-4 justify-between">
-				<div className="flex flex-col gap-4">
-					<div className="flex gap-4">
-						<img
-							className="w-20 rounded-md object-cover"
-							src={outletData.icon}
-							alt="Logo of the outlet"
-						/>
-
+      <div className="p-4 flex flex-col h-full gap-4 justify-between">
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-4">
+            <img
+              className="w-20 rounded-md object-cover"
+              src={"http://127.0.0.1:8000" + outletData.icon}
+              alt="Logo of the outlet"
+            />
 						<div>
 							{/* Outlet name */}
 							<h2 className="text-2xl font-semibold">
