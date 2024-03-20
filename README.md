@@ -55,21 +55,9 @@ All of frontend has been authored Ed, Wiktor and Arjun.
 API Routes - Oscar and Mikey
 Database Models - Finn
 Authentication - Finn and Arjun
-
-
-### Routes / Pages
-#### Wiktor
-`/quiz`
-`/quiz/complete`
-`/quiz/incorrect`
-`/outlet`
-
-#### Ed
-`/`
-`/settings`
-`/outlet/{id}`
-`/view-claim`
-
-#### Both
-`/login`
-`/register`
+Vendor Frontend - Ed
+Admin Frontend - Wiktor
+User Frontend Sprint 2 and general frontend API calls - Arjun
+Backend Bag Groupings - Oscar and Mikey
+Backend Images and Email Verification - Finn
+Image Models - Mikey

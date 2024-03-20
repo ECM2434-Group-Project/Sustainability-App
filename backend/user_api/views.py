@@ -51,13 +51,19 @@ class UserRegister(APIView):
         data = request.data
         # if email exists and is exeter email, throws exception if it doesn't
         email = data['email']
-        assert validate_email_register(data)
+        try:
+            validate_email_register(data)
+        except:
+            return Response({"message": "Naughty Naughty you do not have an exeter email"},
+            status=status.HTTP_400_BAD_REQUEST)
+
         clean_data = user_creation_validation(request.data)
         serializer = UserRegisterSerializer(data=clean_data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.create(clean_data)
             user.role = UserModel.Role.USER
             user.save()
+
 
             if user:
                 send_verification_email(request, user)
@@ -99,7 +105,10 @@ class UserLogin(APIView):
             if serializer.is_valid(raise_exception=True):
                 username = UserModel.objects.get(email__exact=email).username
                 user = serializer.get_user(username, password)
-                if user.email_verified:
+
+                if (user.role == UserModel.Role.VENDOR) or (user.role == UserModel.Role.ADMIN):
+                    login(request, user)
+                elif user.email_verified:
                     login(request, user)
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 else:
@@ -203,6 +212,8 @@ class VendorView(APIView):
         bagGroupSerializer = BagGroupSerializer(bag_groups, many=True)
 
         data["bag_groups"] = bagGroupSerializer.data
+        data["longitude"] = vendor.location.longitude
+        data["latitude"] = vendor.location.latitude
         return Response(data, status=status.HTTP_200_OK)
 
 class AddBags(APIView):
@@ -1239,7 +1250,7 @@ class UploadImageView(APIView):
     authentication_classes = (SessionAuthentication,)
     """
     Post
-    {'vendorid': [Int]
+    {'vendor_id': [Int]
     'name': [String]
     'type': [String] banner or icon
     'image': [String]
@@ -1254,9 +1265,10 @@ class UploadImageView(APIView):
         # checked vendor id sent is the same as vendor logged in
         elif request.user.role == UserModel.Role.VENDOR:
             try:
-                vendor = UserModel.objects.get(id=request.data.get('vendor_id'))
+                vendor = VendorModel.objects.get(id=request.user.id)
                 if not (request.user.id == vendor.id):
                     return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
+                vendor_id = request.user.id
             except VendorModel.DoesNotExist:
                 return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
         elif request.user.role == UserModel.Role.ADMIN:
@@ -1268,30 +1280,33 @@ class UploadImageView(APIView):
 
         # Decode and save the image
         image_data = request.data["image"]
+        
         # Check if the image is in PNG format
         if image_data.startswith("data:image/png;base64,"):
             image_data = image_data.replace("data:image/png;base64,", "")
             image_filename = f"{vendor.username}_{request.data['type']}.png"
             image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
+            setattr(vendor, request.data['type'], f"/api/getvendorimage/{image_filename}")
+            vendor.save()
 
         # Check if the image is in JPEG format
         elif image_data.startswith("data:image/jpeg;base64,"):
             image_data = image_data.replace("data:image/jpeg;base64,", "")
             image_filename = f"{vendor.username}_{request.data['type']}.jpg"
             image_path = os.path.join(settings.MEDIA_ROOT, image_filename)
+            setattr(vendor, request.data['type'], f"/api/getvendorimage/{image_filename}")
+            vendor.save()
         else:
             return Response({'error': 'File type not supported'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-        # check if path exists
-        if os.path.exists(image_path):
-            return Response({'error': 'File already exists please delete before you update your image'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Prepare data for serialization
         data = {'vendor_id': vendor_id, 'name': image_filename, 'image_url': image_path}
 
         # Serialize and save data + image
         serializer = ImageSerializer(data=data)
+        if ImageModel.objects.filter(name=image_filename).exists():
+            ImageModel.objects.get(name=image_filename).delete()
+
         if serializer.is_valid():
             serializer.save()
             try:
@@ -1326,21 +1341,31 @@ class DeleteImageView(APIView):
         # Check so vendors cannot delete other vendors images
         elif request.user.role == UserModel.Role.VENDOR:
             try:
-                vendor = VendorModel.objects.get(id=request.data.get('vendor_id'))
+                vendor = UserModel.objects.get(id=request.user.id)
                 if not (vendor_username == vendor.username):
                     return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
+                try:
+                    image = ImageModel.objects.get(name=image_name)
+                except ImageModel.DoesNotExist:
+                        return Response({"message: Image not found"}, status=status.HTTP_200_OK)
             except VendorModel.DoesNotExist:
                 return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
         elif request.user.role == UserModel.Role.ADMIN:
             try:
                 image = ImageModel.objects.get(name=image_name)
             except ImageModel.DoesNotExist:
-                return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+                    return Response({"message: Image not found"}, status=status.HTTP_200_OK)
 
         if image:
             # Delete the associated image file
             os.remove(image.image_url)
-
+            #put place holdr url
+            if request.data['type'] == 'icon':
+                setattr(vendor, request.data['type'], "https://placehold.co/256x256")
+            elif request.data['type'] == 'banner':
+                setattr(vendor, request.data['type'], "https://placehold.co/600x200")
+            else:
+                return Response({'error': 'Error with image banner and icon types'}, status=status.HTTP_400_BAD_REQUEST)
             # Delete the ImageModel instance from the database
             image.delete()
             return Response({"message": "Image deleted"}, status=status.HTTP_200_OK)
@@ -1375,14 +1400,18 @@ def verify_email(request, token):
     try:
         email_verification = EmailVerification.objects.get(token=token)
     except EmailVerification.DoesNotExist:
-        return Response("Invalid verification link.")
+        return HttpResponse("Invalid verification link.")
 
     if email_verification.is_verified:
-        return Response("Email already verified.")
+        return HttpResponse("Email already verified.")
 
     email_verification.is_verified = True
+    emailModel = EmailVerification.objects.get(token=token)
+    user = UserModel.objects.get(id = emailModel.user_id)
+    user.email_verified = True
+    user.save()
     email_verification.save()
-    return Response("Email verified successfully.")
+    return HttpResponse("Email verified successfully.")
 
 def getimage(request, image_name):
     # Construct the absolute path to the image

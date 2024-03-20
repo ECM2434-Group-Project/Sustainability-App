@@ -4,10 +4,12 @@ import { UserAvatar } from "../../components/User/UserAvatar";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { useState, useCallback, useEffect } from "react";
 import { client } from "../../axios";
+import { useUser } from "../../contexts/userContext";
 
 export function VendorPage() {
 
 	const [outlets, setOutlets] = useState([]);
+	const [onCampus, setOnCampus] = useState(false);
 
 	// Get the outlet ids then get the outlet data from the at /api/outlets/{id}
     const getOutlets = useCallback(() => {
@@ -27,7 +29,15 @@ export function VendorPage() {
 	// Fetch the outlets
 	useEffect(() => {
 		getOutlets()
+
+		// Check if the user is on campus by using api endpoint
+		setOnCampus(true)
+		
 	}, [])
+
+	/**
+	 * get the users current location
+	 */
 
 	return (
 		<div className="p-6">
@@ -48,7 +58,7 @@ export function VendorPage() {
 
 				<h1 className="text-2xl font-semibold">Food outlets</h1>
 
-				{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={vendor.banner} logoImage={vendor.icon} name={vendor.first_name} walkTime={2} numBags={vendor.bags_left}/>)}
+				{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} vendor={vendor}/>)}
 			</div>
 		</div>
 	)
