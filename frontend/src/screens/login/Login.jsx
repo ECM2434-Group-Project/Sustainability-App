@@ -30,26 +30,31 @@ export default function Login() {
 
 			// now login
 			const result = await login(email, password)
-			
+			console.log("the result is, ", result)
 			if (result === true) {
 				nav("/")
 			} else {
 				setError(result)
 			}
-
 		},
 		[error, email, password]
-	);
-
-	// useEffect(() => {
-	// 	refreshUser();
-	// }, []);
+	)
 
 	return !user ? (
 		<div className="h-screen flex flex-col justify-center p-4 bg-exeterDeepGreen text-white gap-6">
 			<form onSubmit={handleSubmit} className="flex flex-col gap-16">
 				<div className="flex flex-col gap-6">
 					<h1 className="text-2xl font-bold">Login</h1>
+
+					{
+						error ? (
+							<p className="text-center text-red-200">
+								Incorrect email or password
+							</p>
+						) : (
+							<></>
+						)
+					}
 
 					<TextInput
 						label={"Your Exeter Email"}
@@ -68,14 +73,6 @@ export default function Login() {
 						required
 					/>
 				</div>
-
-				{error ? (
-					<p className="p-4 text-center text-red-200">
-						Incorrect email or password
-					</p>
-				) : (
-					<></>
-				)}
 
 				<button
 					className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold pointer"
