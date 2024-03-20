@@ -99,7 +99,10 @@ class UserLogin(APIView):
             if serializer.is_valid(raise_exception=True):
                 username = UserModel.objects.get(email__exact=email).username
                 user = serializer.get_user(username, password)
-                if user.email_verified:
+
+                if (user.role == UserModel.Role.VENDOR) or (user.role == UserModel.Role.ADMIN):
+                    login(request, user)
+                elif user.is_verified:
                     login(request, user)
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 else:
