@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useUser } from "../../../../contexts/userContext"
 import { client } from "../../../../axios"
-import { Popup } from "../../../../components/General/Popup"
+import { Popup } from "../../../../components/General/Popup_Mobile"
 import { GoBackLink } from "../../../../components/General/GoBackLink"
 
 export function VendorChangeName() {

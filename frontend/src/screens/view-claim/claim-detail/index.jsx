@@ -38,8 +38,6 @@ export function ClaimDetailPage() {
             }
         });
     }, []);
-
-    // useEffect(() => {
         
 
 
@@ -63,7 +61,7 @@ export function ClaimDetailPage() {
 
                 <h1 className="text-2xl font-semibold">Your claim</h1>
 
-                <p className="text-gray-600">{new Date(claimData.time).toLocaleTimeString()} on {new Date(claimData.time).toLocaleDateString()}</p>
+                <p className="text-gray-600">Claimed at {new Date(claimData.time).toLocaleTimeString()} on {new Date(claimData.time).toLocaleDateString()}</p>
 
                 <div className="p-8">
                     <QRCodeSVG value={JSON.stringify({
@@ -74,7 +72,8 @@ export function ClaimDetailPage() {
 
                 <div className="flex flex-col gap-4">
                     <h2 className="text-2xl font-semibold">Bag details</h2>
-                    <p>Collect your bag at {new Date(bagData.collection_time).toLocaleTimeString()} on {new Date(bagData.collection_time).toLocaleDateString()}</p>
+                    <p>Collect your {claimData.bag_group_name} bag at <b>{new Date(bagData.collection_time).toLocaleTimeString()}</b> on <b>{new Date(bagData.collection_time).toLocaleDateString()}</b> from <b>{claimData.vendor_name}</b></p>
+
                     </div>
             </div>
         );

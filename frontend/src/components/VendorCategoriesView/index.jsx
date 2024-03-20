@@ -2,8 +2,13 @@ import { HiPlus, HiX } from "react-icons/hi"
 import { CategoryView } from "./CategoryView"
 import { useCallback, useRef, useState } from "react"
 import { TbEdit, TbX } from "react-icons/tb"
+import { client } from "../../axios"
 
 export function VendorCategoriesView() {
+
+    const getCategories = useCallback(() => {
+        client.get("/api/")
+    }, [])
 
     const nameRef = useRef()
 
