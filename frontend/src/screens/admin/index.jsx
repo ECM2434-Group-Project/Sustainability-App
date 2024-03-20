@@ -11,8 +11,8 @@ import { useNavigate } from "react-router-dom";
 export default function AdminPage() {
 
 	const [vendors, setVendors] = useState([])
-
 	const [editing, setEditing] = useState(false)
+	const [changed, setChanged] = useState(0)
 
 	const nav = useNavigate()
 
@@ -29,7 +29,7 @@ export default function AdminPage() {
 			console.log(error)
 			setVendors([])
 		})
-	}, [user])
+	}, [changed])
 
 	/**
 	 * a function for deleting a vendor
@@ -38,11 +38,23 @@ export default function AdminPage() {
 	 */
 	const deleteVendor = (vendor) => {
 
-		console.log(vendor)
-		// remove this vendor from the vendors
-		// setVendors(vendors.filter((v) => v !== vendor))
+		// the data to send to the endpoint
+		const data = { "vendor_id": vendor.id }
 
-		client.post("/api/user/delete")
+		// send the data
+		client.post("/api/deletevendor", data).then((response) => {
+			// setVendors(vendors.filter((v) => v !== vendor))
+
+			// update the current vendors on the page
+			setChanged((chg) => (chg+1))
+
+		// catch any errors that have happened
+		}).catch((error) => {
+			console.log(error)
+		})
+
+		// close the popup
+		setEditing(false)
 	}
 
 	return user ? (

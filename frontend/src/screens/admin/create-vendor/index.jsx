@@ -28,6 +28,7 @@ export default function ManageVendorPage() {
 
 		let data = { "email":email, "username":username, "password":password, "latitude":latitude, "longitude":longitude, "first_name": name }
 
+		// create the vendor
 		client.post("/api/createvendor", data).then((res) => {
 			if (res.status === 201) {
 				nav("/admin")
@@ -36,7 +37,6 @@ export default function ManageVendorPage() {
 			console.log(err.response.data)
 			setError(err.response.data)
 		})
-
 	}
 
 	return user ? (
