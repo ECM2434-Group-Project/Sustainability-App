@@ -35,7 +35,7 @@ urlpatterns = [
 	path('vendors/bags/remove', views.RemoveBags.as_view(), name='removebags'),
 	path('vendors/groups/add', views.AddGroup.as_view(), name='addgroup'),
 	path('vendors/groups/remove', views.RemoveGroup.as_view(), name='removegroup'),
-	path('vendors/groups' , views.ViewGroups.as_view(), name='baggroup'),
+	path('vendors/groups', views.ViewGroups.as_view(), name='baggroup'),
 	path('vendors/verifyclaim', views.VerifyClaim.as_view(), name='verifyclaim'),
 	path('vendors/claimclaim', views.ClaimClaim.as_view(), name='claimclaim'),
 	path('vendors/groups/<int:group_id>', views.GetBagGroups.as_view(), name='baggroup'),
@@ -44,7 +44,7 @@ urlpatterns = [
 
 	path('makequestion', views.CreateQuestion.as_view(), name='makequestion'),
 	path('createvendor', views.CreateVendor.as_view(), name='createvendor'),
-
+	path('deletevendor', views.DeleteVendor.as_view(), name='deletevendor'),
 	## Test URLS
 	path('geotest', views.GeoFenceTest.as_view(), name='testgeo'),
 	path('testvendor', views.CreateTestVendor.as_view(), name='testvendor'),

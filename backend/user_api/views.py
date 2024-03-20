@@ -1446,4 +1446,17 @@ def parse_allergens(data):
     return allergendict
 
 
+class DeleteVendor(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
 
+    def post(self, request):
+        if not request.user:
+            return Response({"message" : "Not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
+        if request.user.role != UserModel.Role.ADMIN:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        data = request.data
+        vendor_id = data['vendor_id']
+        vendor = VendorModel.objects.get(id=vendor_id)
+        vendor.delete()
+        return Response(status=status.HTTP_200_OK)
