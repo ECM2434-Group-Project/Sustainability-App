@@ -803,8 +803,8 @@ class QuizView(APIView):
                 return Response({"message": "You have answered a question incorrectly"},
                                 status=status.HTTP_200_OK)
 
-        ## update score by 3
-        user.score = user.score + 3
+        # update score by 3
+        user.score += 3
         user.save()
         return self.attempt_claim(bag_group, user)
 
@@ -838,9 +838,10 @@ class QuizView(APIView):
                     BagGroupModel.objects.filter(bag_group_id=bag.bag_group.bag_group_id).update(
                         bags_unclaimed=bag.bag_group.bags_unclaimed - 1)
 
-
+                    user.score += 2
+                    user.save()
                     return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
-                return Response({"message": "Claim created successfully"}, status=status.HTTP_201_CREATED)
+                return Response({"message": "No bags left"}, status=status.HTTP_418_IM_A_TEAPOT)
             except Exception as e:
                 return Response({"message": "Error creating claim", "Error": e}, status=status.HTTP_400_BAD_REQUEST)
 
