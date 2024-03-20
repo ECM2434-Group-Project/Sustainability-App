@@ -177,7 +177,7 @@ class VendorsView(APIView):
         for vendor in vendors:
             location = vendor.location
             data.append({"id": vendor.id,"first_name":vendor.first_name, "username": vendor.username, "latitude": location.latitude,
-                         "longitude": location.longitude, "bags_left": vendor.bags_left})
+                         "longitude": location.longitude, "bags_left": vendor.bags_left, "icon": vendor.icon, "banner": vendor.banner})
 
         return Response(data, status=status.HTTP_200_OK)
 
