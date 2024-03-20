@@ -6,6 +6,7 @@ import { TbPaperBag } from "react-icons/tb";
 import { useEffect, useState } from "react";
 import { client } from "../../axios";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../../contexts/userContext";
 
 export function OutletPage() {
 	const { outlet } = useParams();
@@ -14,6 +15,31 @@ export function OutletPage() {
 	const [allergens, setAllergens] = useState([]);
 
 	const nav = useNavigate();
+
+	const { location } = useUser();
+
+	const checkDistance = (lat1, lon1, lat2, lon2) => {
+
+        console.log(lat1, lon1, lat2, lon2)
+
+		var R = 6371; // km
+		var dLat = toRad(lat2-lat1);
+		var dLon = toRad(lon2-lon1);
+		lat1 = toRad(lat1);
+		lat2 = toRad(lat2);
+
+		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
+		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+		var d = R * c;
+
+		return d;
+		
+
+		// Converts numeric degrees to radians
+		function toRad(Value) {
+			return Value * Math.PI / 180;
+		}
+	}
 
 	// FETCH THIS OUTLET'S INFO
 	useEffect(() => {
@@ -28,11 +54,9 @@ export function OutletPage() {
 				return;
 			}
 			for (let i = 0; i < outletData.bag_groups.length; i++) {
-				await client
-					.get("/api/allergens/" + outletData.bag_groups[i].allergen)
-					.then((response) => {
-						setAllergens((prevAllergens) => [...prevAllergens, response.data]);
-					});
+				client.get("/api/allergens/" + outletData.bag_groups[i].allergen).then((response) => {
+					setAllergens((prevAllergens) => [...prevAllergens, response.data]);
+				});
 			}
 		}
 		getAllergens();
@@ -68,7 +92,7 @@ export function OutletPage() {
 							</h2>
 							{/* Outlet mins walk */}
 							<p className="text-gray-400 text-sm">
-								<span>2</span> mins walk
+								<span>{(60*checkDistance(location.latitude, location.longitude, outletData.latitude, outletData.longitude)/3).toFixed(2)}</span> mins walk
 							</p>
 							<p className="text-gray-400 text-m">
 								<span>{outletData.bags_left}</span> bags remaining
@@ -103,15 +127,13 @@ export function OutletPage() {
 								{bagGroup.bags_unclaimed > 0 ? (
 									<StandoutButton
 										onClick={() => {
-											navigator.geolocation.getCurrentPosition((position) => {
-												nav("/quiz", {
-													state: {
-														vendorID: outletData.id,
-														latitude: position.coords.latitude,
-														longitude: position.coords.longitude,
-														groupID: bagGroup.bag_group_id,
-													},
-												});
+											nav("/quiz", {
+												state: {
+													vendorID: outletData.id,
+													latitude: location.coords.latitude,
+													longitude: location.coords.longitude,
+													groupID: bagGroup.bag_group_id,
+												},
 											});
 										}}
 									>

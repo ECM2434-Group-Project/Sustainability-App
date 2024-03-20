@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { BagsRemainingIcon } from "../../General/BagsRemainingIcon";
-import { useCallback } from "react";
+import { useUser } from "../../../contexts/userContext";
+import { useEffect } from "react";
 
-export function OutletCard({ user, vendor }) {
+export function OutletCard({ vendor }) {
+
+    const { location } = useUser()
 
     const checkDistance = (lat1, lon1, lat2, lon2) => {
-        console.log(user)
 
         console.log(lat1, lon1, lat2, lon2)
 
@@ -28,13 +30,18 @@ export function OutletCard({ user, vendor }) {
 		}
 	}
 
-    return (
-        <Link to={"/outlet/" + vendor.vendor_id} className="rounded-2xl border-[1px] border-gray-200 border-solid overflow-hidden shadow-md">
+    useEffect(() => {
+        console.log("loaded in the location")
+        console.log(location)
+    }, [location])
+
+    return location ? (
+        <Link to={"/outlet/" + vendor.id} className="rounded-2xl border-[1px] border-gray-200 border-solid overflow-hidden shadow-md">
         <div className="">
             {/* BG image */}
             <img
                 className="w-full h-32 object-cover"
-                src={vendor.banner} alt="Background of the outlet" />
+                src={"http://127.0.0.1:8000" + vendor.banner} alt="Background of the outlet" />
         </div>
 
         <div className="p-4 flex flex-col gap-4">
@@ -43,7 +50,7 @@ export function OutletCard({ user, vendor }) {
                 {/* Vendor Logo */}
                 <img
                     className="w-10 h-10 rounded-md object-cover"
-                    src={vendor.icon}
+                    src={"http://127.0.0.1:8000" + vendor.icon}
                     alt="Logo of the outlet"
                 />
 
@@ -52,7 +59,7 @@ export function OutletCard({ user, vendor }) {
                     <h3 className="text-xl font-semibold">{vendor.first_name}</h3>
                     {/* Vendor distance away */}
                     <p className="text-gray-400 text-sm">
-                        <span>{(60*checkDistance(user.latitude, user.longitude, vendor.latitude, vendor.longitude)/3).toFixed(2)}</span>
+                        <span>{(60*checkDistance(location.latitude, location.longitude, vendor.latitude, vendor.longitude)/3).toFixed(2)}</span>
                         <span> min walk</span>
                     </p>
                 </div>
@@ -63,5 +70,7 @@ export function OutletCard({ user, vendor }) {
             </div>
         </div>
     </Link>
+    ) : (
+        <></>
     )
 }

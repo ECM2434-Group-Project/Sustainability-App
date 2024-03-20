@@ -10,7 +10,6 @@ export function VendorPage() {
 
 	const [outlets, setOutlets] = useState([]);
 	const [onCampus, setOnCampus] = useState(false);
-	const { user } = useUser()
 
 	// Get the outlet ids then get the outlet data from the at /api/outlets/{id}
     const getOutlets = useCallback(() => {
@@ -32,6 +31,7 @@ export function VendorPage() {
 		getOutlets()
 
 		// Check if the user is on campus by using api endpoint
+		setOnCampus(true)
 		
 	}, [])
 
@@ -58,7 +58,7 @@ export function VendorPage() {
 
 				<h1 className="text-2xl font-semibold">Food outlets</h1>
 
-				{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} id={vendor.id} bgImage={"http://127.0.0.1:8000" + vendor.banner} logoImage={"http://127.0.0.1:8000" + vendor.icon} name={vendor.first_name} walkTime={2} numBags={vendor.bags_left}/>)}
+				{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} vendor={vendor}/>)}
 			</div>
 		</div>
 	)
