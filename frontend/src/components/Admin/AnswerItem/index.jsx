@@ -1,8 +1,4 @@
-import { useRef, useState } from "react"
-
 export function AnswerItem({ answer, setAnswer }) {
-
-	const [checked, setChecked] = useState(answer.is_correct)
 	return (
 		<div className="flex gap-4 overflow-hidden">
 			<input type="checkbox" id={answer.answer_id} className="hidden peer" defaultChecked={answer.is_correct}  required="" onChange={() => {

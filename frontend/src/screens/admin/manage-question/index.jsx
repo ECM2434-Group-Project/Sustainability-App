@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react"
-import { TextInput } from "../../../components/General/TextInput"
 import { GoBackLink } from "../../../components/General/GoBackLink"
 import { UserAvatar } from "../../../components/User/UserAvatar"
 import { client } from "../../../axios"
-import { useNavigate } from "react-router-dom"
 import { useUser } from "../../../contexts/userContext"
 import { NotLoggedIn } from "../../../components/General/NotLoggedIn"
 import { NotAdmin } from "../../../components/Admin/NotAdmin"
@@ -19,7 +17,6 @@ export default function ManageQuestionPage() {
 	// creating questions state
 	const [question, setQuestion] = useState("")
 	const [answers, setAnswers] = useState([])
-	const [options, setOptions] = useState([])
 
 	// manage questions state
 	const [questions, setQuestions] = useState([])
@@ -71,7 +68,7 @@ export default function ManageQuestionPage() {
 				if (a.answer === "") {
 					setCreatingError((err) => [...err, "You must have content in each answer"])
 					answerContent = true;
-					throw {};
+					throw {"error": "something went wrong"};
 				}
 			})
 		} catch (e) {
@@ -196,126 +193,133 @@ export default function ManageQuestionPage() {
 
 
 	return user ? (
-		<div className="flex flex-col bg-exeterBlue p-4 h-screen">
+		<>
+			{
+				user.role === "ADMIN" ? (
+					<div className="flex flex-col bg-exeterBlue p-4 h-screen">
 
-			{/* creating questions */}
-			<Popup trigger={creating} setTrigger={setCreating} size="large">
-				<form className="bg-white p-4 rounded-xl flex flex-col justify-center" onSubmit={createQuestion}>
+						{/* creating questions */}
+						<Popup trigger={creating} setTrigger={setCreating} size="large">
+							<form className="bg-white p-4 rounded-xl flex flex-col justify-center" onSubmit={createQuestion}>
 
-					<h1 className="text-2xl">Question</h1>
+								<h1 className="text-2xl">Question</h1>
 
-					{/* the question */}
-					<div className="flex gap-5">
-						<input className="border rounded-2xl border-black p-2" type="text" content={question.question} onChange={(e) => {
-							console.log(question)
-							setQuestion((q) => {
-								return { ...q, "question": e.target.value }
-							})
+								{/* the question */}
+								<div className="flex gap-5">
+									<input className="border rounded-2xl border-black p-2" type="text" content={question.question} onChange={(e) => {
+										console.log(question)
+										setQuestion((q) => {
+											return { ...q, "question": e.target.value }
+										})
+										
+
+									}}/>
+								</div>
+								
+								<h1 className="text-2xl">Answers</h1>
+
+								{/* each answer */}
+								<div className="flex flex-col gap-2">
+									{
+										answers?.map((a, index) => {
+											return (
+												<AnswerItem key={index} answer={a} setAnswer={setAnswers} />
+											)
+										})
+									}
+								</div>
+
+								{/* errors */}
+								<div className="flex flex-col gap-4">
+									{
+										creatingError.map((e) => {
+
+											return (
+												<p className="text-red-500">{e}</p>
+											)
+										})
+									}
+								</div>
+
+								<button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-2xl mt-2">Create</button>
+							</form>
+						</Popup>
+
+						{/* editing questions */}
+						<Popup trigger={editing} setTrigger={setEditing} size="large">
+							<form className="bg-white p-4 rounded-xl flex flex-col justify-center" onSubmit={editQuestion}>
+								<h1 className="text-2xl">Question</h1>
+
+								<div className="flex gap-5">
+									<input className="border rounded-2xl border-black p-2" type="text" value={question.question} onChange={(e) => {
+										console.log(question)
+										setQuestion((q) => {
+											return { ...q, "question": e.target.value, "changed": true }
+										})
+
+									}}/>
+								</div>
+								
+
+								<h1 className="text-2xl">Answers</h1>
+								<div className="flex flex-col gap-2">
+									{
+										answers?.map((a, index) => {
+											return (
+												<AnswerItem key={index} answer={a} setAnswer={setAnswers} />
+											)
+										})
+									}
+								</div>
+
+								<button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-2xl mt-2">Save</button>
+
+								<button type="button" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-2xl mt-2" onClick={() => {
+									
+									// call the remove question api
+									deleteQuestion()
+								}}>Delete</button>
+							</form>
+						</Popup>
+
+						{/* top bar */}
+						<div className="flex justify-between">
+							<GoBackLink  href="/admin"/>
+
+							<UserAvatar />
+						</div>
+					
+						{/* question editing */}
+						<div className="flex flex-col w-1/2 h-full">
+							<div className="flex justify-between pb-8">
+								<h1 className="text-4xl font-bold w-max ">Manage Questions</h1>
+								<button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-2xl" onClick={() => {
+									setQuestion({question_id: 1, question: 'enter the question here'})
+									setAnswers([{answer: "", is_correct: true, answer_id: 1},
+												{answer: "", is_correct: false, answer_id: 2},
+												{answer: "", is_correct: false, answer_id: 3},
+												{answer: "", is_correct: false, answer_id: 4}])
+									setCreatingError([])
+									setCreating(true)
+								}}>Create Question</button>
+							</div>
 							
-
-						}}/>
+							<div className="flex flex-col gap-2">
+								{
+									questions.map((q) => {
+										return (
+											<QuestionItem question={q} setEditing={setEditing} setQuestion={setQuestion} setAnswers={setAnswers} />
+										)
+									})
+								}
+							</div>
+						</div>
 					</div>
-					
-					<h1 className="text-2xl">Answers</h1>
-
-					{/* each answer */}
-					<div className="flex flex-col gap-2">
-						{
-							answers?.map((a, index) => {
-								return (
-									<AnswerItem key={index} answer={a} setAnswer={setAnswers} />
-								)
-							})
-						}
-					</div>
-
-					{/* errors */}
-					<div className="flex flex-col gap-4">
-						{
-							creatingError.map((e) => {
-
-								return (
-									<p className="text-red-500">{e}</p>
-								)
-							})
-						}
-					</div>
-
-					<button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-2xl mt-2">Create</button>
-				</form>
-			</Popup>
-
-			{/* editing questions */}
-			<Popup trigger={editing} setTrigger={setEditing} size="large">
-				<form className="bg-white p-4 rounded-xl flex flex-col justify-center" onSubmit={editQuestion}>
-					<h1 className="text-2xl">Question</h1>
-
-					<div className="flex gap-5">
-						<input className="border rounded-2xl border-black p-2" type="text" value={question.question} onChange={(e) => {
-							console.log(question)
-							setQuestion((q) => {
-								return { ...q, "question": e.target.value, "changed": true }
-							})
-
-						}}/>
-					</div>
-					
-
-					<h1 className="text-2xl">Answers</h1>
-					<div className="flex flex-col gap-2">
-						{
-							answers?.map((a, index) => {
-								return (
-									<AnswerItem key={index} answer={a} setAnswer={setAnswers} />
-								)
-							})
-						}
-					</div>
-
-					<button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-2xl mt-2">Save</button>
-
-					<button type="button" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-2xl mt-2" onClick={() => {
-						
-						// call the remove question api
-						deleteQuestion()
-					}}>Delete</button>
-				</form>
-			</Popup>
-
-			{/* top bar */}
-			<div className="flex justify-between">
-				<GoBackLink  href="/admin"/>
-
-				<UserAvatar />
-			</div>
-		
-			{/* question editing */}
-			<div className="flex flex-col w-1/2 h-full">
-				<div className="flex justify-between pb-8">
-					<h1 className="text-4xl font-bold w-max ">Manage Questions</h1>
-					<button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-2xl" onClick={() => {
-						setQuestion({question_id: 1, question: 'enter the question here'})
-						setAnswers([{answer: "", is_correct: true, answer_id: 1},
-									{answer: "", is_correct: false, answer_id: 2},
-									{answer: "", is_correct: false, answer_id: 3},
-									{answer: "", is_correct: false, answer_id: 3}])
-						setCreatingError([])
-						setCreating(true)
-					}}>Create Question</button>
-				</div>
-				
-				<div className="flex flex-col gap-2">
-					{
-						questions.map((q) => {
-							return (
-								<QuestionItem question={q} setEditing={setEditing} setQuestion={setQuestion} setAnswers={setAnswers} />
-							)
-						})
-					}
-				</div>
-				
-			</div>
-		</div>
+				) : (
+					<NotAdmin />
+				)
+			}
+		</>
 	) : (
 		<NotLoggedIn />
 	)
