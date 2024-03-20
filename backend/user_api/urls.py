@@ -12,8 +12,8 @@ urlpatterns = [
 	path('user', views.UserView.as_view(), name='user'), # see user info for logged in user
 	path('user/deleteuser', views.DeleteUser.as_view(), name='deleteuser'), # delete a user
 	path('user/updateuser', views.UpdateUser.as_view(), name='update_user'),
-	path('send_verification_email/', views.send_verification_email, name='send_verification_email'),
 	path('verify_email/<str:token>/', views.verify_email, name='verify_email'),
+	path('resend_verification_email', views.resend_verification_email, name='resend_verification_email'),
 
 	## User Stuff
 

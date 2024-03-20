@@ -60,6 +60,7 @@ class UserRegister(APIView):
             user.save()
 
             if user:
+                send_verification_email(request, user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -98,8 +99,11 @@ class UserLogin(APIView):
             if serializer.is_valid(raise_exception=True):
                 username = UserModel.objects.get(email__exact=email).username
                 user = serializer.get_user(username, password)
-                login(request, user)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                if user.is_verified:
+                    login(request, user)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response({"message": "Email not verified"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
 
@@ -971,6 +975,7 @@ class CreateAdmin(APIView):
         email = "admin@admin.com"
         user = AdminModel.objects.create_user(username, email, password)
         user.role = "ADMIN"
+        user.email_verified = True
         user.save()
         serializer = AdminSerializer(user)
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -1012,7 +1017,7 @@ class CreateVendor(APIView):
             serializer = VendorSerializer(data=data)
             if serializer.is_valid(raise_exception=True):
                 vendor = VendorModel.objects.create_user(username=data['username'], email=data['email'],
-                                                         password=data['password'], location=location, role="VENDOR", first_name=data['first_name'])
+                                                         password=data['password'], location=location, role="VENDOR", first_name=data['first_name'], email_verified=True)
                 vendor.save()
                 # create location for vendor
 
@@ -1042,7 +1047,9 @@ class CreateTestVendor(APIView):
         else:
             return Response({"message": "Error accesing location"}, status=status.HTTP_400_BAD_REQUEST)
         vendor = VendorModel.objects.create_user(username, email, password, location=location)
+        vendor.email_verified = True
         vendor.save()
+
         # VendorModel.objects.filter(id=vendor.id).update(location=location)
         serializer = VendorSerializer(vendor)
         return Response({"data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -1335,6 +1342,18 @@ class DeleteImageView(APIView):
             return Response({"message": "Image deleted"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def resend_verification_email(request, email):
+    user = UserModel.objects.get(email__exact=email)
+    if not user:
+        return Response({"message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+    if user.email_verified:
+        return Response({"message": "Email already verified."}, status=status.HTTP_200_OK)
+    else:
+        send_verification_email(request, user)
+        return Response({"message": "Verification email sent."}, status=status.HTTP_200_OK)
+
 
 def send_verification_email(request, user):
     email_verification, created = EmailVerification.objects.get_or_create(user=user)
