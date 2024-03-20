@@ -1,8 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GoBackLink } from "../../../components/General/GoBackLink";
-import { IoImage, IoKey, IoKeyOutline, IoPerson, IoPersonOutline } from "react-icons/io5";
+import { IoImage, IoKey, IoKeyOutline, IoLogOut, IoPerson, IoPersonOutline } from "react-icons/io5";
+import { useUser } from "../../../contexts/userContext";
 
 export function VendorSettingsPage() {
+
+    const { logout } = useUser()
+
+    const nav = useNavigate()
+
     return (
         <section className="flex flex-col gap-8 h-screen">
 
@@ -29,6 +35,12 @@ export function VendorSettingsPage() {
                         <span>Change password</span>
                         <IoKeyOutline />
                     </Link>
+
+                    <button className="bg-white border-[0.8px] shadow border-color border-gray-300 p-4 rounded text-gray-800 flex justify-between items-center" onClick={() => logout().then(() => nav("/vendor-admin/login"))}>
+                        <span>Log out</span>
+                        <IoLogOut />
+                    </button>
+
 
                 </div>
             </div>
