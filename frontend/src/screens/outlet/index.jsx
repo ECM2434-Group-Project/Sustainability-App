@@ -41,11 +41,7 @@ export function OutletPage() {
   if (outletData.id === undefined) {
     return <div>Loading...</div>;
   }
-
-  if (allergens.length === 0) {
-    return <div>Loading...</div>;
-  }
-
+  
   return (
     <section className="h-full flex flex-col ">
       <div
