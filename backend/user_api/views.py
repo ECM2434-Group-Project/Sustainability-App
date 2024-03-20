@@ -394,6 +394,8 @@ class ViewGroups(APIView):
         groups = BagGroupModel.objects.filter(vendor=user)
         serializer = BagGroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class IssueBagsView(APIView):
     '''
     This endpoint allows vendors to issue bags. The issued bags will be automatically associated with the vendor who issued them.
@@ -1237,7 +1239,7 @@ class UploadImageView(APIView):
     def post(self, request):
         #=request.vendor.vendor_id) add later
         # Retrieve vendor based on ID
-        if (request.user.role != UserModel.Role.VENDOR) or (request.user.role != UserModel.Role.ADMIN):
+        if (request.user.role != UserModel.Role.VENDOR) and (request.user.role != UserModel.Role.ADMIN):
             return Response({"message": "You are not a vendor or admin"},status=status.HTTP_403_FORBIDDEN)
         # checked vendor id sent is the same as vendor logged in
         elif request.user.role == UserModel.Role.VENDOR:
@@ -1247,13 +1249,12 @@ class UploadImageView(APIView):
                     return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
             except VendorModel.DoesNotExist:
                 return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        vendor_id = request.data.get("vendor_id")
-
-        try:
-            vendor = VendorModel.objects.get(id=vendor_id)
-        except VendorModel.DoesNotExist:
-            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+        elif request.user.role == UserModel.Role.ADMIN:
+            try:
+                vendor_id = request.data.get("vendor_id")
+                vendor = VendorModel.objects.get(id=vendor_id)
+            except VendorModel.DoesNotExist:
+                return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Decode and save the image
         image_data = request.data["image"]
@@ -1320,11 +1321,11 @@ class DeleteImageView(APIView):
                     return Response(Response({"message": "You cannot upload image to a different vendor"},status=status.HTTP_403_FORBIDDEN))
             except VendorModel.DoesNotExist:
                 return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            image = ImageModel.objects.get(name=image_name)
-        except ImageModel.DoesNotExist:
-            return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        elif request.user.role == UserModel.Role.ADMIN:
+            try:
+                image = ImageModel.objects.get(name=image_name)
+            except ImageModel.DoesNotExist:
+                return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
 
         if image:
             # Delete the associated image file
