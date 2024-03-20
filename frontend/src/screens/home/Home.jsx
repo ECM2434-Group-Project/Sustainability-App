@@ -1,12 +1,10 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React from "react";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { MdLocationOn } from "react-icons/md";
 
-import { UserClaimView } from "../../components/User/UserClaimView";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
-import { client } from "../../axios";
 import GDPR from "../../components/General/GDPR";
 
 // Based on state passed in which contains if logged in or not, display the home page with a login and register button
@@ -15,10 +13,7 @@ export default function Home() {
 
     const nav = useNavigate()
 
-    const { user, locationVerified, refreshLocation } = useUser()
-
-    const [userHasClaim, setUserHasClaim] = useState(true);
-
+    const { user, locationVerified } = useUser()
 
     return (
         <section className="h-full flex flex-col justify-between p-4">
@@ -35,16 +30,6 @@ export default function Home() {
                                 className="text-4xl font-semibold text-gray-700"
                             >Welcome back, {user?.first_name}</h1>
                         </div>
-
-                        {
-                            userHasClaim ? (
-                                <div className="h-full pt-8">
-                                    {/* <UserClaimView /> */}
-                                </div>
-                            ) : (
-                                <></>
-                            )
-                        }
 
                         <div className="text-center flex flex-col gap-3">
                             <StandoutButton onClick={async () => {

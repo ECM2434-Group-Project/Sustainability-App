@@ -1,19 +1,13 @@
 import { HiOutlineQrcode } from "react-icons/hi";
-import { CategoryView } from "../../components/VendorCategoriesView/CategoryView";
 import { VendorCategoriesView } from "../../components/VendorCategoriesView";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useUser } from "../../contexts/userContext";
-import { useEffect } from "react";
 
 
 export default function VendorAdminScreen() {
 
     const { user } = useUser()
-
-    const nav = useNavigate()
-
-
 
     return user ? (
         <section className="flex flex-col gap-4">
@@ -22,7 +16,7 @@ export default function VendorAdminScreen() {
                 <Link to={"/vendor-admin/settings"} className="absolute h-10 w-10 flex justify-center items-center bg-white rounded-full top-2 right-2 border-solid border-[1px] border-gray-400">
                     <IoSettingsOutline />
                 </Link>
-                <img className="h-full w-full object-cover" src={"http://" + process.env.REACT_APP_BACKEND_HOSTNAME + ":8000" + user?.banner} />
+                <img className="h-full w-full object-cover" src={"http://" + process.env.REACT_APP_BACKEND_HOSTNAME + ":8000" + user?.banner} alt="no"/>
             </div>
 
             <section className="p-4 flex flex-col gap-6 pb-16">

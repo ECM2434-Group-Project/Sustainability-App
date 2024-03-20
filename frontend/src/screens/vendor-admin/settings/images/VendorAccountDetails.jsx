@@ -1,17 +1,13 @@
 import { useCallback, useRef, useState } from "react";
-import { TextInput } from "../../../../components/General/TextInput";
 import { GoBackLink } from "../../../../components/General/GoBackLink";
 import { client } from "../../../../axios";
 import { useUser } from "../../../../contexts/userContext";
 import { Popup } from "../../../../components/General/Popup_Mobile";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export function VendorAccountImages() {
 
     const { user, refreshUser } = useUser()
-
-    const [ name, setName ] = useState('')
 
     const [ changeLogoOpen, setChangeLogoOpen ] = useState(false)
     const [ changeBannerOpen, setChangeBannerOpen ] = useState(false)

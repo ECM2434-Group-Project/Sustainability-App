@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export function VendorLoginPage() {
 
-	const { user, login } = useUser();
+	const { login } = useUser();
 
 
     const [email, setEmail] = useState("");

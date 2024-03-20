@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-// import useDigitInput from "react-digit-input";
 import { GoBackLink } from "../../../components/General/GoBackLink";
 import { ImCross } from "react-icons/im";
 import { TiTick } from "react-icons/ti"
@@ -13,14 +12,18 @@ export function VendorScanPage() {
 
     const [ checking, setChecking ] = useState(false)
 
-    const checkCode = useCallback(() => {
+    const checkCode = useCallback((claim_id, user_id) => {
+        console.log(claim_id)
+        console.log(user_id)
+
         setChecking(true)
         client.post("/api/vendors/claimclaim", {
-            claim_id: "",
-            user_id: ""
+            claim_id: claim_id,
+            user_id: user_id
         })
         .then(res => {
             console.log("CLAIM RETURNED", res)
+
             setOutcome("yes")
             setTimeout(() => setOutcome(null), 2000)
             setCode('')
@@ -28,7 +31,7 @@ export function VendorScanPage() {
         })
         .catch(err => { 
             console.error("Error scanning claim", err)
-            setOutcome("no")
+            setOutcome(err.response.data.message)
             setTimeout(() => setOutcome(null), 2000)
             setCode('')
             setChecking(false)
@@ -52,15 +55,13 @@ export function VendorScanPage() {
                             <div className="border-dashed border-[2px] border-gray-500 p-4 bg-gray-200">
                                 <QrReader
                                     onResult={(result, error) => {
-                                    if (result) {
-                                        checkCode()
-                                    }
 
-                                    if (error) {
-                                        console.info("Error scanning", error);
-                                    }
+                                        // only scan if there is something cool in the result
+                                        if (result) {
+                                            const obj = JSON.parse(result.text)
+                                            checkCode(obj.claim_id, obj.user_id)
+                                        }
                                     }}
-                                    // style={{ width: '100%' }}
                                 />
                             </div>
 
@@ -96,7 +97,7 @@ export function VendorScanPage() {
                             <span className="text-6xl">
                                 <ImCross />
                             </span>
-                            <p>Invalid claim</p>
+                            <p>{outcome}</p>
                         </div>
                     )
                 )

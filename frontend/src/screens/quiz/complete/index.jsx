@@ -1,6 +1,5 @@
 import { StandoutButton } from "../../../components/General/StandoutButton";
-import { CollectBagButton } from "../../../components/Quiz/CollectBagButton"
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
 /**

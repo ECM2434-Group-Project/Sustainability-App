@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { GoBackLink } from "../../../components/General/GoBackLink";
-import { IoImage, IoKey, IoKeyOutline, IoLogOut, IoPerson, IoPersonOutline } from "react-icons/io5";
+import { IoImage, IoKeyOutline, IoLogOut, IoPerson } from "react-icons/io5";
 import { useUser } from "../../../contexts/userContext";
 
 export function VendorSettingsPage() {

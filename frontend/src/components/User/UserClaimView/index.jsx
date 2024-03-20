@@ -1,12 +1,9 @@
 import { TbPaperBag } from "react-icons/tb"
-import { useUser } from "../../../contexts/userContext"
 import { useEffect, useState } from "react"
 import { client } from "../../../axios"
 import { Link } from "react-router-dom"
 
 export function UserClaimView() {
-
-    const { user } = useUser()
 
     const [claims, setClaims] = useState([])
     const [error, setError] = useState()
@@ -23,7 +20,7 @@ export function UserClaimView() {
 
     const calculateActive = () => {
         let counter = 0
-        claims.map(c => {
+        claims.forEach(c => {
             if (!c.success) {
                 counter++
             }
