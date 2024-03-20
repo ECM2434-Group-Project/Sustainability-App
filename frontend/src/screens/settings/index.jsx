@@ -48,10 +48,6 @@ export function SettingsPage(params, props) {
                         )
                     }
 
-                    
-
-                    
-
                     {
                         user.role !== "ADMIN" && user.role !== "VENDOR" ? (
                             <Link to={"/leaderboard"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Leaderboard</Link>
@@ -67,7 +63,6 @@ export function SettingsPage(params, props) {
                             <></>
                         )
                     }
-                    
 
                     <Link to={"/privacy-policy"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Privacy Policy</Link>
 
@@ -80,8 +75,6 @@ export function SettingsPage(params, props) {
                             <></>
                         )
                     }
-                    
-
                 </div>
 
                 <StandoutButton onClick={() => {
