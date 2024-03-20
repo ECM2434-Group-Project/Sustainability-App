@@ -130,8 +130,8 @@ export function OutletPage() {
 											nav("/quiz", {
 												state: {
 													vendorID: outletData.id,
-													latitude: location.coords.latitude,
-													longitude: location.coords.longitude,
+													latitude: location.latitude,
+													longitude: location.longitude,
 													groupID: bagGroup.bag_group_id,
 												},
 											});
