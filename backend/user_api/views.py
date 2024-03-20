@@ -600,6 +600,7 @@ class QuestionsView(APIView):
 
         if ('new_text' not in request.data) and ('delete' not in request.data):
             return Response({"message" : "Invalid Type"}, status=status.HTTP_400_BAD_REQUEST)
+        
         if 'delete' in request.data:
             if request.data['delete']:
                 if 'question_id' in request.data:
@@ -611,11 +612,13 @@ class QuestionsView(APIView):
                     answer.delete()
                     return Response({"message" : f"Answer {answer.pk} deleted"}, status=status.HTTP_200_OK)
             return Response({"message" : "Nothing deleted, There was some sort of error"}, status=status.HTTP_200_OK)
+        
         elif 'question_id' in request.data:
             question = QuestionModel.objects.filter(question_id=request.data['question_id']).first()
             question.question = request.data['new_text']
             question.save()
             return Response({"message" : f"Question {question.pk} updated"}, status=status.HTTP_200_OK)
+        
         elif 'answer_id' in request.data:
             answer = AnswerModel.objects.filter(answer_id=request.data['answer_id']).first()
             answer.answer = request.data['new_text']
