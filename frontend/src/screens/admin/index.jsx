@@ -7,6 +7,7 @@ import { NotAdmin } from "../../components/Admin/NotAdmin";
 import { client } from '../../axios'
 import { NotLoggedIn } from "../../components/General/NotLoggedIn";
 import { useNavigate } from "react-router-dom";
+import { Settings } from "../../components/Admin/Settings";
 
 export default function AdminPage() {
 
@@ -96,7 +97,7 @@ export default function AdminPage() {
 							</div>
 
 
-							<UserAvatar />
+							<Settings />
 						</div>
 
 						<div className="sticky top-10">

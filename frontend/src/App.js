@@ -26,6 +26,7 @@ import ChangePassword from './screens/change-password';
 import AdminLogin from './screens/admin/login';
 import AdminPage from './screens/admin';
 import CreateVendorPage from './screens/admin/create-vendor';
+import AdminSettingsPage from './screens/admin/settings';
 
 import PrivacyPolicy from './screens/privacy-policy';
 import TermsAndConditions from './screens/terms-and-conditions';
@@ -33,6 +34,7 @@ import DeleteAccount from './screens/delete-account';
 import { VendorAccountImages } from './screens/vendor-admin/settings/images/VendorAccountDetails';
 import { VendorChangeName } from './screens/vendor-admin/settings/change-name';
 import ManageQuestionPage from './screens/admin/manage-question';
+
 
 function App() {
 
@@ -57,6 +59,7 @@ function App() {
 				<Route path="/admin/login" element={<AdminLogin />} />
 				<Route path="/admin/create-vendor" element={<CreateVendorPage />} />
 				<Route path="/admin/manage-questions" element={<ManageQuestionPage />} />
+				<Route path="/admin/settings" element={<AdminSettingsPage />} />
 
 				<Route path="/vendor-admin" element={<VendorAdminScreen />} />
 				<Route path="/vendor-admin/login" element={<VendorLoginPage />} />

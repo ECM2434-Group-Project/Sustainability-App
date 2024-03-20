@@ -6,15 +6,13 @@ import { useUser } from "../../../contexts/userContext";
 export function VendorSettingsPage() {
 
     const { logout } = useUser()
-
     const nav = useNavigate()
 
     return (
         <section className="flex flex-col gap-8 h-screen">
 
-            
             <div className="p-4">
-                <GoBackLink href={"/vendor-admin"} />
+                <GoBackLink />
             </div>
 
             <div className="h-full flex flex-col justify-center p-4">
@@ -41,10 +39,8 @@ export function VendorSettingsPage() {
                         <IoLogOut />
                     </button>
 
-
                 </div>
             </div>
-
 
         </section>
     )
