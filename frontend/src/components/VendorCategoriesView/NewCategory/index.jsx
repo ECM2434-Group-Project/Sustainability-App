@@ -36,7 +36,7 @@ export function NewCategory({ setNewGroupOpen }) {
             <div className="flex flex-col gap-4">
                 <h2 className="font-semibold text-2xl">New bag group</h2>
 
-                <input placeholder="Eg. Vegitarian" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 py-3 border-[1px] border-solid border-gray-300 rounded-md" type="text" />
+                <input placeholder="Eg. Vegetarian" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 py-3 border-[1px] border-solid border-gray-300 rounded-md" type="text" />
 
                 <div className="flex flex-col gap-2">
 

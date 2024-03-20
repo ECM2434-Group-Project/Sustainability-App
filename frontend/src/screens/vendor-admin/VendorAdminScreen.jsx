@@ -22,13 +22,13 @@ export default function VendorAdminScreen() {
                 <Link to={"/vendor-admin/settings"} className="absolute h-10 w-10 flex justify-center items-center bg-white rounded-full top-2 right-2 border-solid border-[1px] border-gray-400">
                     <IoSettingsOutline />
                 </Link>
-                <img className="h-full w-full object-cover" src={user?.banner} />
+                <img className="h-full w-full object-cover" src={"http://127.0.0.1:8000" + user?.banner} />
             </div>
 
             <section className="p-4 flex flex-col gap-6 pb-16">
 
                 <div className="flex gap-3 items-center">
-                    <img src={user?.icon} alt="Vendor logo" className="w-10 h-10 rounded object-cover" />
+                    <img src={"http://127.0.0.1:8000" + user?.icon} alt="Vendor logo" className="w-10 h-10 rounded object-cover" />
 
                     <div>
                         <small>Logged in as</small>

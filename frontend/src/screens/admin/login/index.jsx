@@ -31,12 +31,10 @@ export default function AdminLogin() {
 			const result = await login(email, password)
 			
 			if (result === true) {
-				if (user.role === "ADMIN")
 				nav("/admin")
 			} else {
 				setError(result)
 			}
-
 		},
 		[error, email, password]
 	);
@@ -47,6 +45,16 @@ export default function AdminLogin() {
 				<form onSubmit={handleSubmit} className="flex flex-col gap-16">
 					<div className="flex flex-col gap-6">
 						<h1 className="text-2xl font-bold self-center pb-10">Admin Login</h1>
+
+						{
+							error ? (
+								<p className="text-center text-red-200">
+									Incorrect email or password
+								</p>
+							) : (
+								<></>
+							)
+						}
 
 						<TextInput
 							label={"Your Exeter Email"}
@@ -66,14 +74,6 @@ export default function AdminLogin() {
 							required
 						/>
 					</div>
-
-					{error ? (
-						<p className="p-4 text-center text-red-200">
-							Incorrect email or password
-						</p>
-					) : (
-						<></>
-					)}
 
 					<button
 						className="bg-exeterBlue text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold"

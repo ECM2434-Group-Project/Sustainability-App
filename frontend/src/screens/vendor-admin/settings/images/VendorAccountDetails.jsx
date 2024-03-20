@@ -4,6 +4,8 @@ import { GoBackLink } from "../../../../components/General/GoBackLink";
 import { client } from "../../../../axios";
 import { useUser } from "../../../../contexts/userContext";
 import { Popup } from "../../../../components/General/Popup_Mobile";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export function VendorAccountImages() {
 
@@ -16,6 +18,8 @@ export function VendorAccountImages() {
 
     const logoInputRef = useRef()
     const bannerInputRef = useRef()
+
+    const nav = useNavigate()
 
 
     const removeLogo = useCallback(async () => {
@@ -34,7 +38,32 @@ export function VendorAccountImages() {
 
         if(logoInputRef.current.files.length < 1) return
 
-        await removeLogo()
+        var reader = new FileReader()
+        var baseString
+
+
+        reader.onloadend = async () => {
+
+            baseString = reader.result
+
+            await client.post("/api/uploadvendorimage/", {
+                vendor_id: user.id,
+                name: user.username,
+                type: "icon",
+                image: baseString
+            })
+
+            nav("/vendor-admin/")
+
+        }
+
+        reader.readAsDataURL(logoInputRef.current.files[0])
+
+    })
+
+    const setBanner = useCallback(async () => {
+
+        if(bannerInputRef.current.files.length < 1) return
 
         var reader = new FileReader()
         var baseString
@@ -50,31 +79,8 @@ export function VendorAccountImages() {
                 type: "banner",
                 image: baseString
             })
-        }
 
-        reader.readAsDataURL(logoInputRef.current.files[0])
-    })
-
-    const setBanner = useCallback(async () => {
-
-        if(bannerInputRef.current.files.length < 1) return
-
-        await removeBanner()
-
-        var reader = new FileReader()
-        var baseString
-
-
-        reader.onloadend = async () => {
-
-            baseString = reader.result
-
-            await client.post("/api/uploadvendorimage/", {
-                vendor_id: user.id,
-                name: user.username,
-                type: "icon",
-                image: baseString
-            })
+            nav("/vendor-admin/")
         }
 
         reader.readAsDataURL(bannerInputRef.current.files[0])
@@ -95,7 +101,7 @@ export function VendorAccountImages() {
                 <div className="text-center flex flex-col gap-2">
                     <img
                         className="w-32 h-32 object-cover borer-[1px] border-solid border-gray-300 rounded-md m-auto"
-                        src={"/getvendorimage/" + user?.username + "_icon"}
+                        src={"http://127.0.0.1:8000" + user?.icon}
                         alt={user?.first_name + " Icon"}
                     />
                     <div className="flex gap-2 justify-center">
@@ -111,7 +117,7 @@ export function VendorAccountImages() {
                     <div className="flex flex-col gap-2">
                         <img
                             className="w-full h-32 object-cover borer-[1px] border-solid border-gray-300 rounded-md"
-                            src={"/getvendorimage/" + user?.username + "_banner"}
+                            src={"http://127.0.0.1:8000" + user?.banner}
                             alt={user?.first_name + " Banner"}
                         />
                         <div className="flex gap-2">

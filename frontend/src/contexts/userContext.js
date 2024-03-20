@@ -14,7 +14,6 @@ const UserContext = createContext({})
 export const UserProvider = ({ children }) => {
 
 	const [user, setUser] = useState()
-	const [locationVerified, setLocationVerified] = useState(false)
 
 	const register = useCallback(async (email, username, password, fName, lName) => {
 		try {
@@ -58,7 +57,7 @@ export const UserProvider = ({ children }) => {
 	
 		} catch (error) {
 			console.log(error);
-			return false
+			return error
 		}
 	}, [])
 
@@ -78,8 +77,10 @@ export const UserProvider = ({ children }) => {
         }
 	}, [])
 
-	const verifyLocation = useCallback(() => {
-		console.log("verifying location")
+	const setLocation = useCallback((longitude, latitude, accuracy) => {
+		setUser((user) => {
+			return {...user, longitude, latitude, accuracy}
+		})
 	}, [])
 
 	// Fetches the user's data
@@ -121,7 +122,7 @@ export const UserProvider = ({ children }) => {
 
 	return (
 		<UserContext.Provider
-			value={{ register, refreshUser, login, logout, user, locationVerified }}
+			value={{ register, refreshUser, login, logout, setLocation, user}}
 		>
 			{children}
 		</UserContext.Provider>
