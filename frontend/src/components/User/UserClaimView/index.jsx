@@ -16,7 +16,6 @@ export function UserClaimView() {
         client.get("/api/claims")
         .then(res => {
             setClaims(res.data);
-            console.log(res.data)
         })
         .catch(err => setError(true))
 

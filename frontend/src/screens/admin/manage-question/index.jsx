@@ -39,10 +39,6 @@ export default function ManageQuestionPage() {
 		// reset the error
 		setCreatingError([])
 
-		// perform checks
-		console.log(question)
-		console.log(answers)
-
 		// variables for checking integrity
 		let oneChecked = false;
 		let answerContent = false;
@@ -167,8 +163,6 @@ export default function ManageQuestionPage() {
 
 	// remove a question
 	const deleteQuestion = () => {
-		console.log("deleting question")
-
 		const data = {"question_id": question.question_id, "delete": true}
 
 		// send the delete request
@@ -184,7 +178,6 @@ export default function ManageQuestionPage() {
 	// load in all the questions
 	useEffect(() => {
 		client.get("/api/questions").then(res => {
-			console.log(res.data["questions"])
 			setQuestions(res.data["questions"])
 		}).catch((err) => {
 			console.log(err)
@@ -207,7 +200,6 @@ export default function ManageQuestionPage() {
 								{/* the question */}
 								<div className="flex gap-5">
 									<input className="border rounded-2xl border-black p-2" type="text" content={question.question} onChange={(e) => {
-										console.log(question)
 										setQuestion((q) => {
 											return { ...q, "question": e.target.value }
 										})
@@ -252,7 +244,6 @@ export default function ManageQuestionPage() {
 
 								<div className="flex gap-5">
 									<input className="border rounded-2xl border-black p-2" type="text" value={question.question} onChange={(e) => {
-										console.log(question)
 										setQuestion((q) => {
 											return { ...q, "question": e.target.value, "changed": true }
 										})

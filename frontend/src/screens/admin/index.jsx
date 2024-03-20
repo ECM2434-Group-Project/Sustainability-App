@@ -24,7 +24,6 @@ export default function AdminPage() {
 		// fetch the vendors
 		client.get("/api/vendors").then((response) => {
 			const data = response.data
-			console.log(data)
 			setVendors(data)
 		}).catch((error) => {
 			console.log(error)
@@ -38,7 +37,6 @@ export default function AdminPage() {
 	 * @param {*} vendor the vendor to delete
 	 */
 	const deleteVendor = (vendor) => {
-		console.log("delting vendor " + vendor)
 
 		// remove this vendor from the vendors
 		setVendors(vendors.filter((v) => v !== vendor))
