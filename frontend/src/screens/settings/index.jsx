@@ -13,7 +13,7 @@ export function SettingsPage(params, props) {
 
     const { user, logout } = useUser();
 
-    return (
+    return user ? (
         <section className="p-4 flex flex-col gap-8">
 
             <GoBackLink />
@@ -90,5 +90,7 @@ export function SettingsPage(params, props) {
 
 
         </section>
+    ) : (
+        <></>
     )
 }
