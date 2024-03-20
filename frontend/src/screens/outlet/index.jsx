@@ -72,7 +72,7 @@ export function OutletPage() {
     <section className="flex flex-col gap-4 pb-24">
       <div
         className="relative h-36 w-full bg-cover bg-center"
-        style={{ backgroundImage: "url(http://127.0.0.1:8000" + outletData.banner + ")" }}
+        style={{ backgroundImage: "url(http://"+ process.env.REACT_APP_BACKEND_HOSTNAME + ":8000" + outletData.banner + ")" }}
       >
         <div className="absolute top-2 left-2 z-10 shadow">
           <GoBackLink href={"/outlet"} />
@@ -84,7 +84,7 @@ export function OutletPage() {
           <div className="flex gap-4">
             <img
               className="w-20 rounded-md object-cover"
-              src={"http://127.0.0.1:8000" + outletData.icon}
+              src={"http://" + process.env.REACT_APP_BACKEND_HOSTNAME + ":8000" + outletData.icon}
               alt="Logo of the outlet"
             />
 						<div>

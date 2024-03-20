@@ -101,7 +101,7 @@ export function VendorAccountImages() {
                 <div className="text-center flex flex-col gap-2">
                     <img
                         className="w-32 h-32 object-cover borer-[1px] border-solid border-gray-300 rounded-md m-auto"
-                        src={"http://127.0.0.1:8000" + user?.icon}
+                        src={"http://" + process.env.REACT_APP_BACKEND_HOSTNAME + ":8000" + user?.icon}
                         alt={user?.first_name + " Icon"}
                     />
                     <div className="flex gap-2 justify-center">
@@ -117,7 +117,7 @@ export function VendorAccountImages() {
                     <div className="flex flex-col gap-2">
                         <img
                             className="w-full h-32 object-cover borer-[1px] border-solid border-gray-300 rounded-md"
-                            src={"http://127.0.0.1:8000" + user?.banner}
+                            src={"http://" + process.env.REACT_APP_BACKEND_HOSTNAME + ":8000" + user?.banner}
                             alt={user?.first_name + " Banner"}
                         />
                         <div className="flex gap-2">
