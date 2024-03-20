@@ -51,13 +51,19 @@ class UserRegister(APIView):
         data = request.data
         # if email exists and is exeter email, throws exception if it doesn't
         email = data['email']
-        assert validate_email_register(data)
+        try:
+            validate_email_register(data)
+        except:
+            return Response({"message": "Naughty Naughty you do not have an exeter email"},
+            status=status.HTTP_400_BAD_REQUEST)
+
         clean_data = user_creation_validation(request.data)
         serializer = UserRegisterSerializer(data=clean_data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.create(clean_data)
             user.role = UserModel.Role.USER
             user.save()
+
 
             if user:
                 send_verification_email(request, user)

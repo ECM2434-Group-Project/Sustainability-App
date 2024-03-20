@@ -36,7 +36,8 @@ export default function Register() {
 			if (result === true) {
 				setSubmitted(true)
 			} else {
-				setError(result);
+				console.log(error.response.data)
+				setError(result.response.data);
 			}
 		},
 		[email, username, fName, lName, password]
@@ -113,7 +114,7 @@ export default function Register() {
 					</div>
 				</div>
 				{error ? (
-					<p className="p-4 text-center text-red-200">Something went wrong</p>
+					<p className="p-4 text-center text-red-200">{Object.keys(error)[0]} | {error.message}</p>
 				) : (
 					<></>
 				)}
