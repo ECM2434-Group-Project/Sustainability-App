@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TextInput } from "../../components/General/TextInput";
 import { useUser } from "../../contexts/userContext";
@@ -17,10 +17,13 @@ export default function Login() {
 
 	const [error, setError] = useState();
 
-	const { user, login, refreshUser } = useUser();
+	const { user, login } = useUser();
 
 	const nav = useNavigate()
 
+	/**
+	 * handle the logging in form submission
+	 */
 	const handleSubmit = useCallback(
 
 		// async function for logging in

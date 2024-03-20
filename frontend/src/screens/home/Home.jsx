@@ -15,7 +15,7 @@ export default function Home() {
     
     const nav = useNavigate()
 
-    const { user } = useUser()
+    const { user, setLocation } = useUser()
 
     const [ locationDenied, setLocationDenied ] = useState(false);
     const [ locationVerified, setLocationVerified ] = useState(false);
@@ -29,24 +29,25 @@ export default function Home() {
 
         const successCallback = (position) => {
 
-            // Check their location here
+            // set the location has been verified to true and set the state
             setLocationVerified(true)
+            setLocation(position.coords.longitude, position.coords.latitude, position.coords.accuracy)
         }
           
         const errorCallback = (error) => {
+
+            // set the location has been verified to false
             setLocationDenied(true)
-
-
-            // // ONLY HERE FOR DEVELOPMENT BECAUSE A PHONE WILL NOT ALLOW LOCATION ACCESS OVER HTTP
-            // setLocationVerified(true)
         }
           
         // Get the user's location
         navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
+        
 
     }, [ locationVerified, locationDenied ])
 
     useEffect(() => {
+        console.log(user)
         if (locationVerified) {
             nav("/outlet")
         }
@@ -86,6 +87,7 @@ export default function Home() {
                                     <div className="text-center flex flex-col gap-3">
                                         <StandoutButton onClick={async () => {
                                             await checkLocation()
+
                                         }}>
                                             <MdLocationOn />
                                             <span>Check my location</span>
