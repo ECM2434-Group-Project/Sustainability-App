@@ -21,9 +21,24 @@ export function UserClaimView() {
 
     },[])
 
+    const calculateActive = () => {
+        let counter = 0
+        claims.map(c => {
+            if (!c.success) {
+                counter++
+            }
+        })
+        return counter
+    }
 
     return !error ? (
         <section className="flex flex-col gap-4">
+            {
+                // number of claims that have success false == 0
+                calculateActive() ===  0 && (
+                    <div className="text-red-300">You have no claims</div>
+                )
+            }
             {
                 claims.map(d => {
                     d.time = new Date(d.time)
