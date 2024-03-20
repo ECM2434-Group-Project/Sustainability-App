@@ -34,6 +34,8 @@ export function VendorAccountImages() {
 
         if(logoInputRef.current.files.length < 1) return
 
+        await removeLogo()
+
         var reader = new FileReader()
         var baseString
 
@@ -43,7 +45,7 @@ export function VendorAccountImages() {
             baseString = reader.result
 
             await client.post("/api/uploadvendorimage/", {
-                vendorid: user.id,
+                vendor_id: user.id,
                 name: user.username,
                 type: "banner",
                 image: baseString
@@ -57,6 +59,8 @@ export function VendorAccountImages() {
 
         if(bannerInputRef.current.files.length < 1) return
 
+        await removeBanner()
+
         var reader = new FileReader()
         var baseString
 
@@ -66,7 +70,7 @@ export function VendorAccountImages() {
             baseString = reader.result
 
             await client.post("/api/uploadvendorimage/", {
-                vendorid: user.id,
+                vendor_id: user.id,
                 name: user.username,
                 type: "icon",
                 image: baseString
@@ -77,40 +81,42 @@ export function VendorAccountImages() {
 
     })
 
+
+
     return (
         <>
-            <section className="flex flex-col gap-8">
+            <section className="flex flex-col gap-8 h-screen">
 
                 <div className="p-4">
                     <GoBackLink href={"/vendor-admin/settings"} />
                 </div>
 
                 {/* Change logo */}
-                <div className="text-center">
+                <div className="text-center flex flex-col gap-2">
                     <img
                         className="w-32 h-32 object-cover borer-[1px] border-solid border-gray-300 rounded-md m-auto"
-                        src={user?.icon}
+                        src={"/getvendorimage/" + user?.username + "_icon"}
                         alt={user?.first_name + " Icon"}
                     />
                     <div className="flex gap-2 justify-center">
-                        <button onClick={() => setChangeLogoOpen(true)}>Change logo</button>
-                        <button onClick={removeLogo}>Remove logo</button>
+                        <button className="p-1 px-2 bg-exeterDimRed text-white rounded" onClick={() => setChangeLogoOpen(true)}>Change logo</button>
+                        <button className="p-1 px-2 bg-gray-200 border-solid border-[1px] border-gray-400 text-gray-500 rounded" onClick={removeLogo}>Remove logo</button>
                     </div>
                 </div>
 
 
-                <div className="flex flex-col gap-8 bg-gray-100 p-4 pt-8">
+                <div className="flex flex-col gap-8 bg-gray-100 p-4 pt-8 flex-1">
 
                     {/* Change background image */}
-                    <div>
+                    <div className="flex flex-col gap-2">
                         <img
                             className="w-full h-32 object-cover borer-[1px] border-solid border-gray-300 rounded-md"
-                            src={user?.banner}
+                            src={"/getvendorimage/" + user?.username + "_banner"}
                             alt={user?.first_name + " Banner"}
                         />
                         <div className="flex gap-2">
-                            <button onClick={() => setChangeLogoOpen(true)}>Change logo</button>
-                            <button onClick={removeBanner}>Remove banner</button>
+                            <button className="p-1 px-2 bg-exeterDimRed text-white rounded" onClick={() => setChangeBannerOpen(true)}>Change Banner</button>
+                            <button className="p-1 px-2 bg-gray-200 border-solid border-[1px] border-gray-400 text-gray-500 rounded" onClick={removeBanner}>Remove banner</button>
                         </div>
                     </div>
 
