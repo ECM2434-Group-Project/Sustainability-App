@@ -102,7 +102,7 @@ class UserLogin(APIView):
 
                 if (user.role == UserModel.Role.VENDOR) or (user.role == UserModel.Role.ADMIN):
                     login(request, user)
-                elif user.is_verified:
+                elif user.email_verified:
                     login(request, user)
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 else:
