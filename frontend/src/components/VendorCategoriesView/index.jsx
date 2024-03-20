@@ -1,10 +1,10 @@
 import { HiPlus, HiX } from "react-icons/hi"
 import { CategoryView } from "./CategoryView"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 import { TbEdit, TbX } from "react-icons/tb"
 import { client } from "../../axios"
 import { useUser } from "../../contexts/userContext"
-import { Popup } from "../General/Popup"
+import { Popup } from "../General/Popup_Mobile"
 import { NewCategory } from "./NewCategory"
 
 export function VendorCategoriesView() {
@@ -31,7 +31,7 @@ export function VendorCategoriesView() {
 
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 pb-8">
             <div className="flex flex-col gap-5">
                 {
                     user?.bag_groups.length === 0 ? (

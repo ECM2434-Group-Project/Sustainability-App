@@ -17,7 +17,6 @@ export const UserProvider = ({ children }) => {
 	const [locationVerified, setLocationVerified] = useState(false)
 
 	const register = useCallback(async (email, username, password, fName, lName) => {
-		console.log("registering user")
 		try {
 			const res = await client.post("/api/register", {
 				email: email,
