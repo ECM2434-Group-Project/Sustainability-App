@@ -5,7 +5,7 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.withCredentials = true;
 
 const client = axios.create({
-    baseURL: "http://" + process.env.REACT_APP_BACKEND_HOSTNAME + ":8000",
+    baseURL: "https://" + process.env.REACT_APP_BACKEND_HOSTNAME + "",
     headers: {
         "Content-Type": "application/json"
     },

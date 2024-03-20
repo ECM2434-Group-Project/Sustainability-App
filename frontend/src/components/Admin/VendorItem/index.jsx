@@ -4,7 +4,7 @@ export function VendorItem({ vendor, setEditing }) {
 			setEditing(vendor)
 		}}>
 			{/* <h2 className="absolute flex w-full justify-center">{vendor.first_name}</h2> */}
-			<img src={"http://"+ process.env.REACT_APP_BACKEND_HOSTNAME + ":8000" + vendor.icon} alt={vendor.username} className="rounded-3xl" />
+			<img src={"https://"+ process.env.REACT_APP_BACKEND_HOSTNAME + vendor.icon} alt={vendor.username} className="rounded-3xl" />
 		</div>
 	)
 }
