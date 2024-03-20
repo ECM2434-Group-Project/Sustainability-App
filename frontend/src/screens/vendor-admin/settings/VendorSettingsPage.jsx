@@ -25,7 +25,7 @@ export function VendorSettingsPage() {
                         <IoImage />
                     </Link>
 
-                    <Link to={"/vendor-admin/settings/change-password"} className="bg-white border-[0.8px] shadow border-color border-gray-300 p-4 rounded text-gray-800 flex justify-between items-center">
+                    <Link to={"/settings/change-password"} className="bg-white border-[0.8px] shadow border-color border-gray-300 p-4 rounded text-gray-800 flex justify-between items-center">
                         <span>Change password</span>
                         <IoKeyOutline />
                     </Link>

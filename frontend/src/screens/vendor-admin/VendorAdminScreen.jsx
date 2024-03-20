@@ -13,11 +13,7 @@ export default function VendorAdminScreen() {
 
     const nav = useNavigate()
 
-    useEffect(() => {
-        setTimeout(() => {
-            if(!user) nav("/vendor-admin/login")
-        }, 1000);
-    }, [])
+
 
     return user ? (
         <section className="flex flex-col gap-4">
@@ -30,9 +26,14 @@ export default function VendorAdminScreen() {
             </div>
 
             <section className="p-4 flex flex-col gap-6 pb-16">
-                <div>
-                    <small>Logged in as</small>
-                    <h2 className="text-3xl font-semibold">{user?.first_name}</h2>
+
+                <div className="flex gap-3 items-center">
+                    <img src={user?.icon} alt="Vendor logo" className="w-10 h-10 rounded object-cover" />
+
+                    <div>
+                        <small>Logged in as</small>
+                        <h2 className="text-3xl font-semibold">{user?.first_name}</h2>
+                    </div>
                 </div>
 
                 <div>
@@ -53,6 +54,6 @@ export default function VendorAdminScreen() {
 
         </section>
     ) : (
-        <></>
+        <Link className="underline" to={"/vendor-admin/login"}>You are not logged in. Please log in</Link>
     )
 }

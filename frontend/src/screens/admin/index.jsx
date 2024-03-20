@@ -38,8 +38,11 @@ export default function AdminPage() {
 	 */
 	const deleteVendor = (vendor) => {
 
+		console.log(vendor)
 		// remove this vendor from the vendors
-		setVendors(vendors.filter((v) => v !== vendor))
+		// setVendors(vendors.filter((v) => v !== vendor))
+
+		client.post("/api/user/delete")
 	}
 
 	return user ? (
