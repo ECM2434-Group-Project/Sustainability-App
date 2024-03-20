@@ -4,7 +4,7 @@ import { useCallback, useState } from "react"
 import { TbEdit, TbX } from "react-icons/tb"
 import { client } from "../../axios"
 import { useUser } from "../../contexts/userContext"
-import { Popup } from "../General/Popup_Mobile/index.jsx"
+import { Popup } from "../General/Popup_Mobile"
 import { NewCategory } from "./NewCategory"
 
 export function VendorCategoriesView() {
