@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useDigitInput from "react-digit-input";
+// import useDigitInput from "react-digit-input";
 import { GoBackLink } from "../../../components/General/GoBackLink";
 
 export function VendorScanPage() {
