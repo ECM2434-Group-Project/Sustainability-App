@@ -1200,7 +1200,7 @@ class ClaimClaim(APIView):
         if not claim:
             return Response({"message": "Claim does not exist"}, status=status.HTTP_404_NOT_FOUND)
         if claim.success:
-            return Response({"message": "Claim already claimed"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"message": "Claim already claimed"}, status=status.HTTP_200_OK)
         claim.success = True
         claim.save()
         return Response({"message": "Claim successful"}, status=status.HTTP_200_OK)

@@ -24,6 +24,12 @@ export function VendorScanPage() {
         .then(res => {
             console.log("CLAIM RETURNED", res)
 
+            if (res.data.message === "Claim already claimed") {
+                setOutcome("Claim already claimed");
+                setTimeout(() => setOutcome(null), 2000)
+                setCode('')
+            }
+
             setOutcome("yes")
             setTimeout(() => setOutcome(null), 2000)
             setCode('')
