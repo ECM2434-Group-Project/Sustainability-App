@@ -6,6 +6,7 @@ import { MdLocationOn } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
 import GDPR from "../../components/General/GDPR";
+import { Link } from "react-router-dom";
 
 // Based on state passed in which contains if logged in or not, display the home page with a login and register button
 
@@ -35,12 +36,16 @@ export default function Home() {
                             <StandoutButton onClick={async () => {
                                 if (locationVerified) {
                                     nav("/outlet")
+                                } else {
+                                    alert("your location is not verified")
                                 }
                             }}>
                                 <MdLocationOn />
-                                <span>Check my location</span>
+                                <span>See Our Vendors</span>
+                                
                             </StandoutButton>
-                            <small>You must be on campus to claim food</small>
+                            <span>You must <small className="text-red-600">enable location </small>in settings and you must <small className="text-red-600">be on campus</small> to claim food</span>
+                            <small></small>
                         </div>
                     </>
                 ) : (
@@ -68,6 +73,7 @@ export default function Home() {
                             }}>
                                 <span>Log in / Register</span>
                             </StandoutButton>
+                            <span><Link to={"/admin/login"} className="text-exeterBlue">Admin Login</Link> | <Link to={"/vendor-admin/login"} className="text-exeterBrightRed">Vendor Login</Link></span>
                         </div>
                     </>
                 )

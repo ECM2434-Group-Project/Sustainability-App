@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { TextInput } from "../../../components/General/TextInput";
 import { useUser } from "../../../contexts/userContext";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export function VendorLoginPage() {
 
@@ -78,7 +79,8 @@ export function VendorLoginPage() {
 					type="submit"
 				>
 					Login
-				</button>
+				</button>login
+				<span className="self-center"><Link to={"/"} className="text-exeterDeepGreen">User Login</Link> | <Link to={"/admin/login"} className="text-exeterBlue">Admin Login</Link></span>
             </form>
         </section>
     )

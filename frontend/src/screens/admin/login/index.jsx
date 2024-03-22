@@ -41,7 +41,7 @@ export default function AdminLogin() {
 
 	return !user ? (
 		<div className="h-screen flex flex-col justify-center p-4  gap-6 w-full">
-			<div className="w-1/3 self-center">
+			<div className="w-2/3 self-center">
 				<form onSubmit={handleSubmit} className="flex flex-col gap-16">
 					<div className="flex flex-col gap-6">
 						<h1 className="text-2xl font-bold self-center pb-10">Admin Login</h1>
@@ -81,6 +81,8 @@ export default function AdminLogin() {
 					>
 						Login
 					</button>
+
+					<span className="self-center"><Link to={"/"} className="text-exeterDeepGreen">User Login</Link> | <Link to={"/vendor-admin/login"} className="text-exeterBrightRed">Vendor Login</Link></span>
 				</form>
 			</div>
 			

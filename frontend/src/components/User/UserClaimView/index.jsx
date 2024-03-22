@@ -18,31 +18,17 @@ export function UserClaimView() {
 
     },[])
 
-    const calculateActive = () => {
-        let counter = 0
-        claims.forEach(c => {
-            if (!c.success) {
-                counter++
-            }
-        })
-        return counter
-    }
 
     return !error ? (
         <section className="flex flex-col gap-4">
-            {
-                // number of claims that have success false == 0
-                calculateActive() ===  0 && (
-                    <div className="text-red-300">You have no claims</div>
-                )
-            }
+            <h1> Your Claims </h1>
             {
                 claims.map(d => {
                     d.time = new Date(d.time)
                     return d
                 }
                 ).sort((a,b) => b.time - a.time).map((c, index) => {
-                    return !c.success ? (
+                    return !c.success && (
                         <Link key={index} to={"/claim/"+c.claim_id}>
                             <div className="flex gap-4 overflow-x-auto text-white w-full p-2 bg-gradient-to-r from-exeterDeepGreen to-exeterBrightGreen rounded-xl">
                                 <div className="bg-white p-[1.5px] rounded-xl flex-1 flex">
@@ -61,7 +47,17 @@ export function UserClaimView() {
                                 </div>
                             </div>
                         </Link>
-                    ) : (
+                    )
+                })
+            }
+            <h1>Past Claims</h1>
+            {  
+                claims.map(d => {
+                    d.time = new Date(d.time)
+                    return d
+                }
+                ).sort((a,b) => b.time - a.time).map((c, index) => {
+                    return c.success && (
                         <button key={index} className="cursor-default">
                             <div className="flex gap-4 overflow-x-auto text-white w-full p-2 bg-gray-400 rounded-xl">
                                 <div className="bg-white p-[1.5px] rounded-xl flex-1 flex">
