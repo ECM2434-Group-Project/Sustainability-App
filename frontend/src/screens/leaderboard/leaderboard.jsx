@@ -83,11 +83,6 @@ export default function LeaderboardPage() {
                                             <br />
                                             {user.username}
                                         </td>
-                                        <td className="p-1">
-                                            <p className="text-md text-nowrap">
-                                                {leaderboard.user_rank} <small className="text-gray-600">XP</small>
-                                            </p>
-                                        </td>
                                 </tr>
                                     </>
                                  ) : (
