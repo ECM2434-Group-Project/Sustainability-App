@@ -67,7 +67,7 @@ export function ClaimDetailPage() {
 
                 <div className="flex flex-col gap-4">
                     <h2 className="text-2xl font-semibold">Bag details</h2>
-                    <p>Collect your {claimData.bag_group_name} bag at <b>{new Date(bagData.collection_time).toLocaleTimeString()}</b> on <b>{new Date(bagData.collection_time).toLocaleDateString()}</b> from <b>{claimData.vendor_name}</b></p>
+                    <p>Collect your {claimData.bag_group_name} bag <b>10 minutes before</b> closing time on <b>{new Date(bagData.collection_time).toLocaleDateString()}</b> from <b>{claimData.vendor_name}</b></p>
 
                     </div>
             </div>
