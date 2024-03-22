@@ -108,6 +108,7 @@ class UserLogin(APIView):
 
                 if (user.role == UserModel.Role.VENDOR) or (user.role == UserModel.Role.ADMIN):
                     login(request, user)
+                    return Response({"message": "Logged in successfully"}, status=status.HTTP_200_OK)
                 elif user.email_verified:
                     login(request, user)
                     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -897,6 +898,7 @@ class ClaimsView(APIView):
             return Response({"message": "Vendors or Admin cannot have claims. Only users can have claims."},
                         status=status.HTTP_403_FORBIDDEN)
         claims = ClaimModel.objects.filter(user_id=request.user)
+        print(claims)
         serializer = ClaimSerializer(claims, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -21,7 +21,7 @@ export function CategoryView({ deleteCategory, category, edit }) {
         .catch(err => {
             console.error("Error creating bag", err)
         })
-    }, [refreshUser])
+    }, [refreshUser, category.bag_group_id])
 
     
     const removeBag = useCallback(() => {
@@ -39,7 +39,7 @@ export function CategoryView({ deleteCategory, category, edit }) {
         .catch(err => {
             console.error("Error removing bag", err)
         })
-    }, [refreshUser])
+    }, [refreshUser, category.bag_group_id, category?.bags_unclaimed])
 
 
     return (

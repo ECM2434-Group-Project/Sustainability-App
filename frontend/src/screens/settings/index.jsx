@@ -13,7 +13,7 @@ export function SettingsPage(params, props) {
 
     const { user, logout } = useUser();
 
-    return (
+    return user ? (
         <section className="p-4 flex flex-col gap-8">
 
             <GoBackLink />
@@ -32,20 +32,49 @@ export function SettingsPage(params, props) {
 
                 <div className="flex flex-col gap-4 pb-32">
 
-                    <Link to={"/settings/change-password"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change Password</Link>
+                    {
+                        user.role !== "ADMIN" ? (
+                            <Link to={"/settings/change-password"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change Password</Link>
+                        ) : (
+                            <></>
+                        )
+                    }
 
-                    <Link to={"/settings/change-username"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change Username</Link>
+                    {
+                        user.role !== "ADMIN" ? (
+                            <Link to={"/settings/change-username"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Change Username</Link>
+                        ) : (
+                            <></>
+                        )
+                    }
 
-                    <Link to={"/leaderboard"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Leaderboard</Link>
+                    {
+                        user.role !== "ADMIN" && user.role !== "VENDOR" ? (
+                            <Link to={"/leaderboard"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Leaderboard</Link>
+                        ) : (
+                            <></>
+                        )
+                    }
 
-                    <Link to={"/view-claim"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Claims</Link>
+                    {
+                        user.role !== "ADMIN" && user.role !== "VENDOR" ? (
+                            <Link to={"/view-claim"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Claims</Link>
+                        ) : (
+                            <></>
+                        )
+                    }
 
                     <Link to={"/privacy-policy"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Privacy Policy</Link>
 
                     <Link to={"/terms-and-conditions"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Terms and Conditions</Link>
 
-                    <Link to={"/delete-account"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-white bg-red-600">Delete account</Link>
-
+                    {
+                        user.role !== "ADMIN" && user.role !== "VENDOR" ? (
+                            <Link to={"/delete-account"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-white bg-red-600">Delete account</Link>
+                        ) : (
+                            <></>
+                        )
+                    }
                 </div>
 
                 <StandoutButton onClick={() => {
@@ -61,5 +90,7 @@ export function SettingsPage(params, props) {
 
 
         </section>
+    ) : (
+        <></>
     )
 }

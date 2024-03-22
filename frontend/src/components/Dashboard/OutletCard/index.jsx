@@ -41,7 +41,7 @@ export function OutletCard({ vendor }) {
             {/* BG image */}
             <img
                 className="w-full h-32 object-cover"
-                src={"http://127.0.0.1:8000" + vendor.banner} alt="Background of the outlet" />
+                src={process.env.REACT_APP_BACKEND_HOSTNAME + vendor.banner} alt="Background of the outlet" />
         </div>
 
         <div className="p-4 flex flex-col gap-4">
@@ -50,7 +50,7 @@ export function OutletCard({ vendor }) {
                 {/* Vendor Logo */}
                 <img
                     className="w-10 h-10 rounded-md object-cover"
-                    src={"http://127.0.0.1:8000" + vendor.icon}
+                    src={process.env.REACT_APP_BACKEND_HOSTNAME + vendor.icon}
                     alt="Logo of the outlet"
                 />
 

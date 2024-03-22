@@ -26,7 +26,7 @@ export function VendorChangeName() {
 
         setConfirm(false)
 
-        client.post("/api/user/updateuser/", {
+        client.post("/api/user/updateuser", {
             password: password,
             first_name: user.first_name,
             new_first_name: name
@@ -40,7 +40,7 @@ export function VendorChangeName() {
             console.error(err)
             alert("Something went wrong")
         })
-    }, [refreshUser, password, name])
+    }, [refreshUser, password, name, user])
 
     return !done ? (
         <>

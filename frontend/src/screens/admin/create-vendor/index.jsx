@@ -91,7 +91,7 @@ export default function ManageVendorPage() {
 										label={"Vendor Latitude"}
 										className="rounded-md p-4 py-2 text-gray-950 shadow-md"
 										type="text"
-										placeholder="-3.219419"
+										placeholder="52.23424"
 										value={latitude}
 										onChange={(e) => {
 											setLatitude(e.target.value)
@@ -103,7 +103,7 @@ export default function ManageVendorPage() {
 										label={"Vendor Longitude"}
 										className="rounded-md p-4 py-2 text-gray-950 shadow-md"
 										type="text"
-										placeholder="52.23424"
+										placeholder="-3.219419"
 										value={longitude}
 										onChange={(e) => {
 											setLongitude(e.target.value)

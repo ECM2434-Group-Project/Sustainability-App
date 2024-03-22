@@ -1,13 +1,12 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React from "react";
 import { UserAvatar } from "../../components/User/UserAvatar";
 import { StandoutButton } from "../../components/General/StandoutButton";
 import { MdLocationOn } from "react-icons/md";
 
-import { UserClaimView } from "../../components/User/UserClaimView";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
-import { client } from "../../axios";
 import GDPR from "../../components/General/GDPR";
+import { Link } from "react-router-dom";
 
 // Based on state passed in which contains if logged in or not, display the home page with a login and register button
 
@@ -15,10 +14,7 @@ export default function Home() {
 
     const nav = useNavigate()
 
-    const { user, locationVerified, refreshLocation } = useUser()
-
-    const [userHasClaim, setUserHasClaim] = useState(true);
-
+    const { user, locationVerified } = useUser()
 
     return (
         <section className="h-full flex flex-col justify-between p-4">
@@ -36,26 +32,20 @@ export default function Home() {
                             >Welcome back, {user?.first_name}</h1>
                         </div>
 
-                        {
-                            userHasClaim ? (
-                                <div className="h-full pt-8">
-                                    {/* <UserClaimView /> */}
-                                </div>
-                            ) : (
-                                <></>
-                            )
-                        }
-
                         <div className="text-center flex flex-col gap-3">
                             <StandoutButton onClick={async () => {
                                 if (locationVerified) {
                                     nav("/outlet")
+                                } else {
+                                    alert("your location is not verified")
                                 }
                             }}>
                                 <MdLocationOn />
-                                <span>Check my location</span>
+                                <span>See Our Vendors</span>
+                                
                             </StandoutButton>
-                            <small>You must be on campus to claim food</small>
+                            <span>You must <small className="text-red-600">enable location </small>in settings and you must <small className="text-red-600">be on campus</small> to claim food</span>
+                            <small></small>
                         </div>
                     </>
                 ) : (
@@ -83,6 +73,7 @@ export default function Home() {
                             }}>
                                 <span>Log in / Register</span>
                             </StandoutButton>
+                            <span><Link to={"/admin/login"} className="text-exeterBlue">Admin Login</Link> | <Link to={"/vendor-admin/login"} className="text-exeterBrightRed">Vendor Login</Link></span>
                         </div>
                     </>
                 )

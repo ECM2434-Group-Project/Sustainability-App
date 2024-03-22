@@ -61,8 +61,9 @@ export default function LeaderboardPage() {
                                 </td>
                             </tr>
                                ) : (
-                                <>
-                                <tr className="py-4">
+                                !isTop5 ? (
+                                    <>
+                                    <tr className="py-4">
                                     <td colSpan={"100%"} className="text-center">....</td>
                                 </tr>
 
@@ -82,22 +83,13 @@ export default function LeaderboardPage() {
                                             <br />
                                             {user.username}
                                         </td>
-                                        <td className="p-1">
-                                            <p className="text-md text-nowrap">
-                                                {leaderboard.user_rank} <small className="text-gray-600">XP</small>
-                                            </p>
-                                        </td>
                                 </tr>
-                                </>
+                                    </>
+                                 ) : (
+                                    <></>
                                )
                             ))
-                        }
-                        {
-                            // If you're not in the top 5
-                            <>
-                                
-                            </>
-                        }
+                        )}
                     </tbody>
                 </table>
             </div>

@@ -1,4 +1,4 @@
-import { HiPlus, HiX } from "react-icons/hi"
+import { HiPlus } from "react-icons/hi"
 import { CategoryView } from "./CategoryView"
 import { useCallback, useState } from "react"
 import { TbEdit, TbX } from "react-icons/tb"
@@ -59,7 +59,7 @@ export function VendorCategoriesView() {
             <div className="flex flex-col gap-2">
                 {
                     edit ? (
-                        <button className="border-solid border-[0.8px] bg-exeterDimRed text-white font-semibold rounded-md flex gap-2 items-center p-4 py-2 w-fit justify-center text-center font-normal" onClick={() => setNewGroupOpen(true)}>
+                        <button className="border-solid border-[0.8px] bg-exeterDimRed text-white rounded-md flex gap-2 items-center p-4 py-2 w-fit justify-center text-center font-normal" onClick={() => setNewGroupOpen(true)}>
                             <HiPlus />
                             <span>New Category</span>
                         </button>

@@ -4,7 +4,6 @@ import { UserAvatar } from "../../components/User/UserAvatar";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { useState, useCallback, useEffect } from "react";
 import { client } from "../../axios";
-import { useUser } from "../../contexts/userContext";
 
 export function VendorPage() {
 
@@ -24,7 +23,7 @@ export function VendorPage() {
             }
         })
 
-    }, [outlets])
+    }, [])
 
 	// Fetch the outlets
 	useEffect(() => {
@@ -49,17 +48,27 @@ export function VendorPage() {
 			<div className="flex justify-end">
 				<UserAvatar />
 			</div>
+			
+			{
+				onCampus ? (
+					<>
+						<div className="sticky top-0">
+							<OnCampusIndicator />
+						</div>
 
-			<div className="sticky top-0">
-				<OnCampusIndicator />
-			</div>
+						<div className="flex flex-col gap-8 pb-4">
 
-			<div className="flex flex-col gap-8 pb-4">
+							<h1 className="text-2xl font-semibold">Food outlets</h1>
 
-				<h1 className="text-2xl font-semibold">Food outlets</h1>
-
-				{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} vendor={vendor}/>)}
-			</div>
+							{outlets.sort(({bags_left: prevBagsLeft}, {bags_left: currentBagsLeft}) => currentBagsLeft - prevBagsLeft).map((vendor) => <OutletCard key={vendor.id} vendor={vendor}/>)}
+						</div>
+					</>
+				) : (
+					<div className="bg-red-300 text-white p-4 rounded-xl text-center">
+						You are not on campus
+					</div>
+				)
+			}
 		</div>
 	)
 }
