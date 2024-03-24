@@ -11,8 +11,8 @@ import { NotAdmin } from "../../../components/Admin/NotAdmin"
 export default function ManageVendorPage() {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
-	const [latitude, setLatitude] = useState("")
-	const [longitude, setLongitude] = useState("")
+	const [latitude, setLatitude] = useState("50.735638")
+	const [longitude, setLongitude] = useState("-3.534632")
 	const [username, setUsername] = useState("")
 	const [name, setName] = useState("")
 
@@ -91,7 +91,7 @@ export default function ManageVendorPage() {
 										label={"Vendor Latitude"}
 										className="rounded-md p-4 py-2 text-gray-950 shadow-md"
 										type="text"
-										placeholder="52.23424"
+										placeholder="50.735638"
 										value={latitude}
 										onChange={(e) => {
 											setLatitude(e.target.value)

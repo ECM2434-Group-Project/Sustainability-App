@@ -4,6 +4,7 @@ import { UserAvatar } from "../../components/User/UserAvatar";
 import { GoBackLink } from "../../components/General/GoBackLink";
 import { useState, useCallback, useEffect } from "react";
 import { client } from "../../axios";
+import { LeaderboardIcon } from "../../components/User/LeaderboardIcon";
 
 export function VendorPage() {
 
@@ -46,6 +47,7 @@ export function VendorPage() {
 			</div>
 
 			<div className="flex justify-end">
+				<LeaderboardIcon />
 				<UserAvatar />
 			</div>
 			
