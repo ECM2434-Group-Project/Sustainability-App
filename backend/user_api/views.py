@@ -1413,6 +1413,8 @@ def verify_email(request, token):
     emailModel = EmailVerification.objects.get(token=token)
     user = UserModel.objects.get(id = emailModel.user_id)
     user.email_verified = True
+    print("_____________________________")
+    print(f"Verifying {user.email}")
     user.save()
     email_verification.save()
     return HttpResponse("Email verified successfully.")
