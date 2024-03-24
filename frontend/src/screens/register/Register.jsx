@@ -122,7 +122,7 @@ export default function Register() {
 					{stage === 1 ? (
 						<>
 							<button
-								className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold"
+								className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold active:bg-exeterHighlightGreen"
 								onClick={() => setStage(1)}
 							>
 								Create account
@@ -139,7 +139,7 @@ export default function Register() {
 					)}
 					{stage === 0 ? (
 						<button
-							className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold"
+							className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold active:bg-exeterHighlightGreen"
 							onClick={() => setStage(1)}
 						>
 							Next

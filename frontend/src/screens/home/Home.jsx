@@ -17,7 +17,13 @@ export default function Home() {
     const { user, locationVerified } = useUser()
 
     return (
-        <section className="h-full flex flex-col justify-between p-4">
+        <section className={
+            !user ? (
+                "h-full flex flex-col justify-between p-4 bg-exeterDarkGreen text-neutral-300"
+            ) : (
+                "h-full flex flex-col justify-between p-4"
+            )}
+        >
             {
                 user ? (
                     <>
@@ -28,7 +34,7 @@ export default function Home() {
 
                         <div>
                             <h1
-                                className="text-4xl font-semibold text-gray-700"
+                                className="text-4xl font-semibold"
                             >Welcome back, {user?.first_name}</h1>
                         </div>
 
@@ -44,41 +50,40 @@ export default function Home() {
                                 <span>See Our Vendors</span>
                                 
                             </StandoutButton>
-                            <span>You must <small className="text-red-600">enable location </small>in settings and you must <small className="text-red-600">be on campus</small> to claim food</span>
-                            <small></small>
+                            <span>You must <b className="text-red-400">enable location </b>in settings and you must <b className="text-red-400">be on campus</b> to claim food</span>
                         </div>
                     </>
                 ) : (
-                    <>
-
-                        <br />
-
+                    <div className="h-full flex flex-col gap-4 justify-evenly">
                         <div className="text-center">
-                            <div className="flex justify-center">
+                            <div className="flex gap-2 justify-center items-center text-white">
                                 <img
-                                    src="/logo.jpeg"
+                                    src="/favicon.ico"
                                     alt="RePlate"
-                                    className="w-128 h-64 object-cover rounded-full"
+                                    className="h-12"
                                 />
+                                <h3 className="font-medium text-5xl">RePlate</h3>
                             </div>
-                            <h1
-                                className="text-4xl font-semibold text-gray-700"
-                            >Welcome!</h1>
-                            <p>You must login to continue</p>
                         </div>
+
 
                         <div className="text-center flex flex-col gap-3">
                             <StandoutButton onClick={() => {
                                 nav("/login")
                             }}>
-                                <span>Log in / Register</span>
+                                <span>Log in</span>
                             </StandoutButton>
-                            <span><Link to={"/admin/login"} className="text-exeterBlue">Admin Login</Link> | <Link to={"/vendor-admin/login"} className="text-exeterBrightRed">Vendor Login</Link></span>
+                            <p>No account? <Link className="underline" to={"/register"}>Create one here</Link></p>
                         </div>
-                    </>
+                    </div>
                 )
             }
-            <GDPR />
+            <div>
+                <small className="underline text-center flex gap-2 justify-center">
+                    <Link to={"/admin/login"} className="text-neutral-300">Admin Login</Link> | <Link to={"/vendor-admin/login"} className="text-neutral-300">Vendor Login</Link>
+                </small>
+                <GDPR />
+            </div>
         </section>
     )
 }

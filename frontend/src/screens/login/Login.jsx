@@ -78,7 +78,7 @@ export default function Login() {
 				</div>
 
 				<button
-					className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold pointer"
+					className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold pointer active:bg-exeterHighlightGreen"
 					type="submit"
 				>
 					Login

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import {GoBackLink} from "../../components/General/GoBackLink";
 import { client } from "../../axios";
 import { useUser } from "../../contexts/userContext";
+import { useSearchParams } from "react-router-dom";
 
 
 
@@ -11,6 +12,8 @@ export default function LeaderboardPage() {
     const [userRank, setUserRank] = React.useState(0);
     const [isTop5, setIsTop5] = React.useState(false);
     const { user } = useUser();
+
+    const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
         // Get the leaderboard
@@ -32,7 +35,7 @@ export default function LeaderboardPage() {
     return user ? (
         <section className="p-6 flex flex-col gap-6">
 
-			<GoBackLink href={"/settings"} />
+			<GoBackLink href={searchParams.get("ref") ? searchParams.get("ref") : "/settings"} />
 
             <h1 className="text-2xl font-semibold">Leaderboard</h1>
 
