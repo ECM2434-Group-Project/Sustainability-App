@@ -42,7 +42,7 @@ export default function Home() {
                         </div>
 
                         <div className="text-center flex flex-col gap-3">
-                            <StandoutButton onClick={async () => {
+                            <StandoutButton style={{width: "100%"}} onClick={async () => {
                                 if (locationVerified) {
                                     nav("/outlet")
                                 } else {
