@@ -57,7 +57,7 @@ export default function AdminLogin() {
 						}
 
 						<TextInput
-							label={"Your Exeter Email"}
+							label={"Your Email"}
 							className="rounded-md p-4 py-2 text-gray-950 shadow-md"
 							type="email"
 							placeholder="you@exeter.ac.uk"
