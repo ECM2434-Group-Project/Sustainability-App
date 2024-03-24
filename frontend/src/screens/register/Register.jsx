@@ -79,7 +79,9 @@ export default function Register() {
 								label={"Set a Username"}
 								type="text"
 								value={username}
-								onChange={(e) => setUsername(e.target.value)}
+								onChange={(e) => {
+									setUsername(e.target.value.replace(/\s/g, ''));
+								}}
 								required
 							/>
 							<TextInput
