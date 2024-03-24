@@ -68,27 +68,24 @@ export function SettingsPage(params, props) {
 
                     <Link to={"/terms-and-conditions"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Terms and Conditions</Link>
 
-                    {
-                        user.role !== "ADMIN" && user.role !== "VENDOR" ? (
-                            <Link to={"/delete-account"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-white bg-red-600">Delete account</Link>
-                        ) : (
-                            <></>
-                        )
-                    }
+                    <StandoutButton onClick={() => {
+                        if (logout()) {
+                            nav("/")
+                        } else {
+                            console.error("Could not log out")
+                        }
+                    
+                    }} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Log out</StandoutButton>
                 </div>
 
-                <StandoutButton onClick={() => {
-                    if (logout()) {
-                        nav("/")
-                    } else {
-                        console.error("Could not log out")
-                    }
-                
-                }} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-gray-800">Log out</StandoutButton>
-
+                {
+                    user.role !== "ADMIN" && user.role !== "VENDOR" ? (
+                        <Link to={"/delete-account"} className="border-[1.2px] border-color border-gray-300 p-4 rounded text-white bg-red-600">Delete account</Link>
+                    ) : (
+                        <></>
+                    )
+                }
             </div>
-
-
         </section>
     ) : (
         <></>
