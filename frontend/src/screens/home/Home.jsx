@@ -44,7 +44,7 @@ export default function Home() {
                                 <span>See Our Vendors</span>
                                 
                             </StandoutButton>
-                            <span>You must <small className="text-red-600">enable location </small>in settings and you must <small className="text-red-600">be on campus</small> to claim food</span>
+                            <span>You must <b className="text-red-600">enable location </b>in settings and you must <b className="text-red-600">be on campus</b> to claim food</span>
                             <small></small>
                         </div>
                     </>
