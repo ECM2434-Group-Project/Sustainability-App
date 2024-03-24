@@ -14,7 +14,7 @@ export function LeaderboardIcon({ large=false }) {
             className="flex justify-center items-center bg-gray-200 rounded-full border-solid border-[2px] border-exeterDeepGreen"
         >
             <MdOutlineLeaderboard 
-                className="w-min h-min text-gray-600 font-bold"
+                className="w-min h-min text-black font-bold"
                 style={!large ? { fontSize: "1rem" } : { fontSize: "3rem" } }
             />
         </Link>

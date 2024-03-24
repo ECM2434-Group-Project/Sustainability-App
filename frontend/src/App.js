@@ -33,6 +33,7 @@ import DeleteAccount from './screens/delete-account';
 import { VendorAccountImages } from './screens/vendor-admin/settings/images/VendorAccountDetails';
 import { VendorChangeName } from './screens/vendor-admin/settings/change-name';
 import ManageQuestionPage from './screens/admin/manage-question';
+import VerifyUserPage from './screens/verify';
 
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
 				<Route path="/incorrect-location" element={<IncorrectLocation />} />
 				<Route path="/claim/:claim" element={<ClaimDetailPage />} />
 				<Route path="/leaderboard" element={<LeaderboardPage />} />
+				<Route path="/verify/:token" element={<VerifyUserPage />} />
 
 				<Route path="/admin" element={<AdminPage />} />
 				<Route path="/admin/login" element={<AdminLogin />} />
