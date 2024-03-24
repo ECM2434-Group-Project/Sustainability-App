@@ -23,6 +23,8 @@ export default function Register() {
 	const [stage, setStage] = useState(0);
 
 	const [submitted, setSubmitted] = useState(false)
+	
+	const [disabled, setDisabled] = useState(false)
 
 	const { register } = useUser();
 
@@ -37,7 +39,7 @@ export default function Register() {
 				nav("/register/please-verify-email")
 				setSubmitted(true)
 			} else {
-				console.log(error.response.data)
+				alert(result.response.data.message)
 				setError(result.response.data);
 			}
 		},
@@ -124,7 +126,12 @@ export default function Register() {
 						<>
 							<button
 								className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold active:bg-exeterHighlightGreen"
-								onClick={() => setStage(1)}
+								disabled={disabled}
+								onClick={() => {
+									setStage(1);
+									setDisabled(true);
+									setTimeout(() => setDisabled(false), 5000);
+								}}
 							>
 								Create account
 							</button>
