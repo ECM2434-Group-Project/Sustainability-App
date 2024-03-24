@@ -34,6 +34,7 @@ import { VendorAccountImages } from './screens/vendor-admin/settings/images/Vend
 import { VendorChangeName } from './screens/vendor-admin/settings/change-name';
 import ManageQuestionPage from './screens/admin/manage-question';
 import VerifyUserPage from './screens/verify';
+import { PleaseVerifyEmailPage } from './screens/register/success-page';
 
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
 				<Route path="/claim/:claim" element={<ClaimDetailPage />} />
 				<Route path="/leaderboard" element={<LeaderboardPage />} />
 				<Route path="/verify/:token" element={<VerifyUserPage />} />
+				<Route path="/register/please-verify-email" element={<PleaseVerifyEmailPage />} />
 
 				<Route path="/admin" element={<AdminPage />} />
 				<Route path="/admin/login" element={<AdminLogin />} />

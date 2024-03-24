@@ -34,6 +34,7 @@ export default function Register() {
 			const result = await register(email, username, password, fName, lName)
 
 			if (result === true) {
+				nav("/register/please-verify-email")
 				setSubmitted(true)
 			} else {
 				console.log(error.response.data)
