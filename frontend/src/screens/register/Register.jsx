@@ -122,7 +122,7 @@ export default function Register() {
 				<div className="p-4 flex flex-col gap-4">
 					{stage === 1 ? (
 						<>
-							<small><p className="items-center" hidden={stage === 1}>Please allow up to 10 seconds before pressing the create account button again.</p></small>
+							<small><p className="items-center">Please allow up to 10 seconds before pressing the create account button again.</p></small>
 							<button
 								className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold active:bg-exeterHighlightGreen"
 								onClick={() => {
