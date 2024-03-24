@@ -10,11 +10,11 @@ export function AnswerButton({ answer, index, selected, setSelected }) {
     return (
 		<div className="flex flex-col">
 			<button 
-				className={"w-full " +
+				className={
 					selected === index ? (
-						"rounded-full p-4 justify-center border border-exeterDarkGreen bg-exeterBrightGreen"
+						"rounded-full p-4 justify-center border border-exeterDarkGreen bg-exeterBrightGreen w-full"
 					) : (
-						"rounded-full p-4 justify-center border border-exeterDarkGreen"
+						"rounded-full p-4 justify-center border border-exeterDarkGreen w-full"
 					)
 				}
 			onClick={
