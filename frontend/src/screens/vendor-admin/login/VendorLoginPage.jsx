@@ -79,7 +79,7 @@ export function VendorLoginPage() {
 					type="submit"
 				>
 					Login
-				</button>login
+				</button>
 				<span className="self-center"><Link to={"/"} className="text-exeterDeepGreen">User Login</Link> | <Link to={"/admin/login"} className="text-exeterBlue">Admin Login</Link></span>
             </form>
         </section>
