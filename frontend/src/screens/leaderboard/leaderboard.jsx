@@ -32,7 +32,8 @@ export default function LeaderboardPage() {
     return user ? (
         <section className="p-6 flex flex-col gap-6">
 
-			<GoBackLink href={searchParams.get("ref") ? searchParams.get("ref") : "/settings"} />
+			{/* <GoBackLink href={searchParams.get("ref") ? searchParams.get("ref") : "/settings"} /> */}
+            <GoBackLink />
 
             <h1 className="text-2xl font-semibold">Leaderboard</h1>
 

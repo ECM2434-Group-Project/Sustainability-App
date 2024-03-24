@@ -40,13 +40,13 @@ export function VendorPage() {
 	 */
 
 	return (
-		<div className="p-6">
+		<div className="p-4">
 
 			<div className="absolute top-2 left-2 z-10">
 				<GoBackLink href={"/"} />
 			</div>
 
-			<div className="flex justify-end">
+			<div className="flex justify-end gap-4">
 				<LeaderboardIcon />
 				<UserAvatar />
 			</div>
