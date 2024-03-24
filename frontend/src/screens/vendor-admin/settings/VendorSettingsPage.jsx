@@ -12,7 +12,7 @@ export function VendorSettingsPage() {
         <section className="flex flex-col gap-8 h-screen">
 
             <div className="p-4">
-                <GoBackLink />
+                <GoBackLink href="/vendor-admin"/>
             </div>
 
             <div className="h-full flex flex-col justify-center p-4">
