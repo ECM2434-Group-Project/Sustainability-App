@@ -30,8 +30,7 @@ export default function VerifyUserPage() {
 			if (response.data === "Invalid verification link.") {
 
 				// show error
-				// setError("Invalid verification link.")
-				setSuccess(true)
+				setError("Invalid verification link.")
 
 			} else if (response.data === "Email already verified.") {
 				// show error
