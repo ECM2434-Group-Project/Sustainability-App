@@ -9,7 +9,7 @@ export function ViewClaimPage() {
         <section className="p-6">
 
             <div className="absolute top-2 left-2 z-10">
-				<GoBackLink href={"/settings"} />
+				<GoBackLink />
 			</div>
 
             <div className="flex justify-end">

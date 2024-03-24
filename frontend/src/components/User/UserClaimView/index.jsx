@@ -70,7 +70,7 @@ export function UserClaimView() {
                                                 </h3>
                                             </div>
                 
-                                            <p> you have already claimed this bag from {c.vendor_name} on {new Date(c.time).toLocaleDateString()}</p>
+                                            <p>You have already claimed this bag from {c.vendor_name} on {new Date(c.time).toLocaleDateString()} at {new Date(c.time).toTimeString()}</p>
                                             
                                         </div>
                                     </div>
