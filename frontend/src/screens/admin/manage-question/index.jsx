@@ -189,7 +189,7 @@ export default function ManageQuestionPage() {
 		<>
 			{
 				user.role === "ADMIN" ? (
-					<div className="flex flex-col bg-exeterBlue p-4 h-screen">
+					<div className="flex flex-col bg-exeterBlue p-4 h-dvh">
 
 						{/* creating questions */}
 						<Popup trigger={creating} setTrigger={setCreating} size="large">
