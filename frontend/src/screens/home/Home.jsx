@@ -71,7 +71,7 @@ export default function Home() {
 
 
                         <div className="text-center flex flex-col gap-3">
-                            <StandoutButton onClick={() => {
+                            <StandoutButton style={{width: "100%"}} onClick={() => {
                                 nav("/login")
                             }}>
                                 <span>Log in</span>
