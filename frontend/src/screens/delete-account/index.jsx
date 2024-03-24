@@ -2,10 +2,12 @@ import { GoBackLink } from "../../components/General/GoBackLink";
 import { client } from "../../axios";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
+import { useUser } from "../../contexts/userContext";
 
 export default function DeleteAccount() {
 
     const nav = useNavigate();
+    const {user, logout} = useUser();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
