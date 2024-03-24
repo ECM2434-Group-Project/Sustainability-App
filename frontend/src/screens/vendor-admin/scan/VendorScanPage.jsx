@@ -60,6 +60,7 @@ export function VendorScanPage() {
 
                             <div className="border-dashed border-[2px] border-gray-500 p-4 bg-gray-200">
                                 <QrReader
+                                    constraints={{facingMode:"environment"}}
                                     onResult={(result, error) => {
 
                                         // only scan if there is something cool in the result
