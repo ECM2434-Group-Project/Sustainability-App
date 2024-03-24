@@ -10,7 +10,7 @@ export default function LeaderboardPage() {
 
     const [leaderboard, setLeaderboard] = React.useState([]);
     const [userRank, setUserRank] = React.useState(0);
-    const [isTop5, setIsTop5] = React.useState(false);
+    const [isTop10, setIsTop10] = React.useState(false);
     const { user } = useUser();
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -20,12 +20,9 @@ export default function LeaderboardPage() {
         client.get("/api/leaderboard").then(res => {
             setLeaderboard(res.data.leaderboard)
             setUserRank(res.data.user_rank)
-            if (!user) {
-                return;
-            }
 
-            if (res.data.leaderboard.filter(row => row.username === user.username).length > 0) {
-                setIsTop5(true)
+            if (res.data.user_rank <= 10) {
+                setIsTop10(true);
             }
         }).catch(err => {
             console.error(err)
@@ -44,7 +41,6 @@ export default function LeaderboardPage() {
                     <tbody>
                         {
                             leaderboard.map((row, i) => (
-                               i < 5 ? (
                                 <tr key={i} className="flex items-center py-2">
                                 <td className="p-1 w-10">{i + 1}</td>
                                 <td className="p-1 w-12 flex justify-center">
@@ -63,8 +59,9 @@ export default function LeaderboardPage() {
                                     </p>
                                 </td>
                             </tr>
-                               ) : (
-                                !isTop5 ? (
+                            ))
+                        }
+                        {!isTop10 ? (
                                     <>
                                     <tr className="py-4">
                                     <td colSpan={"100%"} className="text-center">....</td>
@@ -91,8 +88,7 @@ export default function LeaderboardPage() {
                                  ) : (
                                     <></>
                                )
-                            ))
-                        )}
+                        }
                     </tbody>
                 </table>
             </div>

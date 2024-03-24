@@ -84,7 +84,7 @@ export default function Quiz() {
     }
     if (page === 0) {
         return (
-            <div className="flex flex-col justify-between h-full p-4">
+            <div className="flex flex-col justify-between h-screen p-4">
                     <div className="flex flex-col gap-4">
                         <div>
                             <h1 className="text-2xl font-semibold">Quiz</h1>
@@ -110,7 +110,7 @@ export default function Quiz() {
         )
     } else if (page === 1) {
         return (
-            <div className="flex flex-col justify-between h-full p-4">
+            <div className="flex flex-col justify-between h-screen p-4">
                     <div className="flex flex-col gap-4">
                         <div>
                             <h1 className="text-2xl font-semibold">Quiz</h1>
@@ -136,7 +136,7 @@ export default function Quiz() {
         )
     } else if (page === 2) {
         return (
-            <div className="flex flex-col justify-between h-full p-4">
+            <div className="flex flex-col justify-between h-screen p-4">
                     <div className="flex flex-col gap-4">
                         <div>
                             <h1 className="text-2xl font-semibold">Quiz</h1>

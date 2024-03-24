@@ -59,7 +59,7 @@ export function OutletCard({ vendor }) {
                     <h3 className="text-xl font-semibold">{vendor.first_name}</h3>
                     {/* Vendor distance away */}
                     <p className="text-gray-400 text-sm">
-                        <span>{(60*checkDistance(location.latitude, location.longitude, vendor.latitude, vendor.longitude)/3).toFixed(2)}</span>
+                        <span>{Math.round(60*checkDistance(location.latitude, location.longitude, vendor.latitude, vendor.longitude)/3)}</span>
                         <span> min walk</span>
                     </p>
                 </div>

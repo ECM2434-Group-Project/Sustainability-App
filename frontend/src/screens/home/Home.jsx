@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/userContext";
 import GDPR from "../../components/General/GDPR";
 import { Link } from "react-router-dom";
+import { LeaderboardIcon } from "../../components/User/LeaderboardIcon";
 
 // Based on state passed in which contains if logged in or not, display the home page with a login and register button
 
@@ -28,8 +29,10 @@ export default function Home() {
                 user ? (
                     <>
 
-                        <div className="flex justify-end">
+                        <div className="flex justify-end gap-4">
+                            <LeaderboardIcon />
                             <UserAvatar />
+                            
                         </div>
 
                         <div>

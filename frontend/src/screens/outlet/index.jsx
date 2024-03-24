@@ -96,7 +96,7 @@ export function OutletPage() {
 							<p className="text-gray-400 text-sm">
 								{
 									location ? (
-										<span>{(60*checkDistance(location.latitude, location.longitude, outletData.latitude, outletData.longitude)/3).toFixed(2)} mins walk</span>
+										<span>{Math.round(60*checkDistance(location.latitude, location.longitude, outletData.latitude, outletData.longitude)/3)} mins walk</span>
 									) : (
 										<></>
 									)
