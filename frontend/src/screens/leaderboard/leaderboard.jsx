@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import {GoBackLink} from "../../components/General/GoBackLink";
 import { client } from "../../axios";
-import { useUser } from "../../contexts/userContext";
 import { useSearchParams } from "react-router-dom";
 
 
@@ -9,27 +8,26 @@ import { useSearchParams } from "react-router-dom";
 export default function LeaderboardPage() {
 
     const [leaderboard, setLeaderboard] = React.useState([]);
-    const [userRank, setUserRank] = React.useState(0);
-    const [isTop10, setIsTop10] = React.useState(false);
-    const { user } = useUser();
+    const [user, setUser] = React.useState({});
+    const [userRank, setUserRank] = React.useState({});
 
     const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
         // Get the leaderboard
         client.get("/api/leaderboard").then(res => {
-            setLeaderboard(res.data.leaderboard)
-            setUserRank(res.data.user_rank)
-
-            if (res.data.user_rank <= 10) {
-                setIsTop10(true);
+            if (res.data.leaderboard.length > 10) {
+                setUser(res.data.leaderboard[res.data.leaderboard.length - 1])
             }
+            setLeaderboard(res.data.leaderboard.slice(0, 10))
+            setUserRank(res.data.user_rank);
+            console.log(res.data)
         }).catch(err => {
             console.error(err)
         })
     }, [])
 
-    return user ? (
+    return (
         <section className="p-6 flex flex-col gap-6">
 
 			{/* <GoBackLink href={searchParams.get("ref") ? searchParams.get("ref") : "/settings"} /> */}
@@ -42,6 +40,7 @@ export default function LeaderboardPage() {
                     <tbody>
                         {
                             leaderboard.map((row, i) => (
+                                
                                 <tr key={i} className="flex items-center py-2">
                                 <td className="p-1 w-10">{i + 1}</td>
                                 <td className="p-1 w-12 flex justify-center">
@@ -62,7 +61,7 @@ export default function LeaderboardPage() {
                             </tr>
                             ))
                         }
-                        {!isTop10 ? (
+                        {user.username !== undefined ? (
                                     <>
                                     <tr className="py-4">
                                     <td colSpan={"100%"} className="text-center">....</td>
@@ -84,6 +83,11 @@ export default function LeaderboardPage() {
                                             <br />
                                             {user.username}
                                         </td>
+                                        <td className="p-1">
+                                    <p className="text-md text-nowrap">
+                                        {user.score} <small className="text-gray-600">XP</small>
+                                    </p>
+                                </td>
                                 </tr>
                                     </>
                                  ) : (
@@ -94,7 +98,5 @@ export default function LeaderboardPage() {
                 </table>
             </div>
         </section>
-    ) : (
-        <></>
     )
 }
