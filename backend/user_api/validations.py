@@ -11,6 +11,7 @@ BagModel = models.BagModel
 def user_creation_validation(data):
     print(data)
     email = data['email'].strip()
+    email = email.lower()
     username = data['username'].strip()
     password = data['password'].strip()
     if 'is_vendor' in data:

@@ -62,6 +62,7 @@ class UserRegister(APIView):
         if serializer.is_valid(raise_exception=True):
             user = serializer.create(clean_data)
             user.role = UserModel.Role.USER
+            user.email_verified = False
             user.save()
 
 
@@ -95,6 +96,7 @@ class UserLogin(APIView):
 
         # if email exists, throws exception if it doesn't
         email = data['email']
+        email = email.lower()
         assert validate_email(data)
 
         password = data['password']
