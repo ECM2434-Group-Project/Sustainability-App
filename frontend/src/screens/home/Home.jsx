@@ -82,9 +82,15 @@ export default function Home() {
                 )
             }
             <div>
-                <small className="underline text-center flex gap-2 justify-center">
-                    <Link to={"/admin/login"} className="text-neutral-300">Admin Login</Link> | <Link to={"/vendor-admin/login"} className="text-neutral-300">Vendor Login</Link>
-                </small>
+                {
+                    !user ? (
+                        <small className="underline text-center flex gap-2 justify-center">
+                            <Link to={"/admin/login"} className="text-neutral-300">Admin Login</Link> | <Link to={"/vendor-admin/login"} className="text-neutral-300">Vendor Login</Link>
+                        </small>
+                    ) : (
+                        <></>
+                    )
+                }
                 <GDPR />
             </div>
         </section>

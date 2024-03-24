@@ -93,7 +93,7 @@ export function VendorScanPage() {
                     </>
                 ) : (
                     outcome === "yes" ? (
-                        <div className="flex-1 flex justify-center items-center left-0 top-0 fixed w-screen h-screen z-20 text-center gap-4 bg-exeterDarkGreen text-white">
+                        <div className="flex-1 flex justify-center items-center left-0 top-0 fixed w-screen h-screen z-20 text-center gap-4 bg-exeterDeepGreen text-white">
                             <span className="text-6xl">
                                 <TiTick />
                             </span>
