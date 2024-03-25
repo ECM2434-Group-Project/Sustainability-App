@@ -22,12 +22,13 @@ export default function Register() {
 
 	const [stage, setStage] = useState(0);
 
-	const [submitted, setSubmitted] = useState(false)
+	const [isDisabled, setIsDisabled] = useState(false)
 
 	const { register } = useUser();
 
 	const submitForm = useCallback(
 		async (e) => {
+			setIsDisabled(true)
 			e.preventDefault();
 			setError(false);
 
@@ -35,10 +36,11 @@ export default function Register() {
 
 			if (result === true) {
 				nav("/register/please-verify-email")
-				setSubmitted(true)
+				setIsDisabled(false)
 			} else {
 				alert(result.response.data.message)
 				setError(result.response.data);
+				setIsDisabled(false)
 			}
 		},
 		[email, username, fName, lName, password]
@@ -46,15 +48,6 @@ export default function Register() {
 
 	return (
 		<div className="h-screen flex flex-col justify-center bg-exeterDeepGreen text-white gap-6">
-
-			<Popup trigger={submitted} setTrigger={setSubmitted}>
-				<div className="flex flex-col gap-4 p-4">
-					<h1 className="text-2xl font-bold text-black">Registration Successful</h1>
-					<p className="text-black"><small className="font-extrabold text-red-600">Please check your emails</small> and verify your email</p>
-					<button className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold" onClick={() => nav("/login")}>Go to Login</button>
-				</div>
-			</Popup>
-
 			<form onSubmit={submitForm} className="flex flex-col">
 				<div className="flex flex-col gap-6">
 					<div className="p-4">
@@ -147,6 +140,7 @@ export default function Register() {
 						<button
 							className="bg-exeterDarkGreen text-white flex gap-4 justify-center items-center p-4 rounded-2xl text-lg font-semibold active:bg-exeterHighlightGreen"
 							onClick={() => setStage(1)}
+							disabled={isDisabled}
 						>
 							Next
 						</button>
